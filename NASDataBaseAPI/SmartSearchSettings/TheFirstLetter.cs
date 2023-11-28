@@ -10,7 +10,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
 {
     internal class StartWith : ISearch
     {
-        public List<int> SearchID(Table TableParams, Table In, string Params)
+        public List<int> SearchID(Column ColumnParams, Column In, string Params)
         {
             List<int> data = new List<int>();
 

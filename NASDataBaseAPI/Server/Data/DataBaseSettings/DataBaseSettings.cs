@@ -17,7 +17,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         public string Key { get; set; }
         public uint CountBucketsInSector { get; set; } = 1000000;
         public uint CountBuckets { get; set; }
-        public uint TablesCount { get; set; } = 5;
+        public uint ColumnsCount { get; set; } = 5;
         public uint CountClusters { get; set; } = 1;
         public bool Logs { get; set; } = true;
 
@@ -28,7 +28,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             Key = key;
             CountBucketsInSector = countBucketsInSector;
             CountBuckets = countBuckets;
-            TablesCount = tablesCount;
+            ColumnsCount = tablesCount;
             CountClusters = countClusters;     
         }
     }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server.Data.Interfases
 {
-    public interface ITable
+    public interface IColumn
     {
         bool SetDatas(ItemData[] datas);
         bool SetDataByID(ItemData newData);

@@ -23,12 +23,12 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <param name="path"></param>
         /// <param name="ClusterNumber"></param>
         /// <returns></returns>
-        public Table[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        public Column[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
 
-            List<Table> tables = new List<Table>();
+            List<Column> tables = new List<Column>();
 
             DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(File.ReadAllText(path + "\\Settings\\Settings.txt"));
             
@@ -53,16 +53,35 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             }
             catch
             {
-                File.WriteAllText(path + $"\\Cluster{ClusterNumber}.txt", " ");
+                try
+                {
+                    SimpleEncryptor.Decrypt(File.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt"), dataBaseSettings.Key).Split('\n');
+                }
+                catch
+                {
+                    throw new Exception("При декодирование была выевленна ошибка!");
+                }              
+                finally
+                {
+                    try
+                    {
+                        File.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt");
+                    }
+                    catch
+                    {
+                        if (ClusterNumber != 0)
+                            File.WriteAllText(path + $"\\Cluster{ClusterNumber}.txt", " ");
+                    }
+                }
             }         
             
             string ID = "0";            
 
-            if (SettingsTables.Length != dataBaseSettings.TablesCount) throw new Exception("Кол-во столбцов и их типы не совподают по количеству!");
+            if (SettingsTables.Length != dataBaseSettings.ColumnsCount) throw new Exception("Кол-во столбцов и их типы не совподают по количеству!");
 
-            for (int i = 0; i < dataBaseSettings.TablesCount; i++)
+            for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
             {
-                tables.Add(new Table(Names[i], GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber-1)));
+                tables.Add(new Column(Names[i], GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber-1)));
             }
 
             foreach (var l in Lines)
@@ -84,10 +103,16 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                     boxes = newBoxes;    
                 }
                 ID = boxes[0];
-
-                for (int i = 1; i < boxes.Length; i++)
+                try
                 {
-                    tables[i - 1].Push(boxes[i], Convert.ToInt32(ID));
+                    for (int i = 1; i < boxes.Length; i++)
+                    {
+                        tables[i - 1].Push(boxes[i], Convert.ToInt32(ID));
+                    }
+                }
+                catch
+                {
+                    throw new Exception($"Ошиба при попытки чтения ID - {ID}");
                 }
             }
 
@@ -150,7 +175,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             File.WriteAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt", result);
         }
 
-        public void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, Table[] tables)
+        public void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, Column[] tables)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;

@@ -14,7 +14,7 @@ namespace NASDataBaseAPI.Data
     /// <summary>
     /// Класс распределяющий данные по столбцу
     /// </summary>
-    public class Table : ITable
+    public class Column : IColumn
     {
         public event Action<int> _DeleteData;
         public event Action<ItemData> _AddData;
@@ -28,26 +28,26 @@ namespace NASDataBaseAPI.Data
 
         private HashTable<ItemData> boxes = new HashTable<ItemData>();//Временный функционал
 
-        public Table(string Name, HashTable<ItemData> boxes, DataType dataType, uint offSet) 
+        public Column(string Name, HashTable<ItemData> boxes, DataType dataType, uint offSet) 
         {
             this.Name = Name;
             this.boxes = boxes;
             this.DataType = dataType;
             this.OffSet = offSet;
         }
-        public Table(string Name, DataType dataType, uint offSet)
+        public Column(string Name, DataType dataType, uint offSet)
         {
             this.Name = Name;
             this.DataType = dataType;
             this.OffSet = offSet;
         }
-        public Table(string Name, uint offSet)
+        public Column(string Name, uint offSet)
         {
             this.Name = Name;
             this.DataType = DataTypesInTable.Text;
             OffSet = offSet;
         }
-        public Table(string Name)
+        public Column(string Name)
         {
             this.Name= Name;
             this.DataType = DataTypesInTable.Text;
@@ -316,12 +316,12 @@ namespace NASDataBaseAPI.Data
             _ChangType?.Invoke(type);
         }
 
-        public static bool operator ==(Table left, Table right)
+        public static bool operator ==(Column left, Column right)
         {
             return left.DataType == right.DataType && left.Name == right.Name;
         }
 
-        public static bool operator !=(Table left, Table right)
+        public static bool operator !=(Column left, Column right)
         {
             return left.DataType != right.DataType && left.Name != right.Name;
         }

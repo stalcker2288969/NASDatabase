@@ -10,14 +10,14 @@ namespace NASDataBaseAPI.Data
 {
     internal class SmartSearcher
     {
-        private Table table;
-        private Table Intable;
+        private Column table;
+        private Column Intable;
         private SearchType searchTypes;
         private string Params;
 
-        public SmartSearcher(Table TableParams,Table In, SearchType searchTypes, string Params)
+        public SmartSearcher(Column ColumnParams,Column In, SearchType searchTypes, string Params)
         {
-            this.table = TableParams;
+            this.table = ColumnParams;
             this.Intable = In;
             this.searchTypes = searchTypes;
             this.Params = Params;

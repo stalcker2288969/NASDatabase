@@ -19,6 +19,13 @@ namespace NASDataBaseAPI.Server
         public string ServerIP { get; private set; }
         public int Port { get; private set; }
 
+
+        public DBServer(string serverIP, int port)
+        {
+            this.ServerIP = serverIP;
+            this.Port = port;
+        }
+
         public void StartServer()
         {
             server = new TcpListener(IPAddress.Parse(ServerIP), Port);

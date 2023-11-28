@@ -1,13 +1,9 @@
-﻿using NASDataBaseAPI.Data;
-using NASDataBaseAPI.Server.Data.DataBaseSettings;
+﻿using NASDataBaseAPI.Server.Data.DataBaseSettings;
 using NASDataBaseAPI.Server.Data.Interfases;
-using NASDataBaseAPI.SmartSearchSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml;
-using System.Xml.Linq;
 
 namespace NASDataBaseAPI.Data
 {
@@ -29,14 +25,14 @@ namespace NASDataBaseAPI.Data
         /// <summary>
         /// Имя
         /// </summary>
-        public event Action<string> _AddTable;
+        public event Action<string> _AddColumn;
         /// <summary>
         /// Имя
         /// </summary>
-        public event Action<string> _RemoveTable;
+        public event Action<string> _RemoveColumn;
         #endregion
 
-        public List<Table> tables;
+        public List<Column> Columns;
 
         public List<uint> freeIDs = new List<uint>();
 
@@ -48,48 +44,47 @@ namespace NASDataBaseAPI.Data
 
         private StringBuilder _stringBuilder = new StringBuilder();
 
-        public DataBase(int countTables, DataBaseSettings settings)
+        public DataBase(int countColumn, DataBaseSettings settings)
         {
-            this.tables = new List<Table>();
+            this.Columns = new List<Column>();
             this.settings = settings;
-            for (int i = 0; i < countTables; i++)
+            for (int i = 0; i < countColumn; i++)
             {
-                tables.Add(new Table(i.ToString()));
+                Columns.Add(new Column(i.ToString()));
             }
             
         }
 
-        public DataBase(List<Table> tables, DataBaseSettings settings)
+        public DataBase(List<Column> Column, DataBaseSettings settings)
         {
-            this.tables = tables;
+            this.Columns = Column;
             this.settings = settings;
-            
         }
 
         #region Глобальное взаимодействое
         /// <summary>
         /// Получает айдишики все строк по параметрам
         /// </summary>
-        /// <param name="nameTable"></param>
+        /// <param name="nameColumn"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public int[] GetAllIDsByParams(string nameTable, string data)
+        public int[] GetAllIDsByParams(string nameColumn, string data)
         {
             List<int> IDs = new List<int>();
 
             for (int i = 0; i < settings.CountClusters; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i+1, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i+1, settings.Key));
 
-                for (int g = 0; g < this.tables.Count; g++)
+                for (int g = 0; g < this.Columns.Count; g++)
                 {
-                    foreach (Table table in tables)
+                    foreach (Column column in Columns)
                     {
-                        if (table.Name == nameTable)
+                        if (column.Name == nameColumn)
                         {
-                            IDs.AddRange(table.FindeIDs(data) ?? new int[0]);
-                            DataBaseLoger.Log($"Get all IDs by {nameTable} and {data} in {i} cluester");
+                            IDs.AddRange(column.FindeIDs(data) ?? new int[0]);
+                            DataBaseLoger.Log($"Get all IDs by {nameColumn} and {data} in {i} cluester");
                             break;
                         }
                     }
@@ -102,43 +97,43 @@ namespace NASDataBaseAPI.Data
         /// <summary>
         /// Удоляет столбец
         /// </summary>
-        /// <param name="TableName"></param>
-        public void RemoveTable(string TableName)
+        /// <param name="ColumnName"></param>
+        public void RemoveColumn(string ColumnName)
         {
             for (int i = 0; i < settings.CountClusters; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i+1, settings.Key));
-                foreach (Table t in tables)
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i+1, settings.Key));
+                foreach (Column t in Columns)
                 {
-                    if (t.Name == TableName)
+                    if (t.Name == ColumnName)
                     {
                         t.ClearBoxes();
                     }
                 }
-                DataBaseSaver.SaveAllCluster(settings, (uint)i, tables.ToArray());
+                DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
             }
 
-            DataBaseLoger.Log($"Delited table {TableName}");
-            settings.TablesCount -= 1;
-            _RemoveTable?.Invoke(TableName);           
+            DataBaseLoger.Log($"Delited table {ColumnName}");
+            settings.ColumnsCount -= 1;
+            _RemoveColumn?.Invoke(ColumnName);           
         }
 
         /// <summary>
         /// Добавляет новый столбец. Процедура очень не продуктивная не рекаминдуется тк ее кпд O(n) 
         /// </summary>
         /// <param name="Name"></param>
-        public void AddTable(string Name)
+        public void AddColumn(string Name)
         {
-            settings.TablesCount += 1;
+            settings.ColumnsCount += 1;
             for (int i = 0; i < settings.CountClusters; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i+1, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i+1, settings.Key));
 
-                Table table = new Table(Name);//Новый столбец
+                Column table = new Column(Name);//Новый столбец
 
-                ItemData[] itemDatas = new ItemData[tables[0].GetCounts()];
+                ItemData[] itemDatas = new ItemData[Columns[0].GetCounts()];
 
                 for (int g = 0; g < itemDatas.Length; g++)//связывает ивенд дестроя и столбец
                 {
@@ -147,12 +142,12 @@ namespace NASDataBaseAPI.Data
 
                 table.SetDatas(itemDatas); //записываем пустые ячейки в новый столбец
 
-                tables.Add(table);                
-                DataBaseSaver.SaveAllCluster(settings, (uint)i, tables.ToArray());
+                Columns.Add(table);                
+                DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
             }
 
             DataBaseLoger.Log($"Add table {Name}");           
-            _AddTable?.Invoke(Name);           
+            _AddColumn?.Invoke(Name);           
         }
 
         /// <summary>
@@ -160,17 +155,17 @@ namespace NASDataBaseAPI.Data
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="dataType"></param>
-        public void AddTable(string Name, DataType dataType)
+        public void AddColumn(string Name, DataType dataType)
         {
-            settings.TablesCount += 1;
+            settings.ColumnsCount += 1;
             for (int i = 0; i < settings.CountClusters; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i + 1, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i + 1, settings.Key));
 
-                Table table = new Table(Name, dataType, tables[0].OffSet);//Новый столбец
+                Column table = new Column(Name, dataType, Columns[0].OffSet);//Новый столбец
 
-                ItemData[] itemDatas = new ItemData[tables[0].GetCounts()];
+                ItemData[] itemDatas = new ItemData[Columns[0].GetCounts()];
 
                 for (int g = 0; g < itemDatas.Length; g++)//связывает ивенд дестроя и столбец
                 {
@@ -179,11 +174,11 @@ namespace NASDataBaseAPI.Data
 
                 table.SetDatas(itemDatas); //записываем пустые ячейки данные в новый столбец
 
-                tables.Add(table);               
-                DataBaseSaver.SaveAllCluster(settings, (uint)i, tables.ToArray());
+                Columns.Add(table);               
+                DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
             }
             DataBaseLoger.Log($"Add table {Name}|{dataType}");
-            _AddTable?.Invoke(Name);           
+            _AddColumn?.Invoke(Name);           
         }
 
         /// <summary>
@@ -191,16 +186,16 @@ namespace NASDataBaseAPI.Data
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
-        public void CloneTo(Table left, Table right)
+        public void CloneTo(Column left, Column right)
         {
             for (int i = 1; i < settings.CountClusters; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
 
                 ItemData[] itemDatas = left.GetDatas();
                 right.SetDatas(itemDatas);
-                DataBaseSaver.SaveAllCluster(settings, (uint)i, tables.ToArray());
+                DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
             }
             DataBaseLoger.Log($"{left.Name} clone to {right.Name}");
         }
@@ -211,14 +206,14 @@ namespace NASDataBaseAPI.Data
         {
             for (int i = 1; i < settings.CountClusters; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
 
-                foreach (Table t in tables)
+                foreach (Column t in Columns)
                 {
                     t.ClearBoxes();
                 }
-                DataBaseSaver.SaveAllCluster(settings, (uint)i, tables.ToArray());
+                DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
             }
             DataBaseLoger.Log($"!Clear all base!");
             settings.CountBuckets = 0;
@@ -229,29 +224,29 @@ namespace NASDataBaseAPI.Data
         /// <summary>
         /// В необходимой табличке происходит добавление данных в NewItemData укажите новые данные и id ячейки в которой нужно перезаписать данные
         /// </summary>
-        /// <param name="tableName"></param>
+        /// <param name="ColumnName"></param>
         /// <param name="NewItemData"></param>
-        public void SetDataInTable(string tableName, ItemData NewItemData)
+        public void SetDataInColumn(string ColumnName, ItemData NewItemData)
         {
 
             uint SectorID = ((uint)NewItemData.IDInTable / settings.CountBucketsInSector) + 1;
 
             if (SectorID != LoadedSector)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
                 LoadedSector = SectorID;
             }
 
-            for (int i = 0; i < this.tables.Count; i++)
+            for (int i = 0; i < this.Columns.Count; i++)
             {
-                if (tables[i].Name == tableName)
+                if (Columns[i].Name == ColumnName)
                 {
-                    tables[i].SetDataByID(NewItemData); break;
+                    Columns[i].SetDataByID(NewItemData); break;
                 }
             }
-            DataBaseLoger.Log($"Set {NewItemData.Data} in {tableName} ID:{NewItemData.IDInTable}");
-            DataBaseSaver.SaveAllCluster(settings, SectorID, tables.ToArray());
+            DataBaseLoger.Log($"Set {NewItemData.Data} in {ColumnName} ID:{NewItemData.IDInTable}");
+            DataBaseSaver.SaveAllCluster(settings, SectorID, Columns.ToArray());
         }
         /// <summary>
         /// Добавляет данные в таблюцу, важно чтобы длина поступающего массива была равна кол-ву столбцов
@@ -259,7 +254,7 @@ namespace NASDataBaseAPI.Data
         /// <param name="datas"></param>
         public void AddData(string[] datas)
         {
-            if (datas.Length == tables.Count)
+            if (datas.Length == Columns.Count)
             {
                 if (freeIDs.Count == 0)
                 {
@@ -284,7 +279,7 @@ namespace NASDataBaseAPI.Data
             }
             else
             {
-                throw new Exception($"Длина поступивших данных меньше кол-ва столбцов: {tables.Count}");
+                throw new Exception($"Длина поступивших данных меньше кол-ва столбцов: {Columns.Count}");
             }
         }
 
@@ -292,15 +287,15 @@ namespace NASDataBaseAPI.Data
         {
             if (SectorID != LoadedSector)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
                 LoadedSector = SectorID;
             }
 
             List<ItemData> itemDatas = new List<ItemData>();
-            for (int i = 0; i < this.tables.Count; i++)
+            for (int i = 0; i < this.Columns.Count; i++)
             {
-                tables[i].SetDataByID(new ItemData(ID, datas[i]));
+                Columns[i].SetDataByID(new ItemData(ID, datas[i]));
                 itemDatas.Add(new ItemData(ID, datas[i]));
             }
   
@@ -320,16 +315,16 @@ namespace NASDataBaseAPI.Data
         {
             if (SectorID != LoadedSector)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
                 LoadedSector = SectorID;
             }
 
             List<ItemData> itemDatas = new List<ItemData>();
-            for(int i = 0; i < this.tables.Count; i++)
+            for(int i = 0; i < this.Columns.Count; i++)
             {
                 itemDatas.Add(new ItemData(ID, datas[i]));
-                tables[i].Push(datas[i], ID);
+                Columns[i].Push(datas[i], ID);
             }
             settings.CountBuckets += 1;
             DataBaseSaver.AddElement(settings, SectorID, itemDatas.ToArray());
@@ -351,12 +346,12 @@ namespace NASDataBaseAPI.Data
             List<ItemData> ItemDatas = new List<ItemData>();
             if (SectorID != LoadedSector)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, SectorID, settings.Key));
             }
-            for (int i = 0; i < this.tables.Count; i++)
+            for (int i = 0; i < this.Columns.Count; i++)
             {
-                tables[i].SetDataByID(new ItemData((int)ID, " "));
+                Columns[i].SetDataByID(new ItemData((int)ID, " "));
                 ItemDatas.Add(new ItemData((int)ID, " "));
             }
             freeIDs.Add(ID);
@@ -375,25 +370,25 @@ namespace NASDataBaseAPI.Data
         public bool RemoveData(string[] datas)
         {
             bool result = false;
-            if (datas.Length == tables.Count)
+            if (datas.Length == Columns.Count)
             {
                 for (int i = 0; i < settings.CountClusters; i++)
                 {
-                    tables.Clear();
-                    tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
+                    Columns.Clear();
+                    Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
                     List<bool> bools = new List<bool>();
 
-                    for (int g = 0; g < this.tables.Count; g++)
+                    for (int g = 0; g < this.Columns.Count; g++)
                     {
-                        if (tables[g].Pop(datas[g]))
+                        if (Columns[g].Pop(datas[g]))
                         {
                             bools.Add(true);
                         }
                     }
-                    if (bools.Count == tables.Count)
+                    if (bools.Count == Columns.Count)
                     {
                         settings.CountBuckets -= 1;
-                        DataBaseSaver.SaveAllCluster(settings, (uint)i, tables.ToArray());
+                        DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
 
                         string _datas = "";//для логирования
 
@@ -424,22 +419,22 @@ namespace NASDataBaseAPI.Data
             {
                 lock (_stringBuilder)
                 {
-                    int l = tables[0].GetCounts();
+                    int l = Columns[0].GetCounts();
 
                     _stringBuilder.Append("Tables names:\n---------------------------------------------\n");
                     _stringBuilder.Append("% Number % | ");
-                    for (int g = 0; g < tables.Count; g++)
+                    for (int g = 0; g < Columns.Count; g++)
                     {
-                        _stringBuilder.Append("% " + tables[g].Name + " % | ");
+                        _stringBuilder.Append("% " + Columns[g].Name + " % | ");
                     }
                     _stringBuilder.Append("\n---------------------------------------------\n");
 
                     for (int id = 0; id < l; id++)
                     {
                         _stringBuilder.Append(id.ToString() + " | ");
-                        for (int g = 0; g < tables.Count; g++)
+                        for (int g = 0; g < Columns.Count; g++)
                         {
-                            _stringBuilder.Append(tables[g].FindeDataByID(id) + " | ");
+                            _stringBuilder.Append(Columns[g].FindeDataByID(id) + " | ");
                         }
 
                         _stringBuilder.Append("\n---------------------------------------------\n");
@@ -459,26 +454,26 @@ namespace NASDataBaseAPI.Data
         /// <summary>
         /// Сканирует всю БД в поисках подходящих строк / тоже не самый подходящий способ для скана данных 
         /// </summary>
-        /// <param name="TableName"></param>
+        /// <param name="ColumnName"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public List<List<ItemData>> GetAllDataInBaseByTableName(string TableName, string data)
+        public List<List<ItemData>> GetAllDataInBaseByColumnName(string ColumnName, string data)
         {
             List<List<ItemData>> Boxes = new List<List<ItemData>>();
 
             for (int i = 1; i < settings.CountClusters + 1; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
 
 
                 int[] id = new int[0];
 
-                foreach (Table table in tables)
+                foreach (Column Column in Columns)
                 {
-                    if (table.Name == TableName)
+                    if (Column.Name == ColumnName)
                     {
-                        id = table.FindeIDs(data);
+                        id = Column.FindeIDs(data);
                         break;
                     }
                 }
@@ -486,7 +481,7 @@ namespace NASDataBaseAPI.Data
                 for (int g1 = 0; g1 < id.Length; g1++)
                 {
                     Boxes.Add(new List<ItemData>());
-                    foreach (var t in tables)
+                    foreach (var t in Columns)
                     {
                         Boxes[g1].Add(new ItemData(id[g1], t.FindeDataByID(id[g1])));
                     }
@@ -501,43 +496,43 @@ namespace NASDataBaseAPI.Data
         /// По введенным параметрам ищет данные в БД
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="Tables">Табличка параметр</param>
+        /// <param name="columns">Табличка параметр</param>
         /// <param name="searchTypes">способ поиска данных</param>
         /// <param name="Params">Данные от которых нужно операться</param>
         /// <param name="InSectro">Сектор в котором нужно искать данные(-1 - во всех)</param>
         /// <returns></returns>
-        public List<List<ItemData>> SmartSearch(Table[] Tables, SearchType[] searchTypes, string[] Params, int InSectro = -1)
+        public List<List<ItemData>> SmartSearch(Column[] columns, SearchType[] searchTypes, string[] Params, int InSectro = -1)
         {
             List<List<ItemData>> Boxes = new List<List<ItemData>>();
             List<List<int>> Search = new List<List<int>>();
             List<int> resultIDs = new List<int>();
 
-            if (Tables.Length != searchTypes.Length && Tables.Length != Params.Length)
+            if (columns.Length != searchTypes.Length && columns.Length != Params.Length)
                 return null;
 
             if (InSectro == -1)
             {
                 for (int i = 0; i < settings.CountClusters; i++)
                 {
-                    tables.Clear();
-                    tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
+                    Columns.Clear();
+                    Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
 
-                    Boxes.Add(SmartSearch(Tables, searchTypes, Params, i)[0]);
+                    Boxes.Add(SmartSearch(columns, searchTypes, Params, i)[0]);
                 }
             }
             else
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)InSectro, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)InSectro, settings.Key));
 
                 for (int g = 0; g < Params.Length; g++)
                 {
-                    for (int i = 0; i < tables.Count; i++)
+                    for (int i = 0; i < Columns.Count; i++)
                     {
-                        if (Tables[g] == tables[i])
+                        if (columns[g] == Columns[i])
                         {
                             List<int> IDs = new List<int>();
-                            IDs = new SmartSearcher(Tables[g], tables[i], searchTypes[g], Params[g]).Search();
+                            IDs = new SmartSearcher(columns[g], Columns[i], searchTypes[g], Params[g]).Search();
                             Search.Add(IDs);
                         }
                     }
@@ -557,7 +552,7 @@ namespace NASDataBaseAPI.Data
                 for (int i = 0; i < resultIDs.Count; i++)
                 {
                     List<ItemData> data = new List<ItemData>();
-                    foreach (var t in tables)
+                    foreach (var t in Columns)
                     {
                         data.Add(new ItemData(resultIDs[i], t.FindeDataByID(resultIDs[i])));
                     }
@@ -571,7 +566,7 @@ namespace NASDataBaseAPI.Data
         public string[] GetDataByID(int ID)
         {
             List<string> strings = new List<string>();
-            foreach(var t in tables)
+            foreach(var t in Columns)
             {
                 strings.Add(t.FindeDataByID(ID));
             }
@@ -581,26 +576,26 @@ namespace NASDataBaseAPI.Data
         /// <summary>
         /// Ищит и возвращает первую строку подходящую под введенные параметры возврат через массив ячеек, если ненаходит => массив пустой
         /// </summary>
-        /// <param name="TableName"></param>
+        /// <param name="ColumnName"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public ItemData[] GetDataInBaseByTableName(string TableName, string data)
+        public ItemData[] GetDataInBaseByColumnName(string ColumnName, string data)
         {
             List<ItemData> Boxes = new List<ItemData>();
             for (int i = 0; i < settings.CountClusters; i++)
             {
-                tables.Clear();
-                tables.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
+                Columns.Clear();
+                Columns.AddRange(DataBaseSaver.LoadCluster(settings.Path, (uint)i, settings.Key));
 
                 int id = 0;
-                foreach (Table table in tables)
+                foreach (Column column in Columns)
                 {
-                    if (table.Name == TableName)
+                    if (column.Name == ColumnName)
                     {
-                        id = table.FindeID(data);
+                        id = column.FindeID(data);
                         if (id != -1)
                         {
-                            foreach (Table table1 in tables)
+                            foreach (Column table1 in Columns)
                             {
                                 Boxes.Add(new ItemData(id, table1.FindeDataByID(id)));
                             }
@@ -617,40 +612,40 @@ namespace NASDataBaseAPI.Data
 
 
 
-        public Table this[string index]
+        public Column this[string index]
         {
             get
             {
-                foreach (Table table in tables)
+                foreach (Column Column in Columns)
                 {
-                    if (table.Name == index)
+                    if (Column.Name == index)
                     {
-                        return table;
+                        return Column;
                     }
                 }
                 return null;
             }
             set
             {
-                for (int i = 0; i < tables.Count; i++)
+                for (int i = 0; i < Columns.Count; i++)
                 {
-                    if (tables[i].Name == index)
+                    if (Columns[i].Name == index)
                     {
-                        tables[i] = value; break;
+                        Columns[i] = value; break;
                     }
                 }
             }
         }
 
-        public Table this[int index]
+        public Column this[int index]
         {
             get
             {               
-                return tables[index];
+                return Columns[index];
             }
             set
             {
-                tables[index] = value; 
+                Columns[index] = value; 
             }
         }
     }

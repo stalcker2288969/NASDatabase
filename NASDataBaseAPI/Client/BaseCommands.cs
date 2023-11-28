@@ -11,20 +11,22 @@ namespace NASDataBaseAPI.Client
     /// </summary>
     public static class BaseCommands
     {
-        public static string Registration { get; } = "Com_Registration:";
-        public static string Login { get; } = "Com_Login:";
-        public static string Disconnect { get; } = "Com_Disconnect:";
+        public const  string Registration = "Com_Registration";
+        public const string Login  = "Com_Login";
+        public const string Disconnect  = "Com_Disconnect";
 
-        public static string AddData { get; } = "Com_ADD:";
-        public static string RemoveDataByID { get; } = "Com_RemID:";
-        public static string SetDataInTable { get; } = "Com_SetDataInTable:";
-        public static string AddTable { get; } = "Com_AddTable:";
-        public static string SetTypeToTable { get; } = "Com_SetTypeToTable:";
-        public static string RemoveTable { get; } = "Com_RemoveTable:";
-
-        public static string SmartSearch { get; } = "Com_SmartSearch:";
-        public static string PrintBase { get; } = "Com_PrintBase";
-        public static string GetDataInBaseByTableName { get; } = "Com_GetDataByTableName:";
-        public static string GetAllDataInBaseByTableName { get; } = "Com_GetAllDataInBaseByTableName:";
+        public const string AddData = "Com_ADD";
+        public const string RemoveDataByID = "Com_RemID";
+        public const string SetDataInColumn = "Com_SetDataInColumn";
+        public const string AddColumn = "Com_AddColumn";
+        public const string SetTypeToColumn = "Com_SetTypeToColumn";
+        public const string RemoveTable = "Com_RemoveColumn";
+        public const string LoadClusterToMe = "Com_LoadClusterToMe";
+        public const string SmartSearch = "Com_SmartSearch";
+        public const string PrintBase = "Com_PrintBase";
+        public const string GetDataInBaseByColumnName = "Com_GetDataByColumnName";
+        public const string GetAllDataInBaseByColumnName = "Com_GetAllDataInBaseByColumnName";
+        public const string FineID = "Com_FineID";
+        public const string FineDataByID = "Com_FineDataByID";
     }
 }

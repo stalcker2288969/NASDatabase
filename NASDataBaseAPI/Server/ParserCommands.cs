@@ -79,7 +79,7 @@ namespace NASDataBaseAPI.Server
             {
                 OnAddData?.Invoke(Params);
             }
-            else if (Params[0] == BaseCommands.AddTable)
+            else if (Params[0] == BaseCommands.AddColumn)
             {
                 AddTable?.Invoke(Params);
             }
@@ -103,11 +103,11 @@ namespace NASDataBaseAPI.Server
             {
                 RemoveTable?.Invoke(Params[1]);
             }
-            else if (Params[0] == BaseCommands.SetDataInTable)
+            else if (Params[0] == BaseCommands.SetDataInColumn)
             {
                 SetDataInTable?.Invoke(Params);
             }
-            else if (Params[0] == BaseCommands.SetTypeToTable)
+            else if (Params[0] == BaseCommands.SetTypeToColumn)
             {
                 SetTypeToTable?.Invoke(Params);
             }
@@ -119,11 +119,11 @@ namespace NASDataBaseAPI.Server
             {
                 SmartSearch?.Invoke(Params);
             }
-            else if (Params[0] == BaseCommands.GetAllDataInBaseByTableName)
+            else if (Params[0] == BaseCommands.GetAllDataInBaseByColumnName)
             {
                 GetAllDataInBaseByTableName?.Invoke(Params);
             }
-            else if (Params[0] == BaseCommands.GetDataInBaseByTableName)
+            else if (Params[0] == BaseCommands.GetDataInBaseByColumnName)
             {
                 GetDataInBaseByTableName?.Invoke(Params);
             }

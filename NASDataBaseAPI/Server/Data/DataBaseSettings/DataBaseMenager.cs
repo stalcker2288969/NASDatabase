@@ -65,13 +65,13 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             File.WriteAllText(Path + dataBaseSettings.Name + "\\Settings\\Settings.txt", Content);
             
             string Types = "";
-            for(int i = 0;i< dataBaseSettings.TablesCount; i++)
+            for(int i = 0;i< dataBaseSettings.ColumnsCount; i++)
             {
                 Types += $"Text|{i}\n";
             }
             File.WriteAllText(Path + dataBaseSettings.Name + "\\Settings\\TablesType.txt", Types);
            
-            DataBase dataBase = new DataBase((int)dataBaseSettings.TablesCount, dataBaseSettings);
+            DataBase dataBase = new DataBase((int)dataBaseSettings.ColumnsCount, dataBaseSettings);
             dataBase.settings = dataBaseSettings;
 
             dataBase.DataBaseLoger = new DataBaseLoger(dataBaseSettings, "Loger");
@@ -113,7 +113,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         public static DataBase LoadDB(string Path, int LoadCluster = -1)
         {
             DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(File.ReadAllText(Path+"\\Settings\\Settings.txt"));           
-            DataBase dataBase = new DataBase((int)dataBaseSettings.TablesCount, dataBaseSettings);
+            DataBase dataBase = new DataBase((int)dataBaseSettings.ColumnsCount, dataBaseSettings);
             
             try
             {
@@ -132,8 +132,8 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             if (LoadCluster != -1)
             {
-                dataBase.tables.Clear();
-                dataBase.tables.AddRange(loader.LoadCluster(dataBaseSettings.Path, (uint)LoadCluster, dataBaseSettings.Key));
+                dataBase.Columns.Clear();
+                dataBase.Columns.AddRange(loader.LoadCluster(dataBaseSettings.Path, (uint)LoadCluster, dataBaseSettings.Key));
             }
             else
             {
@@ -148,10 +148,10 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                     Types[i] = data[0];
                     Names[i] = data[1];
                 }
-                dataBase.tables.Clear();
-                for (int i = 0; i < dataBaseSettings.TablesCount; i++)
+                dataBase.Columns.Clear();
+                for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
                 {
-                    dataBase.tables.Add(new Table(Names[i], DataBaseLoader.GetType(Types[i]), 0));
+                    dataBase.Columns.Add(new Column(Names[i], DataBaseLoader.GetType(Types[i]), 0));
                 }
             }
             dataBase.DataBaseSaver = loader;

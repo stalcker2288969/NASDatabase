@@ -9,6 +9,6 @@ namespace NASDataBaseAPI.SmartSearchSettings
 {
     internal interface ISearch
     {
-        List<int> SearchID(Table TableParams, Table In, string Params);
+        List<int> SearchID(Column ColumnParams, Column In, string Params);
     }
 }
