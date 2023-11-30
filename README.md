@@ -7,6 +7,7 @@ ru
 
   static void Main(string[] args)
   {
+  
               var key = SimpleEncryptor.GenerateRandomKey(128);//Генерируем ключ кодирования 
   
               var settings = new DataBaseSettings("TestBase", "D:\\", key, 10000, 0, 2, 1, false);//Настройки базы
