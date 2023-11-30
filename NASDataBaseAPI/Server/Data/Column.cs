@@ -126,7 +126,7 @@ namespace NASDataBaseAPI.Data
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public int FindeID(string data)
+        public int FindID(string data)
         {
             if (!DataType.TryConvert(data))
             {
@@ -161,7 +161,7 @@ namespace NASDataBaseAPI.Data
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public int[] FindeIDs(string data)
+        public int[] FindIDs(string data)
         {
             List<int> id = new List<int>();
             if (DataType.TryConvert(data))
@@ -187,7 +187,7 @@ namespace NASDataBaseAPI.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public string FindeDataByID(int id)
+        public string FindDataByID(int id)
         {
             try
             {

@@ -20,24 +20,24 @@ namespace NASDataBaseAPI.SmartSearchSettings
                     int L = 0;
                     ItemData[] datas = In.GetDatas();
 
-                    int[] ids = In.FindeIDs(Params);
+                    int[] ids = In.FindIDs(Params);
                     data.AddRange(ids);                    
                     break;
                 case "Boolean":      
                     
-                    ids = In.FindeIDs(Params);
+                    ids = In.FindIDs(Params);
                     data.AddRange(ids);
                     break;
                 case "Int":
-                    ids = In.FindeIDs(Params);
+                    ids = In.FindIDs(Params);
                     data.AddRange(ids);
                     break;
                 case "Float":
-                    ids = In.FindeIDs(Params);
+                    ids = In.FindIDs(Params);
                     data.AddRange(ids);
                     break;
                 case "Time":
-                    ids = In.FindeIDs(Params);
+                    ids = In.FindIDs(Params);
                     data.AddRange(ids);
                     break;
             }

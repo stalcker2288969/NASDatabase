@@ -85,7 +85,7 @@ namespace NASDataBaseAPI.Data
                     {
                         if (column.Name == nameColumn)
                         {
-                            IDs.AddRange(column.FindeIDs(data) ?? new int[0]);
+                            IDs.AddRange(column.FindIDs(data) ?? new int[0]);
                             DataBaseLoger.Log($"Get all IDs by {nameColumn} and {data} in {i} cluester");
                             break;
                         }
@@ -438,7 +438,7 @@ namespace NASDataBaseAPI.Data
                         _stringBuilder.Append(id.ToString() + " | ");
                         for (int g = 0; g < Columns.Count; g++)
                         {
-                            _stringBuilder.Append(Columns[g].FindeDataByID(id) + " | ");
+                            _stringBuilder.Append(Columns[g].FindDataByID(id) + " | ");
                         }
 
                         _stringBuilder.Append("\n---------------------------------------------\n");
@@ -477,7 +477,7 @@ namespace NASDataBaseAPI.Data
                 {
                     if (Column.Name == ColumnName)
                     {
-                        id = Column.FindeIDs(data);
+                        id = Column.FindIDs(data);
                         break;
                     }
                 }
@@ -487,7 +487,7 @@ namespace NASDataBaseAPI.Data
                     Boxes.Add(new List<ItemData>());
                     foreach (var t in Columns)
                     {
-                        Boxes[g1].Add(new ItemData(id[g1], t.FindeDataByID(id[g1])));
+                        Boxes[g1].Add(new ItemData(id[g1], t.FindDataByID(id[g1])));
                     }
                 }
 
@@ -558,7 +558,7 @@ namespace NASDataBaseAPI.Data
                     List<ItemData> data = new List<ItemData>();
                     foreach (var t in Columns)
                     {
-                        data.Add(new ItemData(resultIDs[i], t.FindeDataByID(resultIDs[i])));
+                        data.Add(new ItemData(resultIDs[i], t.FindDataByID(resultIDs[i])));
                     }
                     Boxes.Add(data);
                 }
@@ -572,7 +572,7 @@ namespace NASDataBaseAPI.Data
             List<string> strings = new List<string>();
             foreach(var t in Columns)
             {
-                strings.Add(t.FindeDataByID(ID));
+                strings.Add(t.FindDataByID(ID));
             }
             return strings.ToArray();
         }
@@ -596,12 +596,12 @@ namespace NASDataBaseAPI.Data
                 {
                     if (column.Name == ColumnName)
                     {
-                        id = column.FindeID(data);
+                        id = column.FindID(data);
                         if (id != -1)
                         {
                             foreach (Column table1 in Columns)
                             {
-                                Boxes.Add(new ItemData(id, table1.FindeDataByID(id)));
+                                Boxes.Add(new ItemData(id, table1.FindDataByID(id)));
                             }
                             return Boxes.ToArray();
                         }
