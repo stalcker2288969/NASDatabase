@@ -28,8 +28,6 @@ namespace NASDataBaseAPI.Data
             return left?.Data != right?.Data && left?.IDInTable != right?.IDInTable;
         }
 
-
-
         public static bool operator >(ItemData left, ItemData right)
         {
             bool result = false;
@@ -62,6 +60,7 @@ namespace NASDataBaseAPI.Data
                 return left.Data.Length > right.Data.Length;
             }
         }
+
         public static bool operator <(ItemData left, ItemData right)
         {
             bool result = false;

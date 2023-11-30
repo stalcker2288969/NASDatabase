@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NASDataBaseAPI.Client
 {
     /// <summary>
-    /// Предостовляет интерфейс запросов от клиента к БД
+    /// Предоставляет интерфейс запросов от клиента к БД 
     /// </summary>
     public static class BaseCommands
     {
@@ -20,13 +20,13 @@ namespace NASDataBaseAPI.Client
         public const string SetDataInColumn = "Com_SetDataInColumn";
         public const string AddColumn = "Com_AddColumn";
         public const string SetTypeToColumn = "Com_SetTypeToColumn";
-        public const string RemoveTable = "Com_RemoveColumn";
+        public const string RemoveColumn = "Com_RemoveColumn";
         public const string LoadClusterToMe = "Com_LoadClusterToMe";
         public const string SmartSearch = "Com_SmartSearch";
         public const string PrintBase = "Com_PrintBase";
         public const string GetDataInBaseByColumnName = "Com_GetDataByColumnName";
         public const string GetAllDataInBaseByColumnName = "Com_GetAllDataInBaseByColumnName";
-        public const string FineID = "Com_FineID";
-        public const string FineDataByID = "Com_FineDataByID";
+        public const string FindID = "Com_FindID";
+        public const string FindDataByID = "Com_FindDataByID";
     }
 }

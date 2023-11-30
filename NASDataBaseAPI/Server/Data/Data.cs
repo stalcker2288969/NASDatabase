@@ -1,4 +1,5 @@
-﻿using NASDataBaseAPI.Server.Data.DataBaseSettings;
+﻿using NASDataBaseAPI.Data.DataTypesInColumn;
+using NASDataBaseAPI.Server.Data.DataBaseSettings;
 using NASDataBaseAPI.Server.Data.Interfases;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace NASDataBaseAPI.Data
     {
         #region Events
         /// <summary>
-        /// Где было удоление
+        /// Где было удаление 
         /// </summary>
         public event Action<int> _RemoveDataByID;
         /// <summary>
@@ -34,7 +35,7 @@ namespace NASDataBaseAPI.Data
 
         public List<Column> Columns;
 
-        public List<uint> freeIDs = new List<uint>();
+        public List<uint> FreeIDs = new List<uint>();
 
         public DataBaseSettings settings;
         public IDataBaseSaver DataBaseSaver;
@@ -44,6 +45,7 @@ namespace NASDataBaseAPI.Data
 
         private StringBuilder _stringBuilder = new StringBuilder();
 
+        #region Конструкторы
         public DataBase(int countColumn, DataBaseSettings settings)
         {
             this.Columns = new List<Column>();
@@ -51,8 +53,7 @@ namespace NASDataBaseAPI.Data
             for (int i = 0; i < countColumn; i++)
             {
                 Columns.Add(new Column(i.ToString()));
-            }
-            
+            }            
         }
 
         public DataBase(List<Column> Column, DataBaseSettings settings)
@@ -60,6 +61,7 @@ namespace NASDataBaseAPI.Data
             this.Columns = Column;
             this.settings = settings;
         }
+        #endregion
 
         #region Глобальное взаимодействое
         /// <summary>
@@ -248,23 +250,25 @@ namespace NASDataBaseAPI.Data
             DataBaseLoger.Log($"Set {NewItemData.Data} in {ColumnName} ID:{NewItemData.IDInTable}");
             DataBaseSaver.SaveAllCluster(settings, SectorID, Columns.ToArray());
         }
+
         /// <summary>
-        /// Добавляет данные в таблюцу, важно чтобы длина поступающего массива была равна кол-ву столбцов
+        /// Добавляет данные в таблицу, важно чтобы длина поступающего массива была равна кол-ву столбцов  
+        /// Ошибки: Exception($"Длина поступивших данных меньше кол-ва столбцов: {Columns.Count}")
         /// </summary>
         /// <param name="datas"></param>
         public void AddData(string[] datas)
         {
             if (datas.Length == Columns.Count)
             {
-                if (freeIDs.Count == 0)
+                if (FreeIDs.Count == 0)
                 {
-                    uint SectorID = (settings.CountBuckets / settings.CountBucketsInSector) + 1;//Опредиляем к каому сектору обратиться
+                    uint SectorID = (settings.CountBuckets / settings.CountBucketsInSector) + 1;//Опредиляем к какому сектору обратиться
                     AddBySectorAndID(SectorID, (int)settings.CountBuckets, datas);
                 }
                 else
                 {
-                    uint FreeID = freeIDs[0];
-                    freeIDs.Remove(FreeID);
+                    uint FreeID = FreeIDs[0];
+                    FreeIDs.Remove(FreeID);
                     uint SectorID = (FreeID / settings.CountBucketsInSector) + 1;
                     ReplayesDataBySectorAndID(SectorID, (int)FreeID, datas);
                 }
@@ -335,9 +339,9 @@ namespace NASDataBaseAPI.Data
         }
         #endregion
 
-        #region Удоление данных
+        #region Удаление данных
         /// <summary>
-        /// Удоляет данные по введенному ID
+        /// Удаляет данные по введенному ID
         /// </summary>
         /// <param name="ID"></param>
         public void RemoveDataByID(uint ID)
@@ -354,7 +358,7 @@ namespace NASDataBaseAPI.Data
                 Columns[i].SetDataByID(new ItemData((int)ID, " "));
                 ItemDatas.Add(new ItemData((int)ID, " "));
             }
-            freeIDs.Add(ID);
+            FreeIDs.Add(ID);
             DataBaseSaver.ReplayesElement(settings, SectorID, ItemDatas.ToArray());
             settings.CountBuckets -= 1;
 
@@ -574,7 +578,7 @@ namespace NASDataBaseAPI.Data
         }
 
         /// <summary>
-        /// Ищит и возвращает первую строку подходящую под введенные параметры возврат через массив ячеек, если ненаходит => массив пустой
+        /// Ищет и возвращает первую строку подходящую под введенные параметры возврат через массив ячеек, если не находит => массив пустой
         /// </summary>
         /// <param name="ColumnName"></param>
         /// <param name="data"></param>
@@ -608,10 +612,9 @@ namespace NASDataBaseAPI.Data
 
             return null;
         }
-#endregion
+        #endregion
 
-
-
+        #region Индексаторы
         public Column this[string index]
         {
             get
@@ -648,5 +651,6 @@ namespace NASDataBaseAPI.Data
                 Columns[index] = value; 
             }
         }
+        #endregion
     }
 }

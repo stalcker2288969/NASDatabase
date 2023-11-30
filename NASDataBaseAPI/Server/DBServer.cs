@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server
 {
+    /// <summary>
+    /// Основной класс для работы с базой данных по сети (новый функционал не вводит, просто улучшает tcp систему)
+    /// </summary>
     public class DBServer
     {
-        public TcpListener server { get; private set; }
-        public List<TcpClient> tcpClients = new List<TcpClient>();
+        public TcpListener Server { get; private set; }
+        public List<TcpClient> TcpClients = new List<TcpClient>();
         public event Action<TcpClient> _ClientConnect;
         public event Action _OnStartServer;
         public event Action _OnStopServer; 
@@ -26,22 +29,25 @@ namespace NASDataBaseAPI.Server
             this.Port = port;
         }
 
+        /// <summary>
+        /// Необходим для старта сервера 
+        /// </summary>
         public void StartServer()
         {
-            server = new TcpListener(IPAddress.Parse(ServerIP), Port);
-            server.Start();
+            Server = new TcpListener(IPAddress.Parse(ServerIP), Port);
+            Server.Start();
             _OnStartServer?.Invoke();
             while (true)
             {
-                tcpClients.Add(server.AcceptTcpClient());
+                TcpClients.Add(Server.AcceptTcpClient());
                 Thread clientThread = new Thread(ClientConnect);
-                clientThread.Start(tcpClients[tcpClients.Count - 1]);
+                clientThread.Start(TcpClients[TcpClients.Count - 1]);
             }
         }
 
         public void StopServer()
         {
-            server.Stop();
+            Server.Stop();
             _OnStopServer?.Invoke();
         }
 

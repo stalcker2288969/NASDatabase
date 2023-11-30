@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Data.SqlTypes;
 using NASDataBaseAPI.Server.Data.Safety;
+using NASDataBaseAPI.Data.DataTypesInColumn;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {
@@ -88,7 +89,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         {
             string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBase.settings);
             File.WriteAllText(dataBase.settings.Path + "\\Settings\\Settings.txt", Content);
-            uint[] FreeIDs = dataBase.freeIDs.ToArray();
+            uint[] FreeIDs = dataBase.FreeIDs.ToArray();
             string[] lines = new string[FreeIDs.Length];
 
             for(int i = 0; i < FreeIDs.Length; i++)
@@ -126,7 +127,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                     FreeIDs[i] = Convert.ToUInt32(lines[i]);
                 }
 
-                dataBase.freeIDs.AddRange(FreeIDs);
+                dataBase.FreeIDs.AddRange(FreeIDs);
             }
             catch { File.WriteAllText(dataBaseSettings.Path + "\\Settings\\FreeIDs.txt", ""); }
 
@@ -151,7 +152,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                 dataBase.Columns.Clear();
                 for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
                 {
-                    dataBase.Columns.Add(new Column(Names[i], DataBaseLoader.GetType(Types[i]), 0));
+                    dataBase.Columns.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), 0));
                 }
             }
             dataBase.DataBaseSaver = loader;

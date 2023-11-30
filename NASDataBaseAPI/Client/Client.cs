@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Client
 {
+    /// <summary>
+    /// Класс для работы с сервером
+    /// </summary>
     public class Client
     {
         public string Name { get; private set; }
         public string Password { get; private set; }
 
-        private NetworkStream stream;
-        private TcpClient client;
+        private NetworkStream _stream;
+        private TcpClient _client;
 
         public Client(string Name, string Password)
         {
@@ -25,14 +28,14 @@ namespace NASDataBaseAPI.Client
         {
             bool result = false;
 
-            client = new TcpClient(IP, Port);
-            stream = client.GetStream();
+            _client = new TcpClient(IP, Port);
+            _stream = _client.GetStream();
 
             byte[] data = Encoding.ASCII.GetBytes($"Com_Login:{Name}:{Password}");
-            stream.Write(data, 0, data.Length);
+            _stream.Write(data, 0, data.Length);
 
             byte[] buffer = new byte[1024];
-            int bytesRead = stream.Read(buffer, 0, buffer.Length);
+            int bytesRead = _stream.Read(buffer, 0, buffer.Length);
             string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
             
             if(response == "Disconnect")
@@ -58,7 +61,7 @@ namespace NASDataBaseAPI.Client
         public void PushCommand(string Command)
         {
             byte[] data = Encoding.ASCII.GetBytes(Command);
-            stream.Write(data, 0, data.Length);           
+            _stream.Write(data, 0, data.Length);           
         }
 
         /// <summary>
@@ -68,19 +71,19 @@ namespace NASDataBaseAPI.Client
         public string PopMSG()
         {
             byte[] buffer = new byte[1024];
-            int bytesRead = stream.Read(buffer, 0, buffer.Length);
+            int bytesRead = _stream.Read(buffer, 0, buffer.Length);
             string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
             int x = int.Parse(response);
             byte[] buffer2 = new byte[x];
-            bytesRead = stream.Read(buffer2, 0, buffer2.Length);
+            bytesRead = _stream.Read(buffer2, 0, buffer2.Length);
             response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
             return response;
         }
 
         public NetworkStream GetNetwork()
         {
-            return stream ?? client?.GetStream();
+            return _stream ?? _client?.GetStream();
         }
 
     }

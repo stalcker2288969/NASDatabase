@@ -1,4 +1,5 @@
 ﻿using NASDataBaseAPI.Data;
+using NASDataBaseAPI.Data.DataTypesInColumn;
 using NASDataBaseAPI.Server.Data;
 using NASDataBaseAPI.Server.Data.Interfases;
 using System;
@@ -16,18 +17,21 @@ namespace NASDataBaseAPI.Data
     /// </summary>
     public class Column : IColumn
     {
+        #region Ивенты
         public event Action<int> _DeleteData;
         public event Action<ItemData> _AddData;
         public event Action<DataType> _ChangType;
         public event Action<ItemData[]> _SetDatas;
+        #endregion
 
         public DataType DataType { get; private set; }
         public string Name { get; set; }
 
         public uint OffSet { get;private set; }
 
-        private HashTable<ItemData> boxes = new HashTable<ItemData>();//Временный функционал
-
+        private HashTable<ItemData> boxes = new HashTable<ItemData>();
+       
+        #region конструкторы
         public Column(string Name, HashTable<ItemData> boxes, DataType dataType, uint offSet) 
         {
             this.Name = Name;
@@ -44,18 +48,20 @@ namespace NASDataBaseAPI.Data
         public Column(string Name, uint offSet)
         {
             this.Name = Name;
-            this.DataType = DataTypesInTable.Text;
+            this.DataType = DataTypesInColumns.Text;
             OffSet = offSet;
         }
         public Column(string Name)
         {
             this.Name= Name;
-            this.DataType = DataTypesInTable.Text;
+            this.DataType = DataTypesInColumns.Text;
             OffSet = 0;
         }
+        #endregion
 
+        #region Суттеры
         /// <summary>
-        /// Отчищает данные и записывает новые
+        /// Очищает данные и записывает новые 
         /// </summary>
         /// <param name="datas"></param>
         public bool SetDatas(ItemData[] datas)
@@ -82,7 +88,7 @@ namespace NASDataBaseAPI.Data
         }
 
         /// <summary>
-        /// Заменяет данные на позицие айди, true - удалось false - нет
+        /// Заменяет данные на позиции айди, true - удалось false - нет 
         /// </summary>
         /// <param name="newData"></param>
         /// <param name="ID"></param>
@@ -112,12 +118,14 @@ namespace NASDataBaseAPI.Data
             }
             return result;
         }
+        #endregion
+
+        #region Поиск
         /// <summary>
         /// Возвращает позицию в табличке первого совпавшего, если нет, то -1
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        /// 
         public int FindeID(string data)
         {
             if (!DataType.TryConvert(data))
@@ -149,7 +157,7 @@ namespace NASDataBaseAPI.Data
         }
 
         /// <summary>
-        /// Возвращает адишники всех ячеик в табличке в которых есть эти данные
+        /// Возвращает айдишники всех ячеек в табличке в которых есть эти данные 
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
@@ -190,6 +198,9 @@ namespace NASDataBaseAPI.Data
                 return " ";
             }
         }
+        #endregion
+
+        #region Добавление/Удаление 
         /// <summary>
         /// Добавляет данные в конец 
         /// </summary>
@@ -263,7 +274,7 @@ namespace NASDataBaseAPI.Data
         }
 
         /// <summary>
-        /// Удоляет данные по айди
+        /// Удаляет данные по айди 
         /// </summary>
         /// <param name="id"></param>
         public void PopByID(int id) 
@@ -273,16 +284,18 @@ namespace NASDataBaseAPI.Data
         }
 
         /// <summary>
-        /// Удоляет все данные из столбца/Не реализованно
+        /// Удаляет все данные из столбца/Не реализовано 
         /// </summary>
         public void ClearBoxes()
         {       
             boxes.Clear();
             boxes = new HashTable<ItemData>();
         }
+        #endregion
 
+        #region Вспомогательные методы
         /// <summary>
-        /// Возващет длину столбца
+        /// Возвращает длину столбца 
         /// </summary>
         /// <returns></returns>
         public int GetCounts()
@@ -306,7 +319,7 @@ namespace NASDataBaseAPI.Data
         }
 
         /// <summary>
-        /// !Отчищает себя и менят тип!
+        /// !!Очищает себя и меняет тип! 
         /// </summary>
         /// <param name="type"></param>
         public void ChangType(DataType type)
@@ -315,6 +328,21 @@ namespace NASDataBaseAPI.Data
             DataType = type;
             _ChangType?.Invoke(type);
         }
+        #endregion
+
+        #region Операторы
+        public string this[int id]
+        {
+            get
+            {
+                return boxes.GetValues()[id- (int)OffSet].Data;
+            }
+            set
+            {
+                this.boxes.GetValues()[id - (int)OffSet] = new ItemData(id,value);
+            }
+        }
+
 
         public static bool operator ==(Column left, Column right)
         {
@@ -325,7 +353,7 @@ namespace NASDataBaseAPI.Data
         {
             return left.DataType != right.DataType && left.Name != right.Name;
         }
-
+        #endregion
     }
 
 }

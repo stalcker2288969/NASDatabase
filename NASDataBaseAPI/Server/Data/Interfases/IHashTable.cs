@@ -9,12 +9,7 @@ namespace NASDataBaseAPI.Server.Data.Interfases
         T[] GetElementsByKey(int code);
         bool HasElement(T value);
         bool HasElement(T value, ref int code);
-        void AddElement(T value);
-        /// <summary>
-        /// Добавление данных без логирования
-        /// </summary>
-        /// <param name="value"></param>
-        void AddNotData(T value);       
+        void AddElement(T value);             
         bool TryReplacementByKey(T newData, int Key);
         bool TryReplacementByKeyAndOldData(T newData, T OldData, int Key);
         void RemoveElement(T value);

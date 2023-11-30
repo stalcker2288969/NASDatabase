@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using NASDataBaseAPI.Server.Data.Safety;
+using NASDataBaseAPI.Data.DataTypesInColumn;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {
@@ -18,7 +19,9 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     public class DataBaseLoader : IDataBaseSaver
     {
         /// <summary>
-        /// Загружет кластер, нужно понимать что если база данных хранится в одном файле он будет декодировать всю базу, а вернет только нужный кластер (Очень долгий процесс)
+        /// Загружает кластер, нужно понимать что если база данных хранится в одном файле он будет декодировать всю базу, а вернет только нужный кластер (Очень долгий процесс) 
+        /// Ошибки:
+        /// Exception("При декодирование была выявлена ошибка! ")
         /// </summary>
         /// <param name="path"></param>
         /// <param name="ClusterNumber"></param>
@@ -59,7 +62,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                 }
                 catch
                 {
-                    throw new Exception("При декодирование была выевленна ошибка!");
+                    throw new Exception("При декодирование была выявлена ошибка!");
                 }              
                 finally
                 {
@@ -77,11 +80,11 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             
             string ID = "0";            
 
-            if (SettingsTables.Length != dataBaseSettings.ColumnsCount) throw new Exception("Кол-во столбцов и их типы не совподают по количеству!");
+            if (SettingsTables.Length != dataBaseSettings.ColumnsCount) throw new Exception("Кол-во столбцов и их типы не совпадают по количеству!");
 
             for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
             {
-                tables.Add(new Column(Names[i], GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber-1)));
+                tables.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber-1)));
             }
 
             foreach (var l in Lines)
@@ -117,27 +120,6 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             }
 
             return tables.ToArray();
-        }
-
-        public static DataType GetType(string typeName)
-        {
-            switch (typeName)
-            {
-                case "Int":
-                    return DataTypesInTable.Int;
-                case "Boolean":
-                    return DataTypesInTable.Boolean;
-                case "Text":
-                    return DataTypesInTable.Text;
-                case "Float":
-                    return DataTypesInTable.SemicolonNumbers;
-                case "Time":
-                    return DataTypesInTable.Time;
-                case "File":
-                    return DataTypesInTable.File;
-                default:
-                    return DataTypesInTable.Text;
-            }
         }
 
         public void AddElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)

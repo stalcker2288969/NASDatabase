@@ -2,9 +2,10 @@
 using NASDataBaseAPI.Server.Data.DataBaseSettings;
 
 namespace NASDataBaseAPI.Server.Data.Interfases
-{/// <summary>
-/// Является обьектом сохраняющим БД 
-/// </summary>
+{
+    /// <summary>
+    /// Является объектом сохраняющим БД  
+    /// </summary>
     public interface IDataBaseSaver
     {
         Column[] LoadCluster(string path, uint ClusterNumber, string DecodeKey);

@@ -11,47 +11,52 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {
     internal class DataBaseLoger : ILoger
     {
-        public DataBaseSettings settings { get; private set; }
+        public DataBaseSettings Settings { get; private set; }
         public DateTime TimeStartLog { get; private set; }
-        private string PathToFile;
-        private string Prefix;
+        
+        private string _pathToFile;
+        private string _prefix;
 
         public DataBaseLoger(DataBaseSettings settings, string Prefix)
         {
-            this.settings = settings;
-            this.Prefix = Prefix;
+            this.Settings = settings;
+            this._prefix = Prefix;
         }
 
+        /// <summary>
+        /// !Если у вас включена система логгирования в настройках, то вам обязательно надо вызвать этот метод у базы данных! 
+        /// </summary>
         public void StartLog()
         {
-            if(settings.Logs == true)
+            if(Settings.Logs == true)
             {
                 TimeStartLog = DateTime.Now;
-                Directory.CreateDirectory(settings.Path + "\\Logs");
-                PathToFile = settings.Path + $"\\Logs\\Log.txt";
-                File.WriteAllText(PathToFile, $"Log started at {TimeStartLog}");
+                Directory.CreateDirectory(Settings.Path + "\\Logs");
+                _pathToFile = Settings.Path + $"\\Logs\\Log.txt";
+                File.WriteAllText(_pathToFile, $"Log started at {TimeStartLog}");
             }
         }
+
         public void Log(string message)
         {
-            if(settings.Logs == true)
+            if(Settings.Logs == true)
             {
-                File.AppendAllLines(PathToFile, new string[] {$"{Prefix}| Log at {DateTime.Now} | "+message});
+                File.AppendAllLines(_pathToFile, new string[] {$"{_prefix}| Log at {DateTime.Now} | "+message});
             }
         }
 
         public void StopLog()
         {
-            if(settings.Logs == true)
+            if(Settings.Logs == true)
             {
                 TimeStartLog = new DateTime(0);
-                PathToFile = "";
+                _pathToFile = "";
             }
         }
 
         public void SetPrefix(string prefix)
         {
-            Prefix = prefix;
+            _prefix = prefix;
         }
     }
 }

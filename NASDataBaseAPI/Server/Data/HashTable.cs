@@ -37,6 +37,11 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
+        /// <summary>
+        /// Передает первый элемент по ключу
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         public T GetFirstElementByKey(int code)
         {
             try
@@ -48,7 +53,12 @@ namespace NASDataBaseAPI.Server.Data
                 return default(T);
             }
         }
-
+        /// <summary>
+        /// Проверяет есть ли такой элемент по такому ключу 
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public bool HasElementByKeyAndData(int code, T data)
         {
             foreach (var v in _hashTable[code])
@@ -64,11 +74,20 @@ namespace NASDataBaseAPI.Server.Data
             return false;
         }
 
+        /// <summary>
+        /// Берет элементы по ключу 
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         public T[] GetElementsByKey(int code)
         {
             return _hashTable[code].ToArray();
         }
-
+        /// <summary>
+        /// Проверяет есть ли такой элемент 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public bool HasElement(T value)
         {
             ulong key = (ulong)StringHashCode20(value.ToString());
@@ -80,6 +99,12 @@ namespace NASDataBaseAPI.Server.Data
             return false;
         }
 
+        /// <summary>
+        /// Проверяет есть ли такой элемент и возвращает его id
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
         public bool HasElement(T value, ref int code)
         {
             ulong key = (ulong)StringHashCode20(value.ToString());
@@ -97,7 +122,10 @@ namespace NASDataBaseAPI.Server.Data
             code = 0;
             return false;
         }
-
+        /// <summary>
+        /// Добавляет элемент 
+        /// </summary>
+        /// <param name="value"></param>
         public void AddElement(T value)
         {
             ulong key = (ulong)StringHashCode20(value.ToString());
@@ -111,13 +139,20 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
+        /// <summary>
+        /// Добавляет данные без логирования 
+        /// </summary>
+        /// <param name="value"></param>
         public void AddNotData(T value)
         {
             ulong key = (ulong)StringHashCode20(value.ToString());
             int x = (int)(key % CountBuckets);
             _hashTable[x].Add(value);
         }
-
+        /// <summary>
+        /// Удаляет данные без логирования
+        /// </summary>
+        /// <param name="value"></param>
         public void RemoveNotData(T value)
         {
             ulong key = (ulong)StringHashCode20(value.ToString());
@@ -144,7 +179,10 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
-        public void OffsetElements()
+        /// <summary>
+        /// Смещение элементов при достижении лимита 
+        /// </summary>
+        private void OffsetElements()
         {
             CountBuckets *= BucketRatio;
             T[] values = GetValues().ToArray();
@@ -160,6 +198,12 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
+        /// <summary>
+        /// !Важно что удаляет все присутствующие данные в бакките! Пытается заменить данные по ключу 
+        /// </summary>
+        /// <param name="newData"></param>
+        /// <param name="Key"></param>
+        /// <returns></returns>
         public bool TryReplacementByKey(T newData, int Key)
         {
             if (_hashTable[Key].Count == 1)
@@ -170,7 +214,13 @@ namespace NASDataBaseAPI.Server.Data
             }
             return false;
         }
-
+        /// <summary>
+        /// Пытается заменить данные по ключу и старым данным
+        /// </summary>
+        /// <param name="newData"></param>
+        /// <param name="OldData"></param>
+        /// <param name="Key"></param>
+        /// <returns></returns>
         public bool TryReplacementByKeyAndOldData(T newData, T OldData, int Key)
         {
             for (int i = 0; i < _hashTable[Key].Count; i++)
@@ -184,6 +234,10 @@ namespace NASDataBaseAPI.Server.Data
             return false;
         }
 
+        /// <summary>
+        /// Удаляет данные 
+        /// </summary>
+        /// <param name="value"></param>
         public void RemoveElement(T value)
         {
             if(value != null)
@@ -201,6 +255,9 @@ namespace NASDataBaseAPI.Server.Data
             return _datas;
         }
 
+        /// <summary>
+        /// Очищает всю HashTable и задает 10 пустых баккитов 
+        /// </summary>
         public void Clear()
         {           
             _datas.Clear();
@@ -219,6 +276,11 @@ namespace NASDataBaseAPI.Server.Data
             NumberElements = 0;
         }
 
+        /// <summary>
+        /// Функция хеширования 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public int StringHashCode20(string value)
         {
             int num = 352654597;

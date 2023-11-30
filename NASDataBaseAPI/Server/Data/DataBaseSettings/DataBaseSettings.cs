@@ -21,15 +21,16 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         public uint CountClusters { get; set; } = 1;
         public bool Logs { get; set; } = true;
 
-        public DataBaseSettings(string name, string path, string key, uint countBucketsInSector, uint countBuckets, uint tablesCount, uint countClusters)
-        {
-            Name = name;
-            Path = path;
-            Key = key;
-            CountBucketsInSector = countBucketsInSector;
-            CountBuckets = countBuckets;
-            ColumnsCount = tablesCount;
-            CountClusters = countClusters;     
+        public DataBaseSettings(string name, string path, string key, uint countBucketsInSector, uint countBuckets, uint ColumnsCount, uint countClusters, bool Logs)
+        {          
+            this.Name = name;
+            this.Path = path;
+            this.Key = key;
+            this.CountBucketsInSector = countBucketsInSector;
+            this.CountBuckets = countBuckets;
+            this.ColumnsCount = ColumnsCount;
+            this.CountClusters = countClusters;
+            this.Logs = Logs;
         }
     }
 
