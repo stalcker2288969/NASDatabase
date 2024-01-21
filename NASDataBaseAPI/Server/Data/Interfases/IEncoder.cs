@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server.Data.Interfases
 {
-    internal interface IEncoder
+    public interface IEncoder
     {
         string Encode(string Data,string Key);
-    }
-
-    interface IDecoder
-    {
-        string Decode(string Data,string Key);
+        string Decode(string Data, string Key);
     }
 }

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using NASDataBaseAPI.Server.Data.Interfases;
+using System;
 using System.Security.Cryptography;
 using System.Text;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace NASDataBaseAPI.Server.Data.Safety
 {
-    public class SimpleEncryptor
+    public class SimpleEncryptor : IEncoder
     {
         public static string GenerateRandomKey(int keySize)
         {
@@ -23,28 +24,28 @@ namespace NASDataBaseAPI.Server.Data.Safety
         /// <param name="text"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string Encrypt(string text, string key)
+        public string Encode(string text, string key)
         {
-            if (key == " ")
+            //if (key == " ")
                 return text;
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = Encoding.UTF8.GetBytes(key);
-                aesAlg.IV = new byte[16]; // Используем нулевой вектор инициализации для простоты
+            //using (Aes aesAlg = Aes.Create())
+            //{
+            //    aesAlg.Key = Encoding.UTF8.GetBytes(key);
+            //    aesAlg.IV = new byte[16]; // Используем нулевой вектор инициализации для простоты
 
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+            //    ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-                using (var msEncrypt = new System.IO.MemoryStream())
-                {
-                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    using (var swEncrypt = new System.IO.StreamWriter(csEncrypt))
-                    {
-                        swEncrypt.Write(text);
-                    }
+            //    using (var msEncrypt = new System.IO.MemoryStream())
+            //    {
+            //        using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+            //        using (var swEncrypt = new System.IO.StreamWriter(csEncrypt))
+            //        {
+            //            swEncrypt.Write(text);
+            //        }
 
-                    return Convert.ToBase64String(msEncrypt.ToArray());
-                }
-            }
+            //        return Convert.ToBase64String(msEncrypt.ToArray());
+            //    }
+            //}
         }
 
         /// <summary>
@@ -53,24 +54,39 @@ namespace NASDataBaseAPI.Server.Data.Safety
         /// <param name="encryptedText"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string Decrypt(string encryptedText, string key)
+        public string Decode(string encryptedText, string key)
         {
-            if (key == " ")
+            //if (key == " ")
+            //    return encryptedText;
+            //if (encryptedText == " " || encryptedText.Length == 0)
                 return encryptedText;
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = Encoding.UTF8.GetBytes(key);
-                aesAlg.IV = new byte[16]; // Используем нулевой вектор инициализации для простоты
+            //try
+            //{  
+            //    byte[] decodedBytes = Convert.FromBase64String(encryptedText);
 
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+            //    using (Aes aesAlg = Aes.Create())
+            //    {
+            //        aesAlg.Key = Encoding.UTF8.GetBytes(key);
+            //        aesAlg.IV = new byte[16]; // Используем нулевой вектор инициализации для простоты
 
-                using (var msDecrypt = new System.IO.MemoryStream(Convert.FromBase64String(encryptedText)))
-                using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                using (var srDecrypt = new System.IO.StreamReader(csDecrypt))
-                {
-                    return srDecrypt.ReadToEnd();
-                }
-            }
+            //        ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+            //        using (var msDecrypt = new System.IO.MemoryStream(Convert.FromBase64String(encryptedText)))
+            //        using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+            //        using (var srDecrypt = new System.IO.StreamReader(csDecrypt))
+            //        {
+            //            return srDecrypt.ReadToEnd();
+            //        }
+            //    }
+            //}
+            //catch (FormatException ex)
+            //{
+            //   throw new Exception($"Error decoding Base64: {ex.Message}");
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new Exception($"An unexpected error occurred: {ex.Message}");
+            //}  
         }
     }
 }

@@ -63,7 +63,6 @@ namespace NASDataBaseAPI.Data
 
         public static bool operator <(ItemData left, ItemData right)
         {
-            bool result = false;
             int x;
             int y;
             decimal x1;

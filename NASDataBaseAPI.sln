@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NASDataBaseAPI", "NASDataBaseAPI\NASDataBaseAPI.csproj", "{2BCA6036-BAE4-4796-A30F-DA1253EF61E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DLLTest", "..\DLLTest\DLLTest\DLLTest.csproj", "{6F45287B-0DA6-46F9-8421-8AEEB75FD7AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2BCA6036-BAE4-4796-A30F-DA1253EF61E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BCA6036-BAE4-4796-A30F-DA1253EF61E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BCA6036-BAE4-4796-A30F-DA1253EF61E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F45287B-0DA6-46F9-8421-8AEEB75FD7AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F45287B-0DA6-46F9-8421-8AEEB75FD7AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F45287B-0DA6-46F9-8421-8AEEB75FD7AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F45287B-0DA6-46F9-8421-8AEEB75FD7AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,7 +14,7 @@ namespace NASDataBaseAPI.Server.Data.Interfases
         int FindID(string data);
         int[] FindIDs(string data);
         string FindDataByID(int id);
-        bool Push(string data, uint CountBoxes);//Uper
+        bool Push(string data, uint CountBoxes);
         bool Pop(string data);
         bool TryPopByIDAndData(ItemData itemData);
         void PopByID(int id);

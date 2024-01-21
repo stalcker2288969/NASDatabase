@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {
+    /// <summary>
+    /// Класс предоставляющий систему логирования  
+    /// </summary>
     internal class DataBaseLoger : ILoger
     {
         public DataBaseSettings Settings { get; private set; }
@@ -32,7 +35,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             {
                 TimeStartLog = DateTime.Now;
                 Directory.CreateDirectory(Settings.Path + "\\Logs");
-                _pathToFile = Settings.Path + $"\\Logs\\Log.txt";
+                _pathToFile = Settings.Path + $"\\Logs\\Log{TimeStartLog.Day}_{TimeStartLog.Hour}_{TimeStartLog.Minute}.txt";
                 File.WriteAllText(_pathToFile, $"Log started at {TimeStartLog}");
             }
         }

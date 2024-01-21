@@ -58,10 +58,11 @@
     <Compile Include="Client\BaseCommands.cs" />
     <Compile Include="Client\Client.cs" />
     <Compile Include="Server\Data\Data.cs" />
-    <Compile Include="Server\Data\DataBaseSettings\DataBaseLoader.cs" />
+    <Compile Include="Server\Data\DataBaseSettings\Loaders\DataBaseLoader.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DataBaseLoger.cs" />
-    <Compile Include="Server\Data\DataBaseSettings\DataBaseMenager.cs" />
+    <Compile Include="Server\Data\DataBaseSettings\DataBaseManager.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DataBaseSettings.cs" />
+    <Compile Include="Server\Data\DataBaseSettings\Loaders\DBNoSaveLoader.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\IDataTypeConverter.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\ToBoolConverter.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\ToDecimalConverter.cs" />

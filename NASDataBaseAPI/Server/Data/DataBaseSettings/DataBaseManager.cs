@@ -10,6 +10,7 @@ using System.Threading;
 using System.Data.SqlTypes;
 using NASDataBaseAPI.Server.Data.Safety;
 using NASDataBaseAPI.Data.DataTypesInColumn;
+using NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {
@@ -18,20 +19,30 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     /// </summary>
     public static class DataBaseManager
     {
-        public static IDataBaseSaver loader = new DataBaseLoader();
-        
+        public static DataBaseLoader DBLoader { get; private set; } = new DataBaseLoader();
+        public static DBNoSaveLoader DBNoSaveLoader = new DBNoSaveLoader();
+
+        public static IDataBaseSaver[] _dataBaseSavers { get; private set; }
+
+        static DataBaseManager()
+        {
+            _dataBaseSavers = new IDataBaseSaver[2];
+            _dataBaseSavers[0] = DBNoSaveLoader;
+            _dataBaseSavers[1] = DBLoader;
+        }
+
         /// <summary>
         /// Меняет ключь и перезаписывает базу
         /// </summary>
         /// <param name="NewKey"></param>
         /// <param name="Path"></param>
-        public static void ChengKey(string NewKey, string Path)
+        public static void ChangeKey(string NewKey, string Path)
         {
             DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(File.ReadAllText(Path + "\\Settings\\Settings.txt"));
             
             for(int i = 0; i < dataBaseSettings.CountClusters; i++)
             {
-               File.WriteAllText(dataBaseSettings.Path + $"\\Cluster{i + 1}.txt", SimpleEncryptor.Encrypt(SimpleEncryptor.Decrypt(File.ReadAllText(dataBaseSettings.Path + $"\\Cluster{i + 1}.txt"), dataBaseSettings.Key),
+               File.WriteAllText(dataBaseSettings.Path + $"\\Cluster{i + 1}.txt", SimpleEncryptor.Encode(SimpleEncryptor.Encode(File.ReadAllText(dataBaseSettings.Path + $"\\Cluster{i + 1}.txt"), dataBaseSettings.Key),
                     NewKey));
             }
             dataBaseSettings.Key = NewKey;
@@ -77,10 +88,11 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             dataBase.DataBaseLoger = new DataBaseLoger(dataBaseSettings, "Loger");
 
-            dataBase.DataBaseSaver = loader;//задаем загрусщик по умолчанию
+            dataBase.DataBaseSaver = _dataBaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)];//задаем загрусщик по умолчанию
             File.WriteAllText(Path + dataBaseSettings.Name + $"\\Cluster1.txt"," ");
             return dataBase;
         }
+
         /// <summary>
         /// Сохраняет состояние базы данных
         /// </summary>
@@ -134,7 +146,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             if (LoadCluster != -1)
             {
                 dataBase.Columns.Clear();
-                dataBase.Columns.AddRange(loader.LoadCluster(dataBaseSettings.Path, (uint)LoadCluster, dataBaseSettings.Key));
+                dataBase.Columns.AddRange(DBLoader.LoadCluster(dataBaseSettings.Path, (uint)LoadCluster, dataBaseSettings.Key));
             }
             else
             {
@@ -155,7 +167,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                     dataBase.Columns.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), 0));
                 }
             }
-            dataBase.DataBaseSaver = loader;
+            dataBase.DataBaseSaver = _dataBaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)];
             dataBase.DataBaseLoger = new DataBaseLoger(dataBaseSettings, "Loger");
             return dataBase;
         }

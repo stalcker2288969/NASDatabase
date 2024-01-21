@@ -1,6 +1,4 @@
-﻿using NASDataBaseAPI.Data;
-using NASDataBaseAPI.Server.Data.Interfases;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,16 +6,33 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+
 using NASDataBaseAPI.Server.Data.Safety;
 using NASDataBaseAPI.Data.DataTypesInColumn;
+using NASDataBaseAPI.Data;
+using NASDataBaseAPI.Server.Data.Interfases;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {
     /// <summary>
-    /// Подгружает частями базу данных, явлется сервисом
+    /// Подгружает частями базу данных
     /// </summary>
     public class DataBaseLoader : IDataBaseSaver
     {
+        /// <summary>
+        /// Шифрование данных
+        /// </summary>
+        private IEncoder _Encoder;
+
+        public DataBaseLoader() 
+        { 
+            _Encoder = new SimpleEncryptor();
+        }
+
+        public DataBaseLoader(IEncoder Encoder)
+        {
+            this._Encoder = Encoder;
+        }
         /// <summary>
         /// Загружает кластер, нужно понимать что если база данных хранится в одном файле он будет декодировать всю базу, а вернет только нужный кластер (Очень долгий процесс) 
         /// Ошибки:
@@ -52,17 +67,17 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             try
             {
-                Lines = SimpleEncryptor.Decrypt(File.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt"),dataBaseSettings.Key).Split('\n');
+                Lines = _Encoder.Encode(File.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt", Encoding.UTF8).TrimEnd('\n', '\r'), dataBaseSettings.Key).Split('\n');
             }
             catch
             {
                 try
                 {
-                    SimpleEncryptor.Decrypt(File.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt"), dataBaseSettings.Key).Split('\n');
+                    _Encoder.Encode(File.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt", Encoding.UTF8).TrimEnd('\n','\r'), dataBaseSettings.Key).Split('\n');
                 }
-                catch
+                catch(Exception ex)
                 {
-                    throw new Exception("При декодирование была выявлена ошибка!");
+                    throw new Exception($"При декодирование была выявлена ошибка! {ex.Message}");
                 }              
                 finally
                 {
@@ -89,7 +104,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             foreach (var l in Lines)
             {
-                string[] boxes = l.Split('|', '/', '*','\\','|');
+                string[] boxes = l.Split(new string[] { "|/*\\|" }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (boxes.Length > tables.Count)
                 {
@@ -127,13 +142,22 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
             StringBuilder stringBuilder = new StringBuilder();
+
             stringBuilder.Append(itemDatas[0].IDInTable.ToString());
             foreach(var i in itemDatas)
             {
                 stringBuilder.Append($"|/*\\|{i.Data}");
             }
-            stringBuilder.Append("\n");
-            File.AppendAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt", SimpleEncryptor.Encrypt(stringBuilder.ToString(),dataBaseSettings.Key));
+
+            List<string> str = new List<string>();
+
+            var l = File.ReadAllLines(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
+
+            str = l.ToList();
+
+            str.Add(stringBuilder.ToString());//Тут ошибка хотя itemDatas.Linght = 4 
+            
+            File.WriteAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt", _Encoder.Encode(string.Join("\n",str.ToArray()),dataBaseSettings.Key));
             string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings);
             File.WriteAllText(dataBaseSettings.Path + "\\Settings\\Settings.txt", Content);
         }
@@ -149,11 +173,11 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                 stringBuilder.Append($"|/*\\|{i.Data}");
             }
 
-            string[] lines = SimpleEncryptor.Decrypt(File.ReadAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt"),dataBaseSettings.Key).Split('\n');
+            string[] lines = _Encoder.Encode(File.ReadAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt"),dataBaseSettings.Key).Split('\n');
             lines[itemDatas[0].IDInTable] = stringBuilder.ToString();
             stringBuilder.Clear();
 
-            string result = SimpleEncryptor.Encrypt(string.Join("\n", lines), dataBaseSettings.Key);
+            string result = _Encoder.Encode(string.Join("\n", lines), dataBaseSettings.Key);
             File.WriteAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt", result);
         }
 
@@ -185,7 +209,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                 }
                 stringBuilder.Append("\n");
             }
-            File.WriteAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt", SimpleEncryptor.Encrypt(stringBuilder.ToString(),dataBaseSettings.Key));
+            File.WriteAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt", _Encoder.Encode(stringBuilder.ToString(),dataBaseSettings.Key));
         }
     }
 }
