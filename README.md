@@ -37,6 +37,6 @@ ru
   {
   
             //Загрузка базы и/или действия над ней...
-            int id = dataBase["Name"].FindeID("Tom1"); //обращаемся к столбцу c именем Name и ищем там id по данным (Tom1)             
+            int id = dataBase["Name"].FindID("Tom1"); //обращаемся к столбцу c именем Name и ищем там id по данным (Tom1)             
   }
        
