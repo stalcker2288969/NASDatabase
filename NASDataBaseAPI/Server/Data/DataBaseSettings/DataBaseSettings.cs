@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NASDataBaseAPI.Server.Data.Safety;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     /// <summary>
     /// Отвечает за настроку базы данных, а именно фармат хронения данных и прочии вещи под копотом
     /// </summary>
-    public class DataBaseSettings
+    public struct DataBaseSettings
     {
         #region Settings
         public string Name { get; set; }
@@ -20,11 +21,11 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         public uint CountBuckets { get; set; }
         public uint ColumnsCount { get; set; }
         public uint CountClusters { get; set; }
-        public bool Logs { get; set; } = true;
+        public bool Logs { get; set; }
         /// <summary>
         /// Тип мода сохранения данных(безопасные, небезопасный -  программист сам решает когда отработать сохранению) !Изменять тип только в классе DataBase через спец метод! 
         /// </summary>
-        public bool SaveMod { get; set; } = true;
+        public bool SaveMod { get; set; } 
         #endregion
 
         [JsonConstructor]
@@ -41,13 +42,26 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             this.SaveMod = SaveMod;
         }
 
-        public DataBaseSettings(string name, string path, string key, uint ColumnsCount,bool Logs = false, bool SaveMod = true) 
+        public DataBaseSettings(string name, string path, string key, uint ColumnsCount, uint CountBucketsInSector = 1000000, bool Logs = false, bool SaveMod = true) 
         {
             this.Name = name;
             this.Path = path;
             this.Key = key;
             this.ColumnsCount = ColumnsCount;
-            this.CountBucketsInSector = 1000000;
+            this.CountBucketsInSector = CountBucketsInSector;
+            this.CountBuckets = 0;
+            this.CountClusters = 0;
+            this.Logs = Logs;
+            this.SaveMod = SaveMod;
+        }
+
+        public DataBaseSettings(string name, string path, uint ColumnsCount = 4, uint CountBucketsInSector = 1000000, bool Logs = false, bool SaveMod = true)
+        {
+            this.Name = name;
+            this.Path = path;
+            this.Key = SimpleEncryptor.GenerateRandomKey(128);
+            this.ColumnsCount = ColumnsCount;
+            this.CountBucketsInSector = CountBucketsInSector;
             this.CountBuckets = 0;
             this.CountClusters = 0;
             this.Logs = Logs;

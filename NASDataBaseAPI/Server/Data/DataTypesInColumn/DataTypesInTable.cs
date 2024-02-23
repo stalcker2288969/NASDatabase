@@ -1,7 +1,9 @@
 ﻿using NASDataBaseAPI.Server.Data.DataTypesInColumn.Types;
-using NASDataBaseAPI.Server.Data.DataTypesInColumn.Converter;
 using System;
-using System.IO;
+using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
+
 
 namespace NASDataBaseAPI.Data.DataTypesInColumn
 {
@@ -15,7 +17,6 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
         public static DataType Text { get; private set; } = new DataTypeText("Text");
         public static DataType Boolean { get; private set; } = new DataTypeBool("Boolean");
         public static DataType Time { get; private set; } = new DataTypeTime("Time");
-        public static DataType File { get; private set; } = new DataTypeFile("File");
 
         public static DataType GetType(string typeName)
         {
@@ -31,11 +32,37 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
                     return DataTypesInColumns.SemicolonNumbers;
                 case "Time":
                     return DataTypesInColumns.Time;
-                case "File":
-                    return DataTypesInColumns.File;
                 default:
                     return DataTypesInColumns.Text;
             }
+        }
+
+        //Возвращает все зарегистрированные DataTypes в сборке | не протестированно  
+        public static DataType[] GetRegisterDataTypes(string Namespace = "NASDataBaseAPI")
+        {
+            Assembly assembly = Assembly.Load(Namespace);
+
+            var Types = assembly.GetTypes();
+
+            var baseType = typeof(DataType);
+
+            var derivedTypes = Types.Where(type => baseType.IsAssignableFrom(type) && type != baseType);
+
+            List<DataType> dataTypes = new List<DataType>();
+            
+            foreach (var type in derivedTypes)
+            {
+                try
+                {
+                    dataTypes.Add(Activator.CreateInstance(type) as DataType);
+                }
+                catch(Exception ex) 
+                {
+                    throw new Exception("При сборе информации о всех типах в сборке обнаружена ошибка! |" + ex.Message, ex);
+                }               
+            }
+
+            return dataTypes.ToArray();
         }
     }
 
@@ -49,6 +76,11 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
         public DataType(string Name)
         {
             this.Name = Name;
+        }
+
+        public DataType()
+        {
+            this.Name = "%None%";
         }
 
         /// <summary>

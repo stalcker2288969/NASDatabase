@@ -1,4 +1,5 @@
 ﻿using NASDataBaseAPI.Data;
+using NASDataBaseAPI.Server.Data.Interfases.Column;
 using NASDataBaseAPI.SmartSearchSettings;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Data
+namespace NASDataBaseAPI.Server.Data
 {
     internal class SmartSearcher
     {

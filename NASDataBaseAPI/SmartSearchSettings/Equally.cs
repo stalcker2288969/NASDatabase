@@ -1,10 +1,5 @@
-﻿using NASDataBaseAPI.Data;
-using System;
+﻿using NASDataBaseAPI.Server.Data;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.SmartSearchSettings
 {

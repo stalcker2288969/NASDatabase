@@ -1,29 +1,42 @@
-﻿using NASDataBaseAPI.Data;
-using NASDataBaseAPI.Server.Data.Interfases;
-using System;
+﻿using NASDataBaseAPI.Server.Data.Interfases;
+using NASDataBaseAPI.Server.Data.Interfases.Column;
+using NASDataBaseAPI.Server.Data.Modules;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders
 {
-    public class DBNoSaveLoader : IDataBaseSaver
+    public class DBNoSaveLoader : DataBaseLoader
     {
-        public void AddElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+
+        public DBNoSaveLoader() { }
+
+        public DBNoSaveLoader(IEncoder encoder,IFileWorker fileWorker) : base(encoder,fileWorker)
         {
 
         }
 
-        public Column[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        public override void AddElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
-            return DataBaseManager.DBLoader.LoadCluster(path, ClusterNumber, DecodeKey);
+
         }
 
-        public void ReplayesElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+        public override IColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        {
+            return base.LoadCluster(path, ClusterNumber, DecodeKey);
+        }
+
+        public override IColumn[] LoadCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber)
+        {
+            return base.LoadCluster(dataBaseSettings.Path, ClusterNumber, dataBaseSettings.Key);
+        }
+
+        public override void ReplayesElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
             
         }
 
-        public void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, Column[] tables)
+        public override void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, IColumn[] tables)
         {
-            DataBaseManager.DBLoader.SaveAllCluster(dataBaseSettings, ClusterNumber, tables);
+            base.SaveAllCluster(dataBaseSettings, ClusterNumber, tables);
         }
     }
 }

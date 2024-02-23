@@ -26,8 +26,9 @@ namespace NASDataBaseAPI.Server.Data.Safety
         /// <returns></returns>
         public string Encode(string text, string key)
         {
+            return text;
             //if (key == " ")
-                return text;
+            //    return text;
             //using (Aes aesAlg = Aes.Create())
             //{
             //    aesAlg.Key = Encoding.UTF8.GetBytes(key);
@@ -56,12 +57,13 @@ namespace NASDataBaseAPI.Server.Data.Safety
         /// <returns></returns>
         public string Decode(string encryptedText, string key)
         {
+            return encryptedText;
             //if (key == " ")
             //    return encryptedText;
             //if (encryptedText == " " || encryptedText.Length == 0)
-                return encryptedText;
+            //    return encryptedText;
             //try
-            //{  
+            //{
             //    byte[] decodedBytes = Convert.FromBase64String(encryptedText);
 
             //    using (Aes aesAlg = Aes.Create())
@@ -81,12 +83,12 @@ namespace NASDataBaseAPI.Server.Data.Safety
             //}
             //catch (FormatException ex)
             //{
-            //   throw new Exception($"Error decoding Base64: {ex.Message}");
+            //    throw new Exception($"Error decoding Base64: {ex.Message}");
             //}
             //catch (Exception ex)
             //{
             //    throw new Exception($"An unexpected error occurred: {ex.Message}");
-            //}  
+            //}
         }
     }
 }

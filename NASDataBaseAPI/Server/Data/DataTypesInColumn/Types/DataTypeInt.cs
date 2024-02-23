@@ -14,6 +14,9 @@ namespace NASDataBaseAPI.Server.Data.DataTypesInColumn.Types
         public DataTypeInt(string Name) : base(Name)
         {
         }
+
+        public DataTypeInt() { }
+
         public override object Convert(object value)
         {
             return converter.Convert(value);

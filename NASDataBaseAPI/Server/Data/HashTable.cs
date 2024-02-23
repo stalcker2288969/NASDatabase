@@ -247,7 +247,11 @@ namespace NASDataBaseAPI.Server.Data
                 _hashTable[x].Remove(value);
                 _datas.Remove(value);
                 NumberElements -= 1;
-            }            
+            }
+            else
+            {
+                throw new ArgumentException("Объект не может равняться null! ");
+            }
         }
 
         public List<T> GetValues()

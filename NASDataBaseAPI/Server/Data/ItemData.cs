@@ -1,36 +1,39 @@
 ﻿using NASDataBaseAPI.Data;
+using NASDataBaseAPI.Server.Data.Interfases;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Data
+namespace NASDataBaseAPI.Server.Data
 {
-    public class ItemData
+    /// <summary>
+    /// Тип представляющий из себя ячейку в столбцах базы  
+    /// </summary>
+    public class ItemData : IItemData
     {
-        public int IDInTable { get;private set; }
+        public int ID { get; private set; }
         public string Data { get; private set; }
 
-        public ItemData(int IDInTable, string Data)
+        public ItemData(int ID, string Data)
         {
             this.Data = Data;
-            this.IDInTable = IDInTable;
+            this.ID = ID;
         }
 
         public static bool operator ==(ItemData left, ItemData right)
         {
-            return left?.Data == right?.Data && left?.IDInTable == right?.IDInTable;
+            return left.Data == right.Data && left.ID == right.ID;
         }
 
         public static bool operator !=(ItemData left, ItemData right)
         {
-            return left?.Data != right?.Data && left?.IDInTable != right?.IDInTable;
+            return left.Data != right.Data && left.ID != right.ID;
         }
 
         public static bool operator >(ItemData left, ItemData right)
         {
-            bool result = false;
             int x;
             int y;
             decimal x1;

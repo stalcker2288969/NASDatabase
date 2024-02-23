@@ -14,6 +14,9 @@ namespace NASDataBaseAPI.Server.Data.DataTypesInColumn.Types
         public DataTypeDecimal(string Name) : base(Name)
         {
         }
+
+        public DataTypeDecimal() { }
+
         public override object Convert(object value)
         {
             return converter.Convert(value);

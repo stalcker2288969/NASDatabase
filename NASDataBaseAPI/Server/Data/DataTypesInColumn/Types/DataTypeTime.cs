@@ -15,6 +15,8 @@ namespace NASDataBaseAPI.Server.Data.DataTypesInColumn.Types
         {
         }
 
+        public DataTypeTime() { }
+
         public override object Convert(object value) => converter.Convert(value);
 
         public override bool TryConvert(object value) { return converter.TryConvert(value); }

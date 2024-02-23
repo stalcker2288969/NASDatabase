@@ -20,7 +20,7 @@ namespace NASDataBaseAPI.Server.Data.DataTypesInColumn.Converter
 
         public bool TryConvert(object value)
         {
-            return true;
+            return value.ToString() != "" ? true : false;
         }
     }
 }

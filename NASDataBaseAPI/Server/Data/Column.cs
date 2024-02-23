@@ -1,21 +1,16 @@
-﻿using NASDataBaseAPI.Data;
-using NASDataBaseAPI.Data.DataTypesInColumn;
+﻿using NASDataBaseAPI.Data.DataTypesInColumn;
 using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Server.Data.Interfases;
+using NASDataBaseAPI.Server.Data.Interfases.Column;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
-namespace NASDataBaseAPI.Data
+namespace NASDataBaseAPI.Server.Data
 {
     /// <summary>
     /// Класс распределяющий данные по столбцу
     /// </summary>
-    public class Column : IColumn
+    public class Column : IColumn, IDisposable
     {
         #region Ивенты
         public event Action<int> _DeleteData;
@@ -27,12 +22,12 @@ namespace NASDataBaseAPI.Data
         public DataType DataType { get; private set; }
         public string Name { get; set; }
 
-        public uint OffSet { get;private set; }
+        public uint OffSet { get; private set; }
 
         private HashTable<ItemData> boxes = new HashTable<ItemData>();
-       
+
         #region конструкторы
-        public Column(string Name, HashTable<ItemData> boxes, DataType dataType, uint offSet) 
+        public Column(string Name, HashTable<ItemData> boxes, DataType dataType, uint offSet)
         {
             this.Name = Name;
             this.boxes = boxes;
@@ -53,13 +48,13 @@ namespace NASDataBaseAPI.Data
         }
         public Column(string Name)
         {
-            this.Name= Name;
+            this.Name = Name;
             this.DataType = DataTypesInColumns.Text;
             OffSet = 0;
         }
         #endregion
 
-        #region Суттеры
+        #region Сеттеры
         /// <summary>
         /// Очищает данные и записывает новые 
         /// </summary>
@@ -77,13 +72,13 @@ namespace NASDataBaseAPI.Data
                 }
                 _SetDatas?.Invoke(datas);
                 result = true;
-                
+
             }
             catch
             {
-
+                ClearBoxes();
             }
-            
+
             return result;
         }
 
@@ -99,9 +94,9 @@ namespace NASDataBaseAPI.Data
             {
                 if (DataType.TryConvert(newData.Data) || newData.Data == " ")
                 {
-                    ItemData OldData = boxes.GetValues()[newData.IDInTable - (int)OffSet];
-                    boxes.GetValues()[newData.IDInTable] = newData;//Замена данных
-                    
+                    ItemData OldData = boxes.GetValues()[newData.ID - (int)OffSet];
+                    boxes.GetValues()[newData.ID - (int)OffSet] = newData;//Замена данных
+
                     boxes.RemoveNotData(OldData);//Хеширование без повторного добавления в таблицу
                     boxes.AddNotData(newData);
 
@@ -109,12 +104,12 @@ namespace NASDataBaseAPI.Data
                 }
                 else
                 {
-                    throw new Exception("Нельзя преобразовать введенные данные");
+                    throw new ArgumentException("Нельзя преобразовать введенные данные");
                 }
             }
-            catch
+            catch(IndexOutOfRangeException)
             {
-
+                throw new IndexOutOfRangeException($"Попытка взять элемент по ID: {newData.ID}, но данные физически с учетом offset {OffSet} не загруженны!");
             }
             return result;
         }
@@ -138,22 +133,21 @@ namespace NASDataBaseAPI.Data
                 int x = (int)(key % boxes.CountBuckets);
 
                 ItemData iD = boxes.GetFirstElementByKey((int)x);
-                if(iD != null)
+                if (iD != null)
                 {
-                    int id = boxes.GetFirstElementByKey((int)x).IDInTable;
-                    return id;
+                    return iD.ID;
                 }
                 else
                 {
                     return -1;
                 }
-                
+
             }
-            catch 
+            catch
             {
-                return -1; 
+                return -1;
             }
-            
+
         }
 
         /// <summary>
@@ -172,16 +166,16 @@ namespace NASDataBaseAPI.Data
                 ItemData[] datas = boxes.GetElementsByKey(x);
                 foreach (var d in datas)
                 {
-                    if (d?.Data == data)
+                    if (d.Data == data)
                     {
-                        id.Add(d.IDInTable);
+                        id.Add(d.ID);
                     }
                 }
-            }                  
-           
+            }
+
             return id.ToArray();
         }
-        
+
         /// <summary>
         /// Возвращает данные по id, если данных нет то возвращает: " ".
         /// </summary>
@@ -191,11 +185,11 @@ namespace NASDataBaseAPI.Data
         {
             try
             {
-                return boxes.GetValues()[id - (int)OffSet]?.Data ?? " ";
+                return boxes.GetValues()[id - (int)OffSet].Data ?? " ";
             }
-            catch
+            catch (IndexOutOfRangeException)
             {
-                return " ";
+                throw new IndexOutOfRangeException($"Попытка взять элемент по ID: {id}, но данные физически с учетом offset {OffSet} не загруженны!");
             }
         }
         #endregion
@@ -217,28 +211,42 @@ namespace NASDataBaseAPI.Data
             return result;
         }
 
+        /// <summary>
+        /// Добавляет данные в связке с ID
+        /// </summary>
         public bool Push(string data, int ID)
         {
             bool result = false;
-            if (DataType.TryConvert(data))
+            if (DataType.TryConvert(data) && FindID(data) != ID && FindDataByID(ID) == " ")
             {
                 boxes.AddElement(new ItemData(ID, data));
                 _AddData?.Invoke(new ItemData(ID, data));
                 result = true;
-            }          
+            }
             return result;
         }
 
+        public bool Puth(ItemData data)
+        {
+            bool result = false;
+            if (DataType.TryConvert(data.Data) && FindID(data.Data) != data.ID && FindDataByID(data.ID) == " ")
+            {
+                boxes.AddElement(data);
+                _AddData?.Invoke(data);
+                result = true;
+            }
+            return result;
+        }
 
         /// <summary>
         /// Удаляет первый совпавший элемент
         /// </summary>
         /// <param name="name"></param>
-        public bool Pop(string data) 
+        public bool Pop(string data)
         {
-            int MixElement = -1;
+            int ID = -1;
             ItemData[] itemDatas = boxes.GetElementsByKey(boxes.StringHashCode20(data));
-            
+
             bool result = false;
             if (DataType.TryConvert(data))
             {
@@ -246,13 +254,13 @@ namespace NASDataBaseAPI.Data
 
                 foreach (var d in itemDatas)
                 {
-                    if (d.IDInTable < MixElement)
+                    if (d.ID < ID)
                     {
-                        MixElement = d.IDInTable;
+                        ID = d.ID;
                     }
                 }
-                boxes.RemoveElement(new ItemData(MixElement, data));
-                _DeleteData?.Invoke(MixElement);        
+                boxes.RemoveElement(new ItemData(ID, data));
+                _DeleteData?.Invoke(ID);
             }
             return result;
         }
@@ -264,10 +272,10 @@ namespace NASDataBaseAPI.Data
         public bool TryPopByIDAndData(ItemData itemData)
         {
             bool result = false;
-            if (boxes.GetValues()[itemData.IDInTable - (int)OffSet].Data == itemData?.Data)
-            {               
+            if (boxes.GetValues()[itemData.ID - (int)OffSet].Data == itemData.Data)
+            {
                 boxes.RemoveElement(itemData);
-                _DeleteData?.Invoke(itemData.IDInTable);
+                _DeleteData?.Invoke(itemData.ID);
                 result = true;
             }
             return result;
@@ -277,17 +285,17 @@ namespace NASDataBaseAPI.Data
         /// Удаляет данные по айди 
         /// </summary>
         /// <param name="id"></param>
-        public void PopByID(int id) 
+        public void PopByID(int id)
         {
             boxes.RemoveElement(boxes.GetValues()[id - (int)OffSet]);
             _DeleteData?.Invoke(id);
         }
 
         /// <summary>
-        /// Удаляет все данные из столбца/Не реализовано 
+        /// Удаляет все данные из столбца
         /// </summary>
         public void ClearBoxes()
-        {       
+        {
             boxes.Clear();
             boxes = new HashTable<ItemData>();
         }
@@ -311,9 +319,9 @@ namespace NASDataBaseAPI.Data
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            foreach(var d in boxes.GetValues())
+            foreach (var d in boxes.GetValues())
             {
-                sb.Append(d.IDInTable.ToString() +"/*\\|" + d.Data);
+                sb.Append(d.ID.ToString() + "/*\\|" + d.Data);
             }
             return sb.ToString();
         }
@@ -328,6 +336,21 @@ namespace NASDataBaseAPI.Data
             DataType = type;
             _ChangType?.Invoke(type);
         }
+
+        public DataType GetDataType()
+        {
+            return DataType;
+        }
+
+        public string GetDataTypeName()
+        {
+            return Name;
+        }
+
+        public void Dispose()
+        {
+            boxes.Dispose();
+        }
         #endregion
 
         #region Операторы
@@ -335,23 +358,22 @@ namespace NASDataBaseAPI.Data
         {
             get
             {
-                return boxes.GetValues()[id- (int)OffSet].Data;
+                return boxes.GetValues()[id - (int)OffSet].Data;
             }
             set
             {
-                this.boxes.GetValues()[id - (int)OffSet] = new ItemData(id,value);
+                this.boxes.GetValues()[id - (int)OffSet] = new ItemData(id, value);
             }
         }
 
-
         public static bool operator ==(Column left, Column right)
         {
-            return left.DataType == right.DataType && left.Name == right.Name;
+            return left.DataType == right.DataType;
         }
 
         public static bool operator !=(Column left, Column right)
         {
-            return left.DataType != right.DataType && left.Name != right.Name;
+            return left.DataType != right.DataType;
         }
         #endregion
     }

@@ -1,9 +1,6 @@
-﻿using NASDataBaseAPI.Data;
+﻿using NASDataBaseAPI.Server.Data;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.SmartSearchSettings
 {
@@ -21,18 +18,18 @@ namespace NASDataBaseAPI.SmartSearchSettings
                     
                     foreach(ItemData item in datas)
                     {
-                        if (item.IDInTable == 95931)
+                        if (item.ID == 95931)
                         {
                             if (item.Data.Length > L)
                             {
-                                data.Add(item.IDInTable);
+                                data.Add(item.ID);
                             }
                         }
                         else
                         {
                             if (item.Data.Length > L)
                             {
-                                data.Add(item.IDInTable);
+                                data.Add(item.ID);
                             }
                         }
                        
@@ -45,7 +42,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
                     {
                         if (Convert.ToInt32(item.Data) > L)
                         {
-                            data.Add(item.IDInTable);
+                            data.Add(item.ID);
                         }
                     }
                     break;
@@ -56,7 +53,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
                     {
                         if (Convert.ToDecimal(item.Data) > L)
                         {
-                            data.Add(item.IDInTable);
+                            data.Add(item.ID);
                         }
                     }
                     break;
@@ -67,7 +64,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
                     {
                         if (DateTime.Parse(item.Data) > time1)
                         {
-                            data.Add(item.IDInTable);
+                            data.Add(item.ID);
                         }
                     }
                     break;

@@ -14,6 +14,9 @@ namespace NASDataBaseAPI.Server.Data.DataTypesInColumn.Types
         public DataTypeText(string Name) : base(Name)
         {
         }
+
+        public DataTypeText() { }
+
         public override object Convert(object value)
         {
             return converter.Convert(value);

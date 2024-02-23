@@ -1,4 +1,5 @@
 ﻿using NASDataBaseAPI.Server.Data.Interfases;
+using NASDataBaseAPI.Server.Data.Modules;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,16 +15,25 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     /// </summary>
     internal class DataBaseLoger : ILoger
     {
+        public string Prefix { get; set; }
         public DataBaseSettings Settings { get; private set; }
         public DateTime TimeStartLog { get; private set; }
-        
+        public IFileWorker FileSystem { get; private set; } = new BaseFileWorker();
+
         private string _pathToFile;
-        private string _prefix;
+
 
         public DataBaseLoger(DataBaseSettings settings, string Prefix)
         {
             this.Settings = settings;
-            this._prefix = Prefix;
+            this.Prefix = Prefix;
+        }
+
+        public DataBaseLoger(DataBaseSettings settings, IFileWorker fileWorker, string Prefix)
+        {
+            this.Settings = settings;
+            this.Prefix = Prefix;
+            this.FileSystem = fileWorker;
         }
 
         /// <summary>
@@ -34,9 +44,9 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             if(Settings.Logs == true)
             {
                 TimeStartLog = DateTime.Now;
-                Directory.CreateDirectory(Settings.Path + "\\Logs");
+                FileSystem.CreateDirectory(Settings.Path + "\\Logs");
                 _pathToFile = Settings.Path + $"\\Logs\\Log{TimeStartLog.Day}_{TimeStartLog.Hour}_{TimeStartLog.Minute}.txt";
-                File.WriteAllText(_pathToFile, $"Log started at {TimeStartLog}");
+                FileSystem.WriteAllText($"Log started at {TimeStartLog}", _pathToFile);
             }
         }
 
@@ -44,7 +54,10 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         {
             if(Settings.Logs == true)
             {
-                File.AppendAllLines(_pathToFile, new string[] {$"{_prefix}| Log at {DateTime.Now} | "+message});
+                List<string> list = new List<string>();
+                list.AddRange(FileSystem.ReadAllLines(_pathToFile));
+                list.Add($"{Prefix}| Log at {DateTime.Now} | " + message);
+                FileSystem.WriteLines(list.ToArray(), _pathToFile);
             }
         }
 
@@ -55,11 +68,6 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                 TimeStartLog = new DateTime(0);
                 _pathToFile = "";
             }
-        }
-
-        public void SetPrefix(string prefix)
-        {
-            _prefix = prefix;
         }
     }
 }

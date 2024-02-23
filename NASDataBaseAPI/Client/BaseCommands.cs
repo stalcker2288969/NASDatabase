@@ -11,10 +11,9 @@ namespace NASDataBaseAPI.Client
     /// </summary>
     public static class BaseCommands
     {
-        public const  string Registration = "Com_Registration";
+        public const string Registration = "Com_Registration";
         public const string Login  = "Com_Login";
         public const string Disconnect  = "Com_Disconnect";
-
         public const string AddData = "Com_ADD";
         public const string RemoveDataByID = "Com_RemID";
         public const string SetDataInColumn = "Com_SetDataInColumn";
@@ -28,5 +27,5 @@ namespace NASDataBaseAPI.Client
         public const string GetAllDataInBaseByColumnName = "Com_GetAllDataInBaseByColumnName";
         public const string FindID = "Com_FindID";
         public const string FindDataByID = "Com_FindDataByID";
-    }
+    }   
 }

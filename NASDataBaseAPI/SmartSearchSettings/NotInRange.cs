@@ -1,9 +1,5 @@
-﻿using NASDataBaseAPI.Data;
-using System;
+﻿using NASDataBaseAPI.Server.Data;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.SmartSearchSettings
 {
@@ -22,7 +18,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
                     {
                         if (!item.Data.Contains(Params))
                         {
-                            data.Add(item.IDInTable);
+                            data.Add(item.ID);
                         }
                     }
                     break;
@@ -47,7 +43,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
                         }
                         if (result == true)
                         {
-                            data.Add(item.IDInTable);
+                            data.Add(item.ID);
                         }
                     }
                     break;
@@ -72,7 +68,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
                         }
                         if (result == true)
                         {
-                            data.Add(item.IDInTable);
+                            data.Add(item.ID);
                         }
                     }
                     break;
@@ -92,7 +88,7 @@ namespace NASDataBaseAPI.SmartSearchSettings
                         }
                         if (result == true)
                         {
-                            data.Add(item.IDInTable);
+                            data.Add(item.ID);
                         }
                     }
                     break;

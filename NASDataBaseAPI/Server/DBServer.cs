@@ -45,6 +45,9 @@ namespace NASDataBaseAPI.Server
             }
         }
 
+        /// <summary>
+        /// Остановка сервера 
+        /// </summary>
         public void StopServer()
         {
             Server.Stop();
