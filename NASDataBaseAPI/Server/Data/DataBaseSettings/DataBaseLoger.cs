@@ -1,12 +1,8 @@
-﻿using NASDataBaseAPI.Server.Data.Interfases;
+﻿using NASDataBaseAPI.Interfaces;
 using NASDataBaseAPI.Server.Data.Modules;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {

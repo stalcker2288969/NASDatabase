@@ -1,10 +1,6 @@
 ﻿using NASDataBaseAPI.Server.Data.DataBaseSettings;
 using NASDataBaseAPI.Server.Data.Safety;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace NASAPITests.DataBaseTests.Init.Column_2
 {
@@ -66,7 +62,7 @@ namespace NASAPITests.DataBaseTests.Init.Column_2
             //Assert.True(DB.Columns.Count == ColumnCount);
             //Assert.True(DB.settings.CountClusters == ClustersCount);
             //Assert.True(DB.settings.CountBuckets == DataCount);
-            Assert.True(DB.settings.CountBucketsInSector == (uint)InClusters, $"InClusters = {InClusters}|CountBucketsInSector = {DB.settings.CountBucketsInSector}");
+            Assert.True(DB.Settings.CountBucketsInSector == (uint)InClusters, $"InClusters = {InClusters}|CountBucketsInSector = {DB.Settings.CountBucketsInSector}");
             //Assert.True(File.Exists("D:\\BMTest1\\Settings\\Settings.txt"));
         }
 
@@ -95,7 +91,7 @@ namespace NASAPITests.DataBaseTests.Init.Column_2
 
             //Assert.True(DB.Columns.Count == ColumnCount);
             //Assert.True(DB.settings.CountClusters == ClustersCount);
-            Assert.True(DB.settings.CountBuckets == DataCount);
+            Assert.True(DB.Settings.CountBuckets == DataCount);
             //Assert.True(DB.settings.CountBucketsInSector == (uint)InClusters);
             //Assert.True(File.Exists("D:\\BMTest1\\Settings\\Settings.txt"));
         }
@@ -124,7 +120,7 @@ namespace NASAPITests.DataBaseTests.Init.Column_2
                 DB.AddData(new string[2] { datas[rnd.Next(3)], datas[rnd.Next(3)] });
             }
 
-            Assert.True(DB.settings.CountClusters == ClustersCount, $"ClustersCount = {ClustersCount}|DB.settings.CountClusters = {DB.settings.CountClusters}");
+            Assert.True(DB.Settings.CountClusters == ClustersCount, $"ClustersCount = {ClustersCount}|DB.settings.CountClusters = {DB.Settings.CountClusters}");
         }
 
         [Fact]

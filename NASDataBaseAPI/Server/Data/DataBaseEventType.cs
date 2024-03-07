@@ -10,6 +10,9 @@
         LoadedNewSector,
         CloneColumn,
         ClearAllColumn,
+        ClearAllBase,
+        RenamedColumn,
+        SetDataInColumn
     }
 
 }

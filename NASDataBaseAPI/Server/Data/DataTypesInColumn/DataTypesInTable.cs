@@ -64,6 +64,30 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
 
             return dataTypes.ToArray();
         }
+
+        public static DataType GetTypeOfDataByClassName(string className)
+        {
+            // Получаем текущий домен приложения
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+
+            // Получаем все загруженные сборки в текущем домене
+            Assembly[] assemblies = currentDomain.GetAssemblies();
+
+            // Перебираем все сборки
+            foreach (Assembly assembly in assemblies)
+            {
+                // Ищем тип в текущей сборке с указанным именем
+                Type targetType = assembly.GetTypes().FirstOrDefault(type => type.Name == className && typeof(DataType).IsAssignableFrom(type));
+
+                // Если тип найден, создаем экземпляр и возвращаем его
+                if (targetType != null)
+                {
+                    return (DataType)Activator.CreateInstance(targetType);
+                }
+            }
+
+            throw new Exception("В сборке не обнаружен искомый тип данных!");
+        }
     }
 
     /// <summary>

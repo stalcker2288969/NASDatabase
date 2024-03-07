@@ -56,22 +56,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\BaseCommands.cs" />
+    <Compile Include="Client\Utilities\ClientCommandsWorker.cs" />
     <Compile Include="Client\Client.cs" />
+    <Compile Include="Interfaces\ICommandWorker.cs" />
+    <Compile Include="Client\Utilities\DataConverter.cs" />
+    <Compile Include="Client\Utilities\IDataConverter.cs" />
+    <Compile Include="Client\Utilities\IParserIColumnFromString.cs" />
+    <Compile Include="Client\Utilities\IParserIDataLineFromString.cs" />
+    <Compile Include="Client\Utilities\IParserItemDataFromString.cs" />
+    <Compile Include="Client\Utilities\IRecipientMessage.cs" />
+    <Compile Include="Client\Utilities\ISenderCommands.cs" />
+    <Compile Include="Server\CommandsParser.cs" />
+    <Compile Include="Server\DataBaseServer.cs" />
+    <Compile Include="Interfaces\ServerCommand.cs" />
     <Compile Include="Server\Data\BaseLine.cs" />
     <Compile Include="Server\Data\Data.cs" />
     <Compile Include="Server\Data\DataBaseEventType.cs" />
-    <Compile Include="Server\Data\DataBaseSettings\Handlers\BinaryConnector.cs" />
-    <Compile Include="Server\Data\DataBaseSettings\Handlers\Connector.cs" />
-    <Compile Include="Server\Data\DataBaseSettings\Handlers\Handler.cs" />
-    <Compile Include="Server\Data\Interfases\IConnector.cs" />
+    <Compile Include="Server\Data\Modules\Handlers\BinaryConnector.cs" />
+    <Compile Include="Server\Data\Modules\Handlers\Connector.cs" />
+    <Compile Include="Server\Data\Modules\Enumeration.cs" />
+    <Compile Include="Server\Data\Modules\Handlers\Handler.cs" />
     <Compile Include="Server\Data\DataBaseSettings\Loaders\DataBaseLoader.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DataBaseLoger.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DataBaseManager.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DataBaseSettings.cs" />
     <Compile Include="Server\Data\DataBaseSettings\Loaders\DBNoSaveLoader.cs" />
-    <Compile Include="Server\Data\Interfases\IDataline.cs" />
-    <Compile Include="Server\Data\Interfases\IItemData.cs" />
-    <Compile Include="Server\Data\Interfases\ILoader.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\IDataTypeConverter.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\ToBoolConverter.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\ToDecimalConverter.cs" />
@@ -85,17 +94,45 @@
     <Compile Include="Server\Data\DataTypesInColumn\Types\DataTypeText.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Types\DataTypeTime.cs" />
     <Compile Include="Server\Data\HashTable.cs" />
-    <Compile Include="Server\Data\Interfases\IDataBaseSaver.cs" />
-    <Compile Include="Server\Data\Interfases\IEncoder.cs" />
-    <Compile Include="Server\Data\Interfases\IHashTable.cs" />
-    <Compile Include="Server\Data\Interfases\ILoger.cs" />
-    <Compile Include="Server\Data\Interfases\Column\IColumn.cs" />
+    <Compile Include="Interfaces\IColumn.cs" />
+    <Compile Include="Interfaces\IConnector.cs" />
+    <Compile Include="Interfaces\IDataBaseSaver.cs" />
+    <Compile Include="Interfaces\IDataline.cs" />
+    <Compile Include="Interfaces\IEncoder.cs" />
+    <Compile Include="Interfaces\IEnumerationHandler.cs" />
+    <Compile Include="Interfaces\IFileWorker.cs" />
+    <Compile Include="Interfaces\IHashTable.cs" />
+    <Compile Include="Interfaces\IItemData.cs" />
+    <Compile Include="Interfaces\ILoader.cs" />
+    <Compile Include="Interfaces\ILoger.cs" />
     <Compile Include="Server\Data\ItemData.cs" />
     <Compile Include="Server\Data\FasterDataBase.cs" />
     <Compile Include="Server\Data\Modules\BaseFileWorker.cs" />
-    <Compile Include="Server\Data\Modules\IFileWorker.cs" />
+    <Compile Include="Server\Data\Modules\Handlers\NetworkingConnector.cs" />
+    <Compile Include="Server\Data\Modules\ItemDataBuilder.cs" />
     <Compile Include="Server\Data\Safety\Coder.cs" />
     <Compile Include="Server\DBServer.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AddColumn.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AddData.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AdditionalSet\LoadDataBaseColumnsState.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AdditionalSet\LoadDataBaseSettings.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AdditionalSet\MSGFromClient.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ChangeEverythingTo.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ChengTypeInColumn.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ClearAllBase.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ClearAllColumn.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\CloneTo.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\Disconnect.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\GetAllIDsByParams.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\Login.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\RenameColumn.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\RemoveColumn.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\RemoveDataByID.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\SetDataServerCommand.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\SetDataInColumn.cs" />
+    <Compile Include="Server\ServerCommandsPusher.cs" />
+    <Compile Include="Server\BaseServerCommandPusher.cs" />
+    <Compile Include="Server\ServerSettings.cs" />
     <Compile Include="SmartSearchSettings\ByRange.cs" />
     <Compile Include="SmartSearchSettings\Equally.cs" />
     <Compile Include="SmartSearchSettings\LessOrEqually.cs" />
@@ -119,6 +156,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Server\Handlers\README.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

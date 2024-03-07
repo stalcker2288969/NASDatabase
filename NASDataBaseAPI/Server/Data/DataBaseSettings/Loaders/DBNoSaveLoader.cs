@@ -1,5 +1,4 @@
-﻿using NASDataBaseAPI.Server.Data.Interfases;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
+﻿using NASDataBaseAPI.Interfaces;
 using NASDataBaseAPI.Server.Data.Modules;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders

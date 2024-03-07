@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using NASDataBaseAPI.Server.Data.Safety;
 using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Server.Data.Interfases;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
+using NASDataBaseAPI.Interfaces;
 using NASDataBaseAPI.Server.Data.Modules;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
@@ -16,6 +14,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     /// </summary>
     public class DataBaseLoader : ILoader
     {
+        public const string NumberColumnsAndTheirTypesDoNotMatchInNumber = "Кол-во столбцов и их типы не совпадают по количеству!";
         /// <summary>
         /// Шифрование данных
         /// </summary>
@@ -58,14 +57,14 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <param name="ClusterNumber"></param>
         /// <returns></returns>
         public virtual IColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
-        {
+        {   
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
 
             List<Column> tables = new List<Column>();
 
-            DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(FileSystem.ReadAllText(path + "\\Settings\\Settings.txt"));
-            
+            DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(_Encoder.Decode(FileSystem.ReadAllText(path + "\\Settings\\Settings.txt"), DecodeKey));
+            dataBaseSettings.Key = DecodeKey;
 
             string[] SettingsTables = FileSystem.ReadAllLines(path + "\\Settings\\TablesType.txt");
             
@@ -83,7 +82,9 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             try
             {
-                Lines = _Encoder.Decode(FileSystem.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt").TrimEnd('\n', '\r'), dataBaseSettings.Key).Split('\n');
+                Lines = _Encoder.Decode(FileSystem.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt")
+                    .TrimEnd('\n', '\r'), dataBaseSettings.Key)
+                    .Split(new char[] { '\n' },StringSplitOptions.RemoveEmptyEntries);
             }
             catch
             {
@@ -108,7 +109,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             
             string ID = "0";            
 
-            if (SettingsTables.Length != dataBaseSettings.ColumnsCount) throw new Exception("Кол-во столбцов и их типы не совпадают по количеству!");
+            if (SettingsTables.Length != dataBaseSettings.ColumnsCount) throw new Exception(NumberColumnsAndTheirTypesDoNotMatchInNumber);
 
             for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
             {
@@ -133,7 +134,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                     }
                     boxes = newBoxes;    
                 }
-                ID = boxes[0];
+                ID = boxes[0];                
                 try
                 {
                     for (int i = 1; i < boxes.Length; i++)
@@ -172,7 +173,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             
             FileSystem.WriteAllText(_Encoder.Encode(string.Join("\n",str.ToArray()),dataBaseSettings.Key), dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
             string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings);
-            FileSystem.WriteAllText(Content, dataBaseSettings.Path + "\\Settings\\Settings.txt");
+            FileSystem.WriteAllText(_Encoder.Encode(Content, dataBaseSettings.Key), dataBaseSettings.Path + "\\Settings\\Settings.txt");
         }
 
         public virtual void ReplayesElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
@@ -212,7 +213,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             //Запоминаем типы столбцов
 
             string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings);
-            FileSystem.WriteAllText(Content, dataBaseSettings.Path + "\\Settings\\Settings.txt");
+            FileSystem.WriteAllText(_Encoder.Encode(Content,dataBaseSettings.Key), dataBaseSettings.Path + "\\Settings\\Settings.txt");
 
             int x = tables[0].GetCounts();
             for (uint g = 0; g < x; g++)

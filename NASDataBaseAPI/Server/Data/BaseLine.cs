@@ -1,25 +1,19 @@
-﻿using NASDataBaseAPI.Server.Data.Interfases;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NASDataBaseAPI.Interfaces;
 
 namespace NASDataBaseAPI.Server.Data
 {
     public class BaseLine : IDataLine
     {
-        private string[] Datas;
+        protected string[] Datas;
+        public int ID { get; protected set; }
 
-        public BaseLine(int ID, string[] datas)
+        public virtual void Init(int ID, params string[] datas)
         {
             Datas = datas;
             this.ID = ID;
         }
 
-        public int ID { get; private set; }
-
-        public string[] GetData()
+        public virtual string[] GetData()
         {
             return Datas;
         }

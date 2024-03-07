@@ -17,9 +17,9 @@ namespace NASAPITests.DataBaseTests.Loaded
         {
             int DataCount = 1000;
 
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1);
 
-            Assert.True(DataCount == DB.settings.CountBuckets, $"DataCount = {DataCount}|DB.settings.CountBuckets = {DB.settings.CountBuckets}");
+            Assert.True(DataCount == DB.Settings.CountBuckets, $"DataCount = {DataCount}|DB.settings.CountBuckets = {DB.Settings.CountBuckets}");
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace NASAPITests.DataBaseTests.Loaded
         {
             int ColumnCount = 3;
 
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1); 
 
             Assert.True(DB.Columns.Count == ColumnCount && DB.Columns[0].GetDatas().Length == 100, $"LoadedData = {DB.Columns[0].GetDatas().Length}");
         }
@@ -37,9 +37,9 @@ namespace NASAPITests.DataBaseTests.Loaded
         {
             int ColumnCount = 3;
 
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1);
 
-            Assert.True(ColumnCount == DB.settings.ColumnsCount, $"ColumnCount = {ColumnCount}|DB.settings.ColumnsCount = {DB.settings.ColumnsCount}");
+            Assert.True(ColumnCount == DB.Settings.ColumnsCount, $"ColumnCount = {ColumnCount}|DB.settings.ColumnsCount = {DB.Settings.ColumnsCount}");
         }
 
         [Fact]
@@ -48,16 +48,16 @@ namespace NASAPITests.DataBaseTests.Loaded
             int DataCount = 1000;
             int InClusters = 100;
 
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1);
 
-            Assert.True(DataCount/InClusters == DB.settings.CountClusters, $"ColumnClusters = {DataCount / InClusters}|DB.settings.CountClusters = {DB.settings.CountClusters}");
+            Assert.True(DataCount/InClusters == DB.Settings.CountClusters, $"ColumnClusters = {DataCount / InClusters}|DB.settings.CountClusters = {DB.Settings.CountClusters}");
         }
 
 
         [Fact]
         public void Load_LoadedSavers()
         {
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1);
 
             Assert.NotNull(DB.DataBaseSaver);
         }
@@ -65,7 +65,7 @@ namespace NASAPITests.DataBaseTests.Loaded
         [Fact]
         public void Load_LoadedLoader()
         {
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1);
 
             Assert.NotNull(DB.DataBaseLoader);
         }
@@ -73,7 +73,7 @@ namespace NASAPITests.DataBaseTests.Loaded
         [Fact]
         public void Load_LoadedRemover()
         {
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1);
 
             Assert.NotNull(DB.DataBaseReplayser);
         }
@@ -82,7 +82,7 @@ namespace NASAPITests.DataBaseTests.Loaded
         [Fact]
         public void Load_LoadedLoger()
         {
-            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, 1);
+            var DB = DBM.LoadDB(GenerateBase_3_1000Data.Path, GenerateBase_3_1000Data.LoadKey(), 1);
 
             Assert.NotNull(DB.DataBaseLoger);
         }

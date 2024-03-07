@@ -1,16 +1,9 @@
-﻿using NASDataBaseAPI.Server.Data.Interfases;
-using NASDataBaseAPI.Data;
+﻿using NASDataBaseAPI.Interfaces;
 using System;
-using System.IO;
 using System.Text.Json;
-using System.Net;
-using System.Net.Sockets;
-using System.Collections.Generic;
-using System.Threading;
 using NASDataBaseAPI.Server.Data.Safety;
 using NASDataBaseAPI.Data.DataTypesInColumn;
 using NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
 using NASDataBaseAPI.Server.Data.Modules;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
@@ -63,16 +56,17 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// </summary>
         /// <param name="NewKey"></param>
         /// <param name="Path"></param>
-        public virtual void ChangeKey(string NewKey, string Path)
+        public virtual void ChangeKey(string OldKey, string NewKey, string Path)
         {
-            DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(_fileSystem.ReadAllText(Path + "\\Settings\\Settings.txt"));
+            DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(Encoder.Decode(_fileSystem.ReadAllText(Path + "\\Settings\\Settings.txt"), OldKey));
             
             for(int i = 0; i < dataBaseSettings.CountClusters; i++)
             {
                _fileSystem.WriteAllText(Encoder.Encode(Encoder.Decode(_fileSystem.ReadAllText(dataBaseSettings.Path + $"\\Cluster{i + 1}.txt"), dataBaseSettings.Key), NewKey), dataBaseSettings.Path + $"\\Cluster{i + 1}.txt");
             }
             dataBaseSettings.Key = NewKey;
-            _fileSystem.WriteAllText(JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings), dataBaseSettings.Path + "\\Settings\\Settings.txt");
+            var content = JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings);
+            _fileSystem.WriteAllText(Encoder.Encode(content, NewKey), dataBaseSettings.Path + "\\Settings\\Settings.txt");
         }
         /// <summary>
         /// Удаляет всю базу по указанному пути
@@ -86,34 +80,28 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             }
             catch { return; }
         }
-        /// <summary>
-        /// Создает базу данных и задает ей начальные настройки
-        /// </summary>
-        /// <param name="Path"></param>
-        /// <param name="Key"></param>
-        /// <param name="dataBaseSettings"></param>
-        public virtual DataBase CreateDataBase(DataBaseSettings dataBaseSettings)
+        
+        public virtual T CreateDataBase<T>(DataBaseSettings dataBaseSettings) where T : DataBase
         {
             dataBaseSettings.CountClusters = dataBaseSettings.CountClusters == 0 ? 1 : dataBaseSettings.CountClusters;
 
             _fileSystem.CreateDirectory(dataBaseSettings.Path + dataBaseSettings.Name);
             _fileSystem.CreateDirectory(dataBaseSettings.Path + dataBaseSettings.Name + "\\Settings");
-            dataBaseSettings.Path = dataBaseSettings.Path + dataBaseSettings.Name;            
+            dataBaseSettings.Path = dataBaseSettings.Path + dataBaseSettings.Name;
             string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings);
-            _fileSystem.WriteAllText(Content, dataBaseSettings.Path + "\\Settings\\Settings.txt");
-            
+            _fileSystem.WriteAllText(Encoder.Encode(Content, dataBaseSettings.Key), dataBaseSettings.Path + "\\Settings\\Settings.txt");
+
             string Types = "";
-            for(int i = 0;i< dataBaseSettings.ColumnsCount; i++)
+            for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
             {
                 Types += $"Text|{i}\n";
             }
-            _fileSystem.WriteAllText(Types,dataBaseSettings.Path + "\\Settings\\TablesType.txt");
-           
-            DataBase dataBase = new DataBase((int)dataBaseSettings.ColumnsCount, dataBaseSettings, 1);
+            _fileSystem.WriteAllText(Types, dataBaseSettings.Path + "\\Settings\\TablesType.txt");
+            
+            T dataBase = (T)Activator.CreateInstance(typeof(T), (int)dataBaseSettings.ColumnsCount, dataBaseSettings, 1);
             dataBase.InitManager(this);
 
             dataBase.DataBaseLoger = new DataBaseLoger(dataBaseSettings, "Loger");
-            
 
             if (dataBaseSettings.SaveMod)
             {
@@ -123,9 +111,20 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             {
                 dataBase.DisableSafeMode();
             }
-            
-            _fileSystem.WriteAllText(" ", dataBaseSettings.Path + $"\\Cluster1.txt");
-            return dataBase;
+
+            _fileSystem.WriteAllText(Encoder.Encode("", dataBaseSettings.Key), dataBaseSettings.Path + $"\\Cluster1.txt");
+            return (T)dataBase;
+        }
+
+        /// <summary>
+        /// Создает базу данных и задает ей начальные настройки
+        /// </summary>
+        /// <param name="Path"></param>
+        /// <param name="Key"></param>
+        /// <param name="dataBaseSettings"></param>
+        public virtual DataBase CreateDataBase(DataBaseSettings dataBaseSettings)
+        {
+            return CreateDataBase<DataBase>(dataBaseSettings);
         }
 
         /// <summary>
@@ -134,8 +133,8 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <param name="dataBase"></param>
         public virtual void SaveStatesDataBase(DataBase dataBase)
         {
-            string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBase.settings);
-            _fileSystem.WriteAllText(Content, dataBase.settings.Path + "\\Settings\\FreeIDs.txt");
+            string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBase.Settings);
+            _fileSystem.WriteAllText(Encoder.Encode(Content,dataBase.Settings.Key), dataBase.Settings.Path + "\\Settings\\FreeIDs.txt");
             uint[] FreeIDs = dataBase.FreeIDs.ToArray();
             string[] lines = new string[FreeIDs.Length];
 
@@ -143,31 +142,42 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             {
                 lines[i] = FreeIDs[i].ToString();   
             }
-            _fileSystem.WriteLines(lines, dataBase.settings.Path + "\\Settings\\FreeIDs.txt");
+            _fileSystem.WriteLines(lines, dataBase.Settings.Path + "\\Settings\\FreeIDs.txt");
+            
+            //Сохранение имен и типов столбцов
+            string ColumnsFileLines = "";
+
+            for (int u = 0; u < dataBase.Columns.Count; u++)
+            {
+                ColumnsFileLines += dataBase.Columns[u].DataType.Name + "|" + dataBase.Columns[u].Name + "\n";
+            }
+
+            _fileSystem.WriteAllText(ColumnsFileLines, dataBase.Settings.Path + "\\Settings\\TablesType.txt");
         }
 
-        public virtual void SaveStatesDataBase(DataBaseSettings settings)
+        public virtual void SaveStatesDataBase(DataBaseSettings settings, string Key)
         {
             string Content = JsonSerializer.Serialize<DataBaseSettings>(settings);
-            _fileSystem.WriteAllText(Content, settings.Path + "\\Settings\\Settings.txt");            
-        }
+            _fileSystem.WriteAllText(Encoder.Encode(Content, Key), settings.Path + "\\Settings\\Settings.txt");            
+        }    
 
-        /// <summary>
-        /// Если LoadCluster = -1 => по умолчанию ничто в оперативную память не грузится
-        /// </summary>
-        /// <param name="Path"></param>
-        /// <param name="LoadCluster"></param>
-        /// <returns></returns>
-        public virtual DataBase LoadDB(string Path, int LoadCluster = -1)
+
+        public virtual T LoadDB<T>(string Path, string Key, int LoadCluster = -1) where T : DataBase
         {
-            DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(_fileSystem.ReadAllText(Path+"\\Settings\\Settings.txt"));           
-            DataBase dataBase = new DataBase((int)dataBaseSettings.ColumnsCount, dataBaseSettings, LoadCluster != -1 ? LoadCluster : 1);
+            string settingsText = _fileSystem.ReadAllText(Path + "\\Settings\\Settings.txt");
+
+            DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(Encoder.Decode(settingsText, Key));
+            dataBaseSettings.Key = Key;
+
+            T dataBase = (T)Activator.CreateInstance(typeof(T),(int)dataBaseSettings.ColumnsCount, dataBaseSettings, LoadCluster != -1 ? LoadCluster : 1);
             dataBase.InitManager(this);
 
             try
             {
                 //Загрузка свободных ID-ков
-                string[] lines = _fileSystem.ReadAllLines(dataBaseSettings.Path + "\\Settings\\FreeIDs.txt");
+                
+                string[] lines = Encoder.Decode(_fileSystem.ReadAllText(dataBaseSettings.Path + "\\Settings\\FreeIDs.txt"),Key)
+                    .Split('\n');
                 uint[] FreeIDs = new uint[lines.Length];
 
                 for (int i = 0; i < FreeIDs.Length; i++)
@@ -177,12 +187,12 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
                 dataBase.FreeIDs.AddRange(FreeIDs);
             }
-            catch { _fileSystem.WriteAllText("", dataBaseSettings.Path + "\\Settings\\FreeIDs.txt"); }
+            catch { _fileSystem.WriteAllText(Encoder.Encode("", Key), dataBaseSettings.Path + "\\Settings\\FreeIDs.txt"); }
 
             if (LoadCluster != -1)
             {
                 dataBase.Columns.Clear();
-                dataBase.Columns.AddRange((IEnumerable<Column>)DBLoader.LoadCluster(dataBaseSettings.Path, (uint)LoadCluster, dataBaseSettings.Key));     
+                dataBase.Columns.AddRange(DBLoader.LoadCluster(dataBaseSettings.Path, (uint)LoadCluster, dataBaseSettings.Key));
             }
             else
             {
@@ -210,6 +220,16 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             dataBase.DataBaseLoger = new DataBaseLoger(dataBaseSettings, "Loger");
 
             return dataBase;
+        }
+        /// <summary>
+        /// Если LoadCluster = -1 => по умолчанию ничто в оперативную память не грузится
+        /// </summary>
+        /// <param name="Path"></param>
+        /// <param name="LoadCluster"></param>
+        /// <returns></returns>
+        public virtual DataBase LoadDB(string Path, string Key, int LoadCluster = -1)
+        {
+            return LoadDB<DataBase>(Path, Key, LoadCluster);
         }
 
     }

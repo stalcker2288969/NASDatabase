@@ -1,78 +1,73 @@
 ﻿using NASDataBaseAPI.Data;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
 using NASDataBaseAPI.SmartSearchSettings;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server.Data
 {
-    internal class SmartSearcher
+    public class SmartSearcher
     {
-        private Column table;
-        private Column Intable;
-        private SearchType searchTypes;
-        private string Params;
+        private Column _column;
+        private Column _inColumn;
+        private SearchType _searchTypes;
+        private string _params;
 
         public SmartSearcher(Column ColumnParams,Column In, SearchType searchTypes, string Params)
         {
-            this.table = ColumnParams;
-            this.Intable = In;
-            this.searchTypes = searchTypes;
-            this.Params = Params;
+            this._column = ColumnParams;
+            this._inColumn = In;
+            this._searchTypes = searchTypes;
+            this._params = Params;
         }
 
         public List<int> Search()
         {
             List<int> IDs = new List<int>();
 
-            if (Intable.DataType.TryConvert(Params) || searchTypes == SearchType.ByRange)   
+            if (_inColumn.DataType.TryConvert(_params) || _searchTypes == SearchType.ByRange)   
             {
-                switch (searchTypes)
+                switch (_searchTypes)
                 {
                     case SearchType.More:
-                        IDs = new MoreSettings().SearchID(table, Intable, Params);
+                        IDs = new MoreSettings().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.Less:
-                        IDs = new LessSettings().SearchID(table, Intable, Params);
+                        IDs = new LessSettings().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.NotMore:
-                        IDs = new NotMore().SearchID(table, Intable, Params);
+                        IDs = new NotMore().SearchID(_column, _inColumn, _params);
                             break;
                     case SearchType.NotLess:
-                        IDs = new NotLess().SearchID(table, Intable, Params);
+                        IDs = new NotLess().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.Equally:
-                        IDs = new Equally().SearchID(table, Intable, Params);
+                        IDs = new Equally().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.NotEqually:
-                        IDs = new NotEqually().SearchID(table, Intable, Params);
+                        IDs = new NotEqually().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.MoreOrEqually:
-                        IDs = new MoreOrEqually().SearchID(table, Intable, Params);
+                        IDs = new MoreOrEqually().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.LessOrEqually:
-                        IDs = new LessOrEqually().SearchID(table, Intable, Params);
+                        IDs = new LessOrEqually().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.StartWith:
-                        IDs = new StartWith().SearchID(table, Intable, Params);
+                        IDs = new StartWith().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.StopWith:
-                        IDs = new StopWith().SearchID(table, Intable, Params);
+                        IDs = new StopWith().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.ByRange:
-                        IDs = new ByRange().SearchID(table, Intable, Params);
+                        IDs = new ByRange().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.NotInRange:
-                        IDs = new NotInRange().SearchID(table, Intable, Params);
+                        IDs = new NotInRange().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.Multiple:
-                        IDs = new Multiple().SearchID(table, Intable, Params);
+                        IDs = new Multiple().SearchID(_column, _inColumn, _params);
                         break;
                     case SearchType.NotMultiple:
-                        IDs = new NotMultiple().SearchID(table, Intable, Params);
+                        IDs = new NotMultiple().SearchID(_column, _inColumn, _params);
                         break;     
                 }
             }

@@ -59,7 +59,7 @@ namespace NASAPITests.DataBaseTests.Init.Column_2
                 DB.AddData(new string[2] { datas[rnd.Next(3)],datas[rnd.Next(3)] });
             }
 
-            Assert.True(DB.settings.CountBucketsInSector == (uint)InClusters, $"InClusters = {InClusters}|CountBucketsInSector = {DB.settings.CountBucketsInSector}");
+            Assert.True(DB.Settings.CountBucketsInSector == (uint)InClusters, $"InClusters = {InClusters}|CountBucketsInSector = {DB.Settings.CountBucketsInSector}");
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace NASAPITests.DataBaseTests.Init.Column_2
                 DB.AddData(new string[2] { datas[rnd.Next(3)], datas[rnd.Next(3)] });
             }
 
-            Assert.True(DB.settings.CountBuckets == DataCount);
+            Assert.True(DB.Settings.CountBuckets == DataCount);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace NASAPITests.DataBaseTests.Init.Column_2
                 DB.AddData(new string[2] { datas[rnd.Next(3)], datas[rnd.Next(3)] });
             }
 
-            Assert.True(DB.settings.CountClusters == ClustersCount, $"ClustersCount = {ClustersCount}|DB.settings.CountClusters = {DB.settings.CountClusters}");
+            Assert.True(DB.Settings.CountClusters == ClustersCount, $"ClustersCount = {ClustersCount}|DB.settings.CountClusters = {DB.Settings.CountClusters}");
         }
 
         [Fact]

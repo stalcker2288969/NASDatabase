@@ -11,7 +11,7 @@ namespace NASAPITests.DataBaseTests.Tools
     public class GenerateBase_3_1000Data
     {
         public static string Path = "D:\\TestUTest";
-
+        
         [Fact]
         public void Generate()
         {
@@ -31,12 +31,24 @@ namespace NASAPITests.DataBaseTests.Tools
             var DB = DBM.CreateDataBase(new DataBaseSettings("TestUTest", "D:\\", SimpleEncryptor.GenerateRandomKey(128)
              , (uint)ColumnCount, CountBucketsInSector: (uint)InClusters));
 
+            SaveKey(DB.Settings.Key);
+
             Random rnd = new Random();
 
             for (int i = 0; i < DataCount; i++)
             {
                 DB.AddData(new string[3] { datas[rnd.Next(3)], datas[rnd.Next(3)], datas[rnd.Next(3)] });
             }
+        }
+
+        public static void SaveKey(string Key)
+        {
+            File.WriteAllText(Path + "\\Key.txt", Key);
+        }
+
+        public static string LoadKey()
+        {
+            return File.ReadAllText(Path+"\\Key.txt");
         }
     }
 }

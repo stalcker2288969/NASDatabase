@@ -1,6 +1,6 @@
 ﻿using NASDataBaseAPI.Data;
 using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
+using NASDataBaseAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,18 +13,22 @@ namespace NASDataBaseAPI.Server.Data
     /// </summary>
     public class FasterDataBase : DataBase
     {
+        public const int StandardNumberExecutingThreads = 4;
+        
         /// <summary>
         /// Параметр отвечающий за кол-во патоков при распараллеливание задач
         /// </summary>
-        public int MaxDegreeOfParallelism = 4;
+        public int MaxDegreeOfParallelism = StandardNumberExecutingThreads;
 
-        public FasterDataBase(int countColumn, DataBaseSettings.DataBaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = 4)
+        public FasterDataBase(int countColumn, DataBaseSettings.DataBaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = StandardNumberExecutingThreads)
             : base(countColumn, settings, loadedSector)
         {
             this.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
         }
 
-        public FasterDataBase(List<IColumn> Column, DataBaseSettings.DataBaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = 4)
+        public FasterDataBase(int countColumn, DataBaseSettings.DataBaseSettings settings, int loadedSector = 0) : this(countColumn, settings, loadedSector, StandardNumberExecutingThreads) { }
+
+        public FasterDataBase(List<IColumn> Column, DataBaseSettings.DataBaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = StandardNumberExecutingThreads)
             : base(Column, settings, loadedSector)
         {
             this.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
@@ -32,13 +36,33 @@ namespace NASDataBaseAPI.Server.Data
 
         #region Глобальное взаимодействое
 
+        public override void ChengTypeInColumn(string Column, DataType DataType)
+        {
+            lock (Columns)
+            {
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
+                {
+                    MaxDegreeOfParallelism = MaxDegreeOfParallelism
+                },
+                i =>
+                {
+                    var db = _LoadDataBase((int)i);
+                    foreach (var j in Columns)
+                    {
+                        j.ChangType(DataType);
+                    }
+                    DataBaseSaver.SaveAllCluster(db.Settings, LoadedSector, db.Columns.ToArray());
+                });
+            }
+        }
+
         public override int[] GetAllIDsByParams(string nameColumn, string data)
         {
             lock (Columns)
             {
                 List<int> IDs = new List<int>();
 
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -62,7 +86,7 @@ namespace NASDataBaseAPI.Server.Data
         {
             lock (Columns)
             {
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -72,11 +96,10 @@ namespace NASDataBaseAPI.Server.Data
 
                     DataBase[ColumnName].ClearBoxes();
 
-                    DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 });
-                settings.ColumnsCount -= 1;
-                OnRemoveColumn(ColumnName);
-                DataBaseLoger.Log($"Delited table {ColumnName}");
+                Settings.ColumnsCount -= 1;
+                _RemoveColumn?.Invoke(ColumnName);     
             }
         }
 
@@ -84,7 +107,7 @@ namespace NASDataBaseAPI.Server.Data
         {
             lock (Columns)
             {
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -103,11 +126,10 @@ namespace NASDataBaseAPI.Server.Data
                     table.SetDatas(itemDatas); //записываем пустые ячейки в новый столбец
                     DB.Columns.Add(table);
 
-                    DataBaseSaver.SaveAllCluster(settings, (uint)i, DB.Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
-                settings.ColumnsCount += 1;
-                DataBaseLoger.Log($"Add table {Name}");
-                OnAddColumn(Name);
+                Settings.ColumnsCount += 1;       
+                _AddColumn?.Invoke(Name);
             }
         }
 
@@ -115,7 +137,7 @@ namespace NASDataBaseAPI.Server.Data
         {
             lock (Columns)
             {
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -135,11 +157,10 @@ namespace NASDataBaseAPI.Server.Data
                     table.SetDatas(itemDatas); //записываем пустые ячейки данные в новый столбец
 
                     DB.Columns.Add(table);
-                    DataBaseSaver.SaveAllCluster(settings, (uint)i, DB.Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
-                settings.ColumnsCount += 1;
-                DataBaseLoger.Log($"Add table {Name}|{dataType}");
-                OnAddColumn(Name);
+                Settings.ColumnsCount += 1;               
+                _AddColumn?.Invoke(Name);
             }
         }
 
@@ -153,10 +174,10 @@ namespace NASDataBaseAPI.Server.Data
                 if (this[leftName].DataType != this[rightName].DataType)
                 {
                     right.ChangType(right.DataType);
-                    DataBaseSaver.SaveAllCluster(settings, LoadedSector, Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -165,11 +186,10 @@ namespace NASDataBaseAPI.Server.Data
                     var DB = _LoadDataBase((int)i);
                     ItemData[] itemDatas = DB[leftName].GetDatas();
                     DB[rightName].SetDatas(itemDatas);
-                    DataBaseSaver.SaveAllCluster(settings, (uint)i, DB.Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
-
-                DataBaseLoger.Log($"{left.Name} clone to {right.Name}");
-                OnCloneColumn(leftName, rightName);
+    
+                _CloneColumn?.Invoke(leftName, rightName);
             }
         }
 
@@ -183,10 +203,10 @@ namespace NASDataBaseAPI.Server.Data
                 if (leftColumn.DataType != rightColumn.DataType)
                 {
                     rightColumn.ChangType(leftColumn.DataType);
-                    DataBaseSaver.SaveAllCluster(settings, LoadedSector, Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -195,11 +215,10 @@ namespace NASDataBaseAPI.Server.Data
                     var DB = _LoadDataBase((int)i);
                     ItemData[] itemDatas = DB[left].GetDatas();
                     DB[right].SetDatas(itemDatas);
-                    DataBaseSaver.SaveAllCluster(settings, (uint)i, DB.Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
 
-                DataBaseLoger.Log($"{left} clone to {right}");
-                OnCloneColumn(left, right);
+                _CloneColumn?.Invoke(left, right);
             }
         }
 
@@ -209,7 +228,7 @@ namespace NASDataBaseAPI.Server.Data
             {
                 if (InSector == -1)
                 {
-                    Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                    Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                     {
                         MaxDegreeOfParallelism = MaxDegreeOfParallelism
                     },
@@ -221,8 +240,7 @@ namespace NASDataBaseAPI.Server.Data
                             var DB = _LoadDataBase((int)i);
                             _column = DB[column.Name];
                             _column.ClearBoxes();
-                            DataBaseSaver.SaveAllCluster(settings, (uint)i, DB.Columns.ToArray());
-                            DataBaseLoger.Log($"Clearing a column in a sector {i}");
+                            DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                         }
                     });
                 }
@@ -234,10 +252,10 @@ namespace NASDataBaseAPI.Server.Data
                         var DB = _LoadDataBase(InSector);
                         _column = DB[column.Name];
                         _column.ClearBoxes();
-                        DataBaseSaver.SaveAllCluster(settings, (uint)InSector, DB.Columns.ToArray());
-                        DataBaseLoger.Log($"Clearing a column in a sector {InSector}");
+                        DataBaseSaver.SaveAllCluster(Settings, (uint)InSector, DB.Columns.ToArray());     
                     }
                 }
+                _ClearAllColumn?.Invoke(column.Name, InSector);
             }
         }
 
@@ -250,7 +268,7 @@ namespace NASDataBaseAPI.Server.Data
         {
             lock (Columns)
             {
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -261,8 +279,9 @@ namespace NASDataBaseAPI.Server.Data
                     {
                         t.ClearBoxes();
                     }
-                    DataBaseSaver.SaveAllCluster(settings, (uint)i, Columns.ToArray());
+                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 });
+                _ClearAllBase?.Invoke();
             }
         }
 
@@ -284,7 +303,7 @@ namespace NASDataBaseAPI.Server.Data
             {
                 if (SectorID == -1)
                 {
-                    Parallel.For(1, settings.CountClusters, i =>
+                    Parallel.For(1, Settings.CountClusters, i =>
                     {
                         _LoadAndChengeDataInCluster((int)i, ColumnName, Params, New);
                     });
@@ -292,7 +311,7 @@ namespace NASDataBaseAPI.Server.Data
                 else
                 {
                     _LoadAndChengeDataInCluster((int)SectorID, ColumnName, Params, New);
-                }
+                }                
             }
         }
 
@@ -305,32 +324,32 @@ namespace NASDataBaseAPI.Server.Data
         /// <param name="New"></param>
         private void _LoadAndChengeDataInCluster(int sector, string ColumnName, string Params, string New)
         {
-            var _Columns = (IEnumerable<Column>)DataBaseLoader.LoadCluster(settings.Path, (uint)sector, settings.Key);
+            var _Columns = (IEnumerable<Column>)DataBaseLoader.LoadCluster(Settings.Path, (uint)sector, Settings.Key);
 
             foreach (Column t in _Columns)
             {
                 if (t.Name == ColumnName)
                 {
-                    var ids = t.FindIDs("Params");
-                    foreach (var id in ids)
+                    var ids = t.FindIDs(Params);
+                    foreach(var id in ids)
                     {
                         t.SetDataByID(new ItemData(id, Params));
                     }
                 }
             }
-            DataBaseSaver.SaveAllCluster(settings, (uint)sector, Columns.ToArray());
+            DataBaseSaver.SaveAllCluster(Settings, (uint)sector, Columns.ToArray());
         }
 
         #endregion
 
         #region Сортировка
-        public override List<List<ItemData>> GetAllDataInBaseByColumnName(string ColumnName, string data)
+        public override BaseLine[] GetAllDataInBaseByColumnName(string ColumnName, string data)
         {
             lock (Columns)
             {
-                List<List<ItemData>> Boxes = new List<List<ItemData>>();
+                List<BaseLine> Boxes = new List<BaseLine>();
 
-                Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                 {
                     MaxDegreeOfParallelism = MaxDegreeOfParallelism
                 },
@@ -342,18 +361,22 @@ namespace NASDataBaseAPI.Server.Data
 
                     for (int j = 0; j < ids.Length; j++)
                     {
-                        var box = new List<ItemData>();
+                        var box = new BaseLine();
 
-                        foreach (var t in DB.Columns)
+                        string[] strings = new string[Columns.Count];
+
+                        for (int k = 0; k < Columns.Count; k++)
                         {
-                            box.Add(new ItemData(ids[j], t.FindDataByID(ids[j])));
+                            strings[k] = Columns[k].FindDataByID((int)ids[j]);
                         }
+
+                        box.Init(ids[j], strings);
                         lock (Boxes)
                             Boxes.Add(box);
                     }
                 });
 
-                return Boxes;
+                return Boxes.ToArray();
             }
         }
 
@@ -370,7 +393,7 @@ namespace NASDataBaseAPI.Server.Data
 
                 if (InSectro == -1)
                 {
-                    Parallel.For(1, settings.CountClusters, new ParallelOptions()
+                    Parallel.For(1, Settings.CountClusters, new ParallelOptions()
                     {
                         MaxDegreeOfParallelism = MaxDegreeOfParallelism
                     },
@@ -425,11 +448,11 @@ namespace NASDataBaseAPI.Server.Data
 
         private DataBase _LoadDataBase(int i)
         {
-            var DataBase = new DataBase((int)settings.ColumnsCount, settings, 0);
+            var DataBase = new DataBase((int)Settings.ColumnsCount, Settings, 0);
 
             if (LoadedSector != i)
             {
-                DataBase.Columns.AddRange((IEnumerable<Column>)DataBaseLoader.LoadCluster(settings.Path, (uint)i + 1, settings.Key));
+                DataBase.Columns.AddRange((IEnumerable<Column>)DataBaseLoader.LoadCluster(Settings.Path, (uint)i + 1, Settings.Key));
             }
             else
             {

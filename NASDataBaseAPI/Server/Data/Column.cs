@@ -1,6 +1,5 @@
 ﻿using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
+using NASDataBaseAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,6 +25,7 @@ namespace NASDataBaseAPI.Server.Data
 
         private HashTable<ItemData> boxes = new HashTable<ItemData>();
 
+        private bool _initialized = false;
         #region конструкторы
         public Column(string Name, HashTable<ItemData> boxes, DataType dataType, uint offSet)
         {
@@ -52,6 +52,14 @@ namespace NASDataBaseAPI.Server.Data
             this.DataType = DataTypesInColumns.Text;
             OffSet = 0;
         }
+
+        public Column()
+        {
+            this.Name = "";
+            this.DataType = DataTypesInColumns.Text;
+            OffSet = 0;
+        }
+
         #endregion
 
         #region Сеттеры
@@ -376,6 +384,16 @@ namespace NASDataBaseAPI.Server.Data
             return left.DataType != right.DataType;
         }
         #endregion
+
+        public void Init(string Name, DataType dataType, uint offSet)
+        {
+            if (_initialized)
+                throw new Exception("Столбец уже проинициализирован!");
+            this.Name = Name;
+            this.DataType = dataType;
+            this.OffSet = offSet;
+            _initialized = true;
+        }
     }
 
 }
