@@ -8,6 +8,7 @@ using NASDataBaseAPI.Server.Data;
 using NASDataBaseAPI.Interfaces;
 using NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet;
 using NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase;
+using NASDataBaseAPI.Client.Utilities;
 
 namespace NASDataBaseAPI.Server
 {
@@ -20,9 +21,11 @@ namespace NASDataBaseAPI.Server
 
         public TcpListener Server { get; private set; }
 
-        public DBServer(ServerSettings serverSettings, DataBase dataBase) : base(serverSettings, dataBase,  new CommandsParser())
+        public DBServer(ServerSettings serverSettings, DataBase dataBase) : base(serverSettings, dataBase,  new CommandsFactory(), new DataConverter())
         { 
         }
+
+        public DBServer(ServerSettings ServerSettings, DataBase DataBase, CommandsFactory CommandsParser, IDataConverter DataConverter) : base(ServerSettings, DataBase, CommandsParser, DataConverter) { }
 
         public string ServerIP { get; private set; }
         public int Port { get; private set; }
@@ -74,7 +77,7 @@ namespace NASDataBaseAPI.Server
         private void Handler(ICommandWorker worker)
         {
             string res = "";
-            var sb = new StringBuilder(); sb.Append("");
+            var sb = new StringBuilder();
             
             while(true)
             {
@@ -113,9 +116,10 @@ namespace NASDataBaseAPI.Server
             }
         }
 
-        public override void DisconnectClient(ICommandWorker client)
+        public override void DisconnectClient(ServerCommandsPusher client)
         {
-            throw new NotImplementedException();
+            client.CloseConnection();
+            Clients.Remove(client);
         }
 
         public override void Shutdown()
@@ -133,7 +137,7 @@ namespace NASDataBaseAPI.Server
             }
         }
 
-        private void InitCommands(CommandsParser commandsParser, DataBase db)
+        private void InitCommands(CommandsFactory commandsParser, DataBase db)
         {
             commandsParser.AddCommand(BaseCommands.AddData, new AddData(db, DataConverter));
             commandsParser.AddCommand(BaseCommands.RemoveDataByID, new RemoveDataByID(db.RemoveDataByID));
@@ -152,6 +156,10 @@ namespace NASDataBaseAPI.Server
             commandsParser.AddCommand(BaseCommands.ChangeEverythingTo, new ChangeEverythingTo(db.ChangeEverythingTo));
             commandsParser.AddCommand(BaseCommands.SetData, new SetDataServerCommand(db.SetData<BaseLine>, DataConverter));
             commandsParser.AddCommand(BaseCommands.ChengTypeInColumn, new ChengTypeInColumn(db.ChengTypeInColumn));
+            commandsParser.AddCommand(BaseCommands.PrintBase, new PrintBase(db));
+            commandsParser.AddCommand(BaseCommands.GetAllDataInBaseByColumnName, new GetAllDataInBaseByColumnName(db.GetAllDataInBaseByColumnName, DataConverter));
+            commandsParser.AddCommand(BaseCommands.GetIDByParams, new GetIDByParams(db.GetIDByParams, DataConverter));
+            commandsParser.AddCommand(BaseCommands.GetDataByID, new GetDataByID(db.GetDataByID, DataConverter));
         }
 
         /// <summary>

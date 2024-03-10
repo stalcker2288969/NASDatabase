@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class Disconnect : ServerCommand
+    public class Disconnect : CommandHandler
     {
         List<ServerCommandsPusher> _pushers;
         private ServerCommandsPusher _serverCommandsPusher;

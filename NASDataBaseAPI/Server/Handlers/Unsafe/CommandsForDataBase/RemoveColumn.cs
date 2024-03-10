@@ -8,7 +8,7 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
     /// <summary>
     /// !В подготовке!
     /// </summary>
-    public class RemoveColumn : ServerCommand
+    public class RemoveColumn : CommandHandler
     {
         private Action<string> _handler;
         private string _columnName;

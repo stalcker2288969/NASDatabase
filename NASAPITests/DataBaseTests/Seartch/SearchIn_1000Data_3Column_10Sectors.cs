@@ -1,4 +1,4 @@
-﻿using NASDataBaseAPI.Server.Data;
+﻿using nas = NASDataBaseAPI.Server.Data;
 using NASDataBaseAPI.Server.Data.DataBaseSettings;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace NASAPITests.DataBaseTests.Seartch
         string[] Names = { "Tom", "Bob", "Tim", "Kek", "Artemy" };
         Random rand = new Random();
 
-        public DataBase Init()
+        public nas.DataBase Init()
         {
             var DB = manager.CreateDataBase(new DataBaseSettings("Init_SearchIn_1000Data_3Column_10Sectors", "D:\\",3, 100));
 

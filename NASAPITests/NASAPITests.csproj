@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -25,6 +25,10 @@
   <ItemGroup>
     <Folder Include="DataBaseTests\Online\" />
     <Folder Include="DataBaseTests\Seartch\" />
+    <Folder Include="DataBaseManager\" />
+    <Folder Include="Enumerable\" />
+    <Folder Include="Client-Server\" />
+    <Folder Include="FasterDataBase\RemoveData\" />
   </ItemGroup>
 
   <ItemGroup>

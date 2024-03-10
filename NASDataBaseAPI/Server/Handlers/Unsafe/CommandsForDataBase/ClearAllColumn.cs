@@ -4,7 +4,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class ClearAllColumn : ServerCommand
+    public class ClearAllColumn : CommandHandler
     {
         private Action<string, int> _handler;
         private string _columnName;

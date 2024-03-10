@@ -1,7 +1,7 @@
 ﻿
 namespace NASDataBaseAPI.Interfaces
 {
-    public interface ILoader : IDataBaseSaver<IColumn>, IDataBaseLoader<IColumn>, IDataBaseReplayser
+    public interface ILoader : IDataBaseSaver<AColumn>, IDataBaseLoader<AColumn>, IDataBaseReplayser
     {
         IFileWorker FileSystem { get; }
     }

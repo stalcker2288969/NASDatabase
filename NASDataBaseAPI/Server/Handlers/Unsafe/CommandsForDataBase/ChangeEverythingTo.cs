@@ -4,7 +4,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class ChangeEverythingTo : ServerCommand
+    public class ChangeEverythingTo : CommandHandler
     {
         private Action<string, string, string, int> _handler;
         private string[] _data;

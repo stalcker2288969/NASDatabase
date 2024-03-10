@@ -94,7 +94,7 @@ namespace NASDataBaseAPI.Client.Utilities
         /// <param name="text"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public T GetColumn<T>(string text) where T : IColumn, new()
+        public T GetColumn<T>(string text) where T : Interfaces.AColumn, new()
         {
             var d = text.Split(DataSeparationInItemData.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -111,15 +111,15 @@ namespace NASDataBaseAPI.Client.Utilities
         /// <param name="column"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public string ParsColumn<T>(T column) where T : IColumn
+        public string ParsColumn<T>(T column) where T : Interfaces.AColumn
         {
             var sb = new StringBuilder();
 
             sb.Append(column.Name);
             sb.Append(DataSeparationInItemData);
-            sb.Append(column.DataType.GetType().Name);
+            sb.Append(column.TypeOfData.GetType().Name);
             sb.Append(DataSeparationInItemData);
-            sb.Append(column.OffSet);
+            sb.Append(column.Offset);
 
             return sb.ToString();
         }

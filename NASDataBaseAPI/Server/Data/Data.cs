@@ -59,9 +59,10 @@ namespace NASDataBaseAPI.Server.Data
         #region Exeption
         private const string ExeptionThereIsNotColumn = "Не был обнаружен данный столбец!";
         private const string ExeptionLengthReceivedDataDoesNotMatchNumberOfColumns = "Длина поступивших данных не совпадает c количество столбцов  ";
+        private const string ExeptionTheParametersDoNotMatchInQuantity = "Параметры не совпадают по количеству!";
         #endregion
 
-        public List<IColumn> Columns { get; protected set; }
+        public List<AColumn> Columns { get; protected set; }
 
         public List<uint> FreeIDs { get; protected set; } = new List<uint>();
 
@@ -69,9 +70,9 @@ namespace NASDataBaseAPI.Server.Data
         public DataBaseServer DataBaseServer;
 
 
-        public IDataBaseSaver<IColumn> DataBaseSaver;
+        public IDataBaseSaver<Interfaces.AColumn> DataBaseSaver;
         public IDataBaseReplayser DataBaseReplayser;
-        public IDataBaseLoader<IColumn> DataBaseLoader;
+        public IDataBaseLoader<Interfaces.AColumn> DataBaseLoader;
         public ILoger DataBaseLoger;
 
         private DataBaseManager _myManager;
@@ -84,16 +85,16 @@ namespace NASDataBaseAPI.Server.Data
 
         public DataBase(int countColumn, DataBaseSettings.DataBaseSettings settings, int loadedSector = 1)
         {
-            Columns = new List<IColumn>();
+            Columns = new List<AColumn>();
             this.Settings = settings;
             SetLoadedSector((int)loadedSector);
             for (int i = 0; i < countColumn; i++)
             {
-                Columns.Add(new Column(i.ToString()));
+                Columns.Add((AColumn)new Column(i.ToString()));
             }
         }
 
-        public DataBase(List<IColumn> Column, DataBaseSettings.DataBaseSettings settings, int loadedSector = 1)
+        public DataBase(List<AColumn> Column, DataBaseSettings.DataBaseSettings settings, int loadedSector = 1)
         {
             Columns = Column;
             this.Settings = settings;
@@ -167,7 +168,7 @@ namespace NASDataBaseAPI.Server.Data
             if (LoadedSector != newSector)
             {
                 Columns.Clear();
-                Columns.AddRange((IEnumerable<IColumn>)DataBaseLoader.LoadCluster(Settings.Path, (uint)newSector, Settings.Key));
+                Columns.AddRange((IEnumerable<AColumn>)DataBaseLoader.LoadCluster(Settings.Path, (uint)newSector, Settings.Key));
                 SetLoadedSector((int)newSector);
             }
         }
@@ -207,7 +208,7 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="NameColumn"></param>
         /// <param name="DataType"></param>
-        public virtual void ChengTypeInColumn(string NameColumn, DataType DataType)
+        public virtual void ChengTypeInColumn(string NameColumn, TypeOfData DataType)
         {
             lock (Columns)
             {
@@ -223,12 +224,12 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
-        public void ChengTypeInColumn(IColumn Column, DataType DataType)
+        public void ChengTypeInColumn(AColumn Column, TypeOfData DataType)
         {
             ChengTypeInColumn(Column.Name, DataType);
         }
 
-        public void ChengTypeInColumn(int column, DataType DataType)
+        public void ChengTypeInColumn(int column, TypeOfData DataType)
         {
             ChengTypeInColumn(Columns[column].Name, DataType);
         }
@@ -259,7 +260,7 @@ namespace NASDataBaseAPI.Server.Data
             RemoveColumn(Columns[NumberOFColumn].Name);
         }
 
-        public virtual void RemoveColumn(IColumn ColumnName)
+        public virtual void RemoveColumn(Interfaces.AColumn ColumnName)
         {
             RemoveColumn(ColumnName.Name);
         }
@@ -277,7 +278,7 @@ namespace NASDataBaseAPI.Server.Data
                 {
                     _LoadDataBase(i);
 
-                    IColumn table = new Column(Name, Columns[0].OffSet);//Новый столбец
+                    Column table = new Column(Name, Columns[0].Offset);//Новый столбец
 
                     ItemData[] itemDatas = new ItemData[Columns[0].GetCounts()];
 
@@ -302,7 +303,7 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="dataType"></param>
-        public virtual void AddColumn(string Name, DataType dataType)
+        public virtual void AddColumn(string Name, TypeOfData dataType)
         {
             lock (Columns)
             {
@@ -311,7 +312,7 @@ namespace NASDataBaseAPI.Server.Data
                 {
                     _LoadDataBase(i);
 
-                    IColumn table = new Column(Name, dataType, Columns[0].OffSet);//Новый столбец
+                    Column table = new Column(Name, dataType, Columns[0].Offset);//Новый столбец
 
                     ItemData[] itemDatas = new ItemData[Columns[0].GetCounts()];
 
@@ -333,9 +334,9 @@ namespace NASDataBaseAPI.Server.Data
         /// <summary>
         /// Добавляет столбик и задет тип данных в столбике
         /// </summary>
-        public virtual void AddColumn(IColumn column)
+        public virtual void AddColumn(AColumn Column)
         {
-            AddColumn(column.Name, column.DataType);
+            AddColumn(Column.Name, Column.TypeOfData);
         }
 
         /// <summary>
@@ -343,16 +344,16 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
-        public virtual void CloneTo(IColumn left, IColumn right)
+        public virtual void CloneTo(AColumn left, AColumn right)
         {
             lock (Columns)
             {
                 var leftName = left.Name;
                 var rightName = right.Name;
 
-                if (this[leftName].DataType != this[rightName].DataType)
+                if (this[leftName].TypeOfData != this[rightName].TypeOfData)
                 {
-                    right.ChangType(right.DataType);
+                    right.ChangType(right.TypeOfData);
                     DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
@@ -380,9 +381,9 @@ namespace NASDataBaseAPI.Server.Data
                 var rightColumn = this[right];
                 var leftColumn = this[left];
 
-                if (leftColumn.DataType != rightColumn.DataType)
+                if (leftColumn.TypeOfData != rightColumn.TypeOfData)
                 {
-                    rightColumn.ChangType(leftColumn.DataType);
+                    rightColumn.ChangType(leftColumn.TypeOfData);
                     DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
@@ -401,15 +402,15 @@ namespace NASDataBaseAPI.Server.Data
         /// <summary>
         /// Отчищает отдельный столбец в указаном секторе/класторе или везде 
         /// </summary>
-        /// <param name="column"></param>
-        public virtual void ClearAllColumn(IColumn column, int InSector = -1)
+        /// <param name="aColumn"></param>
+        public virtual void ClearAllColumn(Interfaces.AColumn aColumn, int InSector = -1)
         {
             if (InSector == -1)
             {
                 for (int i = 1; i < Settings.CountClusters; i++)
                 {
-                    var _column = this[column.Name];
-                    if (_column.DataType == column.DataType)
+                    var _column = this[aColumn.Name];
+                    if (_column.TypeOfData == aColumn.TypeOfData)
                     {
                         _LoadDataBase(i);
                         _column.ClearBoxes();
@@ -420,8 +421,8 @@ namespace NASDataBaseAPI.Server.Data
             }
             else
             {
-                var _column = this[column.Name];
-                if (_column.DataType == column.DataType)
+                var _column = this[aColumn.Name];
+                if (_column.TypeOfData == aColumn.TypeOfData)
                 {
                     _LoadDataBase(InSector);
                     _column.ClearBoxes();
@@ -465,7 +466,7 @@ namespace NASDataBaseAPI.Server.Data
                 for (int i = 1; i < Settings.CountClusters; i++)
                 {
                     _LoadDataBase(i);
-                    foreach (IColumn t in Columns)
+                    foreach (Interfaces.AColumn t in Columns)
                     {
                         t.ClearBoxes();
                     }
@@ -490,9 +491,9 @@ namespace NASDataBaseAPI.Server.Data
             RenameColumn(Columns[name].Name, newName);
         }
 
-        public virtual void RenameColumn(IColumn column, string newName)
+        public virtual void RenameColumn(Interfaces.AColumn aColumn, string newName)
         {
-            RenameColumn(column.Name, newName);
+            RenameColumn(aColumn.Name, newName);
         }
 
         #endregion
@@ -534,7 +535,7 @@ namespace NASDataBaseAPI.Server.Data
         private void _LoadAndChengeDataInCluster(int sector, string ColumnName, string Params, string New)
         {
             _LoadDataBase(sector);
-            foreach (IColumn t in Columns)
+            foreach (Interfaces.AColumn t in Columns)
             {
                 if (t.Name == ColumnName)
                 {
@@ -628,14 +629,14 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
-        public virtual void SetDataInColumn(IColumn column, ItemData NewItemData)
+        public virtual void SetDataInColumn(Interfaces.AColumn aColumn, ItemData NewItemData)
         {
-            SetDataInColumn(column.Name, NewItemData);
+            SetDataInColumn(aColumn.Name, NewItemData);
         }
 
-        public virtual void SetDataInColumn(IColumn column, int ID, string NewData)
+        public virtual void SetDataInColumn(Interfaces.AColumn aColumn, int ID, string NewData)
         {
-            SetDataInColumn(column.Name, new ItemData(ID, NewData));
+            SetDataInColumn(aColumn.Name, new ItemData(ID, NewData));
         }
         /// <summary>
         /// Добавляет данные в таблицу, важно чтобы длина поступающего массива была равна кол-ву столбцов  
@@ -927,9 +928,9 @@ namespace NASDataBaseAPI.Server.Data
         /// Сканирует всю БД в поисках подходящих строк 
         /// </summary>
         /// <param name="ColumnName"></param>
-        /// <param name="data"></param>
+        /// <param name="Data"></param>
         /// <returns></returns>
-        public virtual BaseLine[] GetAllDataInBaseByColumnName(string ColumnName, string data)
+        public virtual BaseLine[] GetAllDataInBaseByColumnName(string ColumnName, string Data)
         {
             lock (Columns)
             {
@@ -939,7 +940,7 @@ namespace NASDataBaseAPI.Server.Data
                 {
                     _LoadDataBase(i);
 
-                    int[] ids = this[ColumnName].FindIDs(data);
+                    int[] ids = this[ColumnName].FindIDs(Data);
 
                     for (int j = 0; j < ids.Length; j++)
                     {
@@ -962,38 +963,39 @@ namespace NASDataBaseAPI.Server.Data
         /// Сканирует всю БД в поисках подходящих строк 
         /// </summary>
         /// <param name="ColumnName"></param>
-        /// <param name="data"></param>
+        /// <param name="Data"></param>
         /// <returns></returns>
-        public virtual BaseLine[] GetAllDataInBaseByColumnName(IColumn Column, string data)
+        public virtual BaseLine[] GetAllDataInBaseByColumnName(Interfaces.AColumn aColumn, string Data)
         {
-            return GetAllDataInBaseByColumnName(Column.Name, data);
+            return GetAllDataInBaseByColumnName(aColumn.Name, Data);
         }
 
         /// <summary>
         /// По введенным параметрам ищет данные в БД
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="columns">Табличка параметр</param>
-        /// <param name="searchTypes">способ поиска данных</param>
+        /// <param name="Columns">Табличка параметр</param>
+        /// <param name="SearchTypes">способ поиска данных</param>
         /// <param name="Params">Данные от которых нужно операться</param>
         /// <param name="InSectro">Сектор в котором нужно искать данные(-1 - во всех)</param>
         /// <returns></returns>
-        public virtual List<List<ItemData>> SmartSearch(IColumn[] columns, SearchType[] searchTypes, string[] Params, int InSectro = -1)
+        public virtual T[] SmartSearch<T>(AColumn[] Columns, SearchType[] SearchTypes, string[] Params, int InSectro = -1)
+            where T : IDataLine, new()
         {
-            lock (Columns)
+            lock (this.Columns)
             {
-                List<List<ItemData>> Boxes = new List<List<ItemData>>();
+                List<T> Boxes = new List<T>();
                 List<List<int>> Search = new List<List<int>>();
                 List<int> resultIDs = new List<int>();
 
-                if (columns.Length != searchTypes.Length && columns.Length != Params.Length)
-                    throw new ArgumentException("Параметры не совпадают по кол-ву!");
+                if (Columns.Length != SearchTypes.Length && Columns.Length != Params.Length)
+                    throw new ArgumentException(ExeptionTheParametersDoNotMatchInQuantity);
 
                 if (InSectro == -1)
                 {
                     for (int i = 0; i < Settings.CountClusters; i++)
                     {
-                        Boxes.Add(SmartSearch(columns, searchTypes, Params, i)[0]);
+                        Boxes.AddRange(SmartSearch<T>(Columns, SearchTypes, Params, i));
                     }
                 }
                 else
@@ -1001,12 +1003,12 @@ namespace NASDataBaseAPI.Server.Data
                     _LoadDataBase(InSectro);
                     for (int j = 0; j < Params.Length; j++)
                     {
-                        var _colomn = this[columns[j].Name];
+                        var _colomn = this[Columns[j].Name];
 
-                        if (_colomn.DataType == columns[j].DataType)
+                        if (_colomn.TypeOfData == Columns[j].TypeOfData)
                         {
                             List<int> IDs = new List<int>();
-                            IDs = new SmartSearcher((Column)columns[j], (Column)_colomn, searchTypes[j], Params[j]).Search();
+                            IDs = new SmartSearcher(Columns[j], _colomn, SearchTypes[j], Params[j]).Search();
                             Search.Add(IDs);
                         }
                     }
@@ -1015,7 +1017,7 @@ namespace NASDataBaseAPI.Server.Data
                     {
                         if (Search.Count > i + 1)
                         {
-                            int[] _result = Search[i].Intersect<int>(Search[i + 1]).ToArray<int>();
+                            int[] _result = Search[i].Intersect(Search[i + 1]).ToArray();
                             Search[i + 1].Clear();
                             Search[i + 1].AddRange(_result);
                         }
@@ -1025,16 +1027,20 @@ namespace NASDataBaseAPI.Server.Data
 
                     for (int i = 0; i < resultIDs.Count; i++)
                     {
-                        List<ItemData> data = new List<ItemData>();
-                        foreach (var t in Columns)
-                        {
-                            data.Add(new ItemData(resultIDs[i], t.FindDataByID(resultIDs[i])));
+                        List<string> data = new List<string>();
+                        foreach (var t in this.Columns)
+                        { 
+                            data.Add(t.FindDataByID(resultIDs[i]));
                         }
-                        Boxes.Add(data);
+
+                        var dl = new T();
+                        dl.Init(resultIDs[i], data.ToArray());
+                        
+                        Boxes.Add(dl);
                     }
                 }
 
-                return Boxes;
+                return Boxes.ToArray();
             }
         }
 
@@ -1079,9 +1085,9 @@ namespace NASDataBaseAPI.Server.Data
         /// <param name="Data"></param>
         /// <param name="InSector"></param>
         /// <returns></returns>
-        public virtual int GetIDByParams(IColumn column, string Data, int InSector = -1)
+        public virtual int GetIDByParams(Interfaces.AColumn aColumn, string Data, int InSector = -1)
         {
-            return GetIDByParams(column.Name, Data, InSector);
+            return GetIDByParams(aColumn.Name, Data, InSector);
         }
 
         /// <summary>
@@ -1103,29 +1109,28 @@ namespace NASDataBaseAPI.Server.Data
                     strings.Add(t.FindDataByID(ID));
                 }
                 return strings.ToArray();
-
             }
         }
 
         /// <summary>
         /// Возвращет строку по id в виде ItemData[]
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ID"></param>
         /// <returns></returns>
-        public virtual ItemData[] GetItemsDataByID(int id)
+        public virtual ItemData[] GetItemsDataByID(int ID)
         {
             List<ItemData> data = new List<ItemData>();
-            foreach (var t in Columns)
+            foreach (var t in GetDataByID(ID))
             {
-                data.Add(new ItemData(id, t.FindDataByID(id)));
+                data.Add(new ItemData(ID, t));
             }
             return data.ToArray();
         }
 
-        public virtual T GetDataLineByID<T>(int id) where T : IDataLine
+        public virtual T GetDataLineByID<T>(int ID) where T : IDataLine
         {
             var line = Activator.CreateInstance<T>();
-            line.Init(id, GetDataByID(id));
+            line.Init(ID, GetDataByID(ID));
             return line;
         }
 
@@ -1133,10 +1138,10 @@ namespace NASDataBaseAPI.Server.Data
         /// Ищет и возвращает первую строку подходящую под введенные параметры возврат через массив ячеек, если не находит => массив пустой
         /// </summary>
         /// <param name="ColumnName"></param>
-        /// <param name="data"></param>
+        /// <param name="Data"></param>
         /// <param name="InSector">Если -1, то ищет во всех сразу, иначе в загруженном</param>
         /// <returns></returns>
-        public virtual ItemData[] GetDataInBaseByColumnName(string ColumnName, string data, int InSector = -1)
+        public virtual ItemData[] GetDataInBaseByColumnName(string ColumnName, string Data, int InSector = -1)
         {
             lock (Columns)
             {
@@ -1164,11 +1169,11 @@ namespace NASDataBaseAPI.Server.Data
                     }
 
 
-                    int id = this[ColumnName].FindID(data);
+                    int id = this[ColumnName].FindID(Data);
 
                     if (id != -1)
                     {
-                        foreach (IColumn table1 in Columns)
+                        foreach (Interfaces.AColumn table1 in Columns)
                         {
                             _data.Add(new ItemData(id, table1.FindDataByID(id)));
                         }
@@ -1188,20 +1193,20 @@ namespace NASDataBaseAPI.Server.Data
             return new ItemData(ID, this[ColumnName].FindDataByID(ID));
         }
 
-        public virtual ItemData GetDataByParams(IColumn column, int ID)
+        public virtual ItemData GetDataByParams(Interfaces.AColumn aColumn, int ID)
         {
-            return GetDataByParams(column.Name, ID);
+            return GetDataByParams(aColumn.Name, ID);
         }
         #endregion
 
         #region Индексаторы
-        public virtual IColumn this[string columnName]
+        public virtual Interfaces.AColumn this[string columnName]
         {
             get
             {
                 lock (Columns)
                 {
-                    foreach (IColumn Column in Columns)
+                    foreach (Column Column in Columns)
                     {
                         if (Column.Name == columnName)
                         {
@@ -1229,7 +1234,7 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
-        public virtual IColumn this[int index]
+        public virtual Interfaces.AColumn this[int index]
         {
             get
             {
@@ -1252,5 +1257,4 @@ namespace NASDataBaseAPI.Server.Data
 
         }
     }
-
 }

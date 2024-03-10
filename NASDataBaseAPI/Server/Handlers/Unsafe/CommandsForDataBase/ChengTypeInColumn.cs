@@ -5,13 +5,13 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class ChengTypeInColumn : ServerCommand
+    public class ChengTypeInColumn : CommandHandler
     {
-        private Action<string, DataType> _handler;
-        private DataType _dataType;
+        private Action<string, TypeOfData> _handler;
+        private TypeOfData _dataType;
         private string _columnName;
 
-        public ChengTypeInColumn(Action<string, DataType> handler)
+        public ChengTypeInColumn(Action<string, TypeOfData> handler)
         {
             _handler = handler;
         }

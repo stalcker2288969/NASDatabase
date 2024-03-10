@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet
 {
-    public class LoadDataBaseSettings : ServerCommand
+    public class LoadDataBaseSettings : CommandHandler
     {
         private DataBase _db;
 

@@ -18,12 +18,12 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders
 
         }
 
-        public override IColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        public override Interfaces.AColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
         {
             return base.LoadCluster(path, ClusterNumber, DecodeKey);
         }
 
-        public override IColumn[] LoadCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber)
+        public override Interfaces.AColumn[] LoadCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber)
         {
             return base.LoadCluster(dataBaseSettings.Path, ClusterNumber, dataBaseSettings.Key);
         }
@@ -33,7 +33,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders
             
         }
 
-        public override void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, IColumn[] tables)
+        public override void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, Interfaces.AColumn[] tables)
         {
             base.SaveAllCluster(dataBaseSettings, ClusterNumber, tables);
         }

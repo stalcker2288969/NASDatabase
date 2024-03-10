@@ -45,7 +45,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <param name="dataBaseSettings"></param>
         /// <param name="ClusterNumber"></param>
         /// <returns></returns>
-        public virtual IColumn[] LoadCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber)
+        public virtual AColumn[] LoadCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber)
         {
             return LoadCluster(dataBaseSettings.Path, ClusterNumber, dataBaseSettings.Key);
         }
@@ -56,12 +56,12 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <param name="path"></param>
         /// <param name="ClusterNumber"></param>
         /// <returns></returns>
-        public virtual IColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        public virtual AColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
         {   
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
 
-            List<Column> tables = new List<Column>();
+            List<AColumn> tables = new List<AColumn>();
 
             DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(_Encoder.Decode(FileSystem.ReadAllText(path + "\\Settings\\Settings.txt"), DecodeKey));
             dataBaseSettings.Key = DecodeKey;
@@ -113,7 +113,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
             {
-                tables.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber-1)));
+                tables.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber - 1)));
             }
 
             foreach (var l in Lines)
@@ -195,7 +195,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             FileSystem.WriteAllText(result, dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
         }
 
-        public virtual void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, IColumn[] tables)
+        public virtual void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, Interfaces.AColumn[] tables)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
@@ -206,7 +206,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             
             for(int u =0; u < tables.Length; u++)
             {
-                lines += tables[u].DataType.Name + "|" + tables[u].Name +"\n"; 
+                lines += tables[u].TypeOfData.Name + "|" + tables[u].Name +"\n"; 
             }
 
             FileSystem.WriteAllText(lines, dataBaseSettings.Path + "\\Settings\\TablesType.txt");

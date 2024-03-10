@@ -9,55 +9,50 @@ namespace NASDataBaseAPI.Server.Data
     /// <summary>
     /// Класс распределяющий данные по столбцу
     /// </summary>
-    public class Column : IColumn, IDisposable
+    public class Column : AColumn, IDisposable
     {
         #region Ивенты
         public event Action<int> _DeleteData;
         public event Action<ItemData> _AddData;
-        public event Action<DataType> _ChangType;
+        public event Action<TypeOfData> _ChangType;
         public event Action<ItemData[]> _SetDatas;
         #endregion
-
-        public DataType DataType { get; private set; }
-        public string Name { get; set; }
-
-        public uint OffSet { get; private set; }
 
         private HashTable<ItemData> boxes = new HashTable<ItemData>();
 
         private bool _initialized = false;
         #region конструкторы
-        public Column(string Name, HashTable<ItemData> boxes, DataType dataType, uint offSet)
+        public Column(string Name, HashTable<ItemData> boxes, TypeOfData dataType, uint offSet)
         {
             this.Name = Name;
             this.boxes = boxes;
-            this.DataType = dataType;
-            this.OffSet = offSet;
+            this.TypeOfData = dataType;
+            this.Offset = offSet;
         }
-        public Column(string Name, DataType dataType, uint offSet)
+        public Column(string Name, TypeOfData dataType, uint offSet)
         {
             this.Name = Name;
-            this.DataType = dataType;
-            this.OffSet = offSet;
+            this.TypeOfData = dataType;
+            this.Offset = offSet;
         }
         public Column(string Name, uint offSet)
         {
             this.Name = Name;
-            this.DataType = DataTypesInColumns.Text;
-            OffSet = offSet;
+            this.TypeOfData = DataTypesInColumns.Text;
+            Offset = offSet;
         }
         public Column(string Name)
         {
             this.Name = Name;
-            this.DataType = DataTypesInColumns.Text;
-            OffSet = 0;
+            this.TypeOfData = DataTypesInColumns.Text;
+            Offset = 0;
         }
 
         public Column()
         {
             this.Name = "";
-            this.DataType = DataTypesInColumns.Text;
-            OffSet = 0;
+            this.TypeOfData = DataTypesInColumns.Text;
+            Offset = 0;
         }
 
         #endregion
@@ -67,7 +62,7 @@ namespace NASDataBaseAPI.Server.Data
         /// Очищает данные и записывает новые 
         /// </summary>
         /// <param name="datas"></param>
-        public bool SetDatas(ItemData[] datas)
+        public override bool SetDatas(ItemData[] datas)
         {
             bool result = false;
             try
@@ -95,15 +90,15 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="newData"></param>
         /// <param name="ID"></param>
-        public bool SetDataByID(ItemData newData)
+        public override bool SetDataByID(ItemData newData)
         {
             bool result = false;
             try
             {
-                if (DataType.TryConvert(newData.Data) || newData.Data == " ")
+                if (TypeOfData.CanConvert(newData.Data) || newData.Data == " ")
                 {
-                    ItemData OldData = boxes.GetValues()[newData.ID - (int)OffSet];
-                    boxes.GetValues()[newData.ID - (int)OffSet] = newData;//Замена данных
+                    ItemData OldData = boxes.GetValues()[newData.ID - (int)Offset];
+                    boxes.GetValues()[newData.ID - (int)Offset] = newData;//Замена данных
 
                     boxes.RemoveNotData(OldData);//Хеширование без повторного добавления в таблицу
                     boxes.AddNotData(newData);
@@ -117,7 +112,7 @@ namespace NASDataBaseAPI.Server.Data
             }
             catch(IndexOutOfRangeException)
             {
-                throw new IndexOutOfRangeException($"Попытка взять элемент по ID: {newData.ID}, но данные физически с учетом offset {OffSet} не загруженны!");
+                throw new IndexOutOfRangeException($"Попытка взять элемент по ID: {newData.ID}, но данные физически с учетом offset {Offset} не загруженны!");
             }
             return result;
         }
@@ -129,9 +124,9 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public int FindID(string data)
+        public override int FindID(string data)
         {
-            if (!DataType.TryConvert(data))
+            if (!TypeOfData.CanConvert(data))
             {
                 return -1;
             }
@@ -163,10 +158,10 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public int[] FindIDs(string data)
+        public override int[] FindIDs(string data)
         {
             List<int> id = new List<int>();
-            if (DataType.TryConvert(data))
+            if (TypeOfData.CanConvert(data))
             {
                 ulong key = (ulong)boxes.StringHashCode20(data.ToString());
                 int x = (int)(key % boxes.CountBuckets);
@@ -189,15 +184,15 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public string FindDataByID(int id)
+        public override string FindDataByID(int id)
         {
             try
             {
-                return boxes.GetValues()[id - (int)OffSet].Data ?? " ";
+                return boxes.GetValues()[id - (int)Offset].Data ?? " ";
             }
             catch (IndexOutOfRangeException)
             {
-                throw new IndexOutOfRangeException($"Попытка взять элемент по ID: {id}, но данные физически с учетом offset {OffSet} не загруженны!");
+                throw new IndexOutOfRangeException($"Попытка взять элемент по ID: {id}, но данные физически с учетом offset {Offset} не загруженны!");
             }
         }
         #endregion
@@ -207,10 +202,10 @@ namespace NASDataBaseAPI.Server.Data
         /// Добавляет данные в конец 
         /// </summary>
         /// <param name="data"></param>
-        public bool Push(string data, uint CountBoxes)
+        public override bool Push(string data, uint CountBoxes)
         {
             bool result = false;
-            if (DataType.TryConvert(data))
+            if (TypeOfData.CanConvert(data))
             {
                 boxes.AddElement(new ItemData((int)CountBoxes, data));
                 _AddData?.Invoke(new ItemData((int)CountBoxes, data));
@@ -222,10 +217,10 @@ namespace NASDataBaseAPI.Server.Data
         /// <summary>
         /// Добавляет данные в связке с ID
         /// </summary>
-        public bool Push(string data, int ID)
+        public override bool Push(string data, int ID)
         {
             bool result = false;
-            if (DataType.TryConvert(data) && FindID(data) != ID && FindDataByID(ID) == " ")
+            if (TypeOfData.CanConvert(data) && FindID(data) != ID && FindDataByID(ID) == " ")
             {
                 boxes.AddElement(new ItemData(ID, data));
                 _AddData?.Invoke(new ItemData(ID, data));
@@ -234,10 +229,10 @@ namespace NASDataBaseAPI.Server.Data
             return result;
         }
 
-        public bool Puth(ItemData data)
+        public bool Push(ItemData data)
         {
             bool result = false;
-            if (DataType.TryConvert(data.Data) && FindID(data.Data) != data.ID && FindDataByID(data.ID) == " ")
+            if (TypeOfData.CanConvert(data.Data) && FindID(data.Data) != data.ID && FindDataByID(data.ID) == " ")
             {
                 boxes.AddElement(data);
                 _AddData?.Invoke(data);
@@ -250,13 +245,13 @@ namespace NASDataBaseAPI.Server.Data
         /// Удаляет первый совпавший элемент
         /// </summary>
         /// <param name="name"></param>
-        public bool Pop(string data)
+        public override bool Pop(string data)
         {
             int ID = -1;
             ItemData[] itemDatas = boxes.GetElementsByKey(boxes.StringHashCode20(data));
 
             bool result = false;
-            if (DataType.TryConvert(data))
+            if (TypeOfData.CanConvert(data))
             {
                 result = itemDatas != null;
 
@@ -277,10 +272,10 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="name"></param>
         /// <param name="id"></param>
-        public bool TryPopByIDAndData(ItemData itemData)
+        public override bool TryPopByIDAndData(ItemData itemData)
         {
             bool result = false;
-            if (boxes.GetValues()[itemData.ID - (int)OffSet].Data == itemData.Data)
+            if (boxes.GetValues()[itemData.ID - (int)Offset].Data == itemData.Data)
             {
                 boxes.RemoveElement(itemData);
                 _DeleteData?.Invoke(itemData.ID);
@@ -293,16 +288,16 @@ namespace NASDataBaseAPI.Server.Data
         /// Удаляет данные по айди 
         /// </summary>
         /// <param name="id"></param>
-        public void PopByID(int id)
+        public override void PopByID(int id)
         {
-            boxes.RemoveElement(boxes.GetValues()[id - (int)OffSet]);
+            boxes.RemoveElement(boxes.GetValues()[id - (int)Offset]);
             _DeleteData?.Invoke(id);
         }
 
         /// <summary>
         /// Удаляет все данные из столбца
         /// </summary>
-        public void ClearBoxes()
+        public override void ClearBoxes()
         {
             boxes.Clear();
             boxes = new HashTable<ItemData>();
@@ -314,12 +309,12 @@ namespace NASDataBaseAPI.Server.Data
         /// Возвращает длину столбца 
         /// </summary>
         /// <returns></returns>
-        public int GetCounts()
+        public override int GetCounts()
         {
             return boxes.GetValues().Count;
         }
 
-        public ItemData[] GetDatas()
+        public override ItemData[] GetDatas()
         {
             return boxes.GetValues().ToArray();
         }
@@ -338,16 +333,16 @@ namespace NASDataBaseAPI.Server.Data
         /// !!Очищает себя и меняет тип! 
         /// </summary>
         /// <param name="type"></param>
-        public void ChangType(DataType type)
+        public override void ChangType(TypeOfData type)
         {
             ClearBoxes();
-            DataType = type;
+            TypeOfData = type;
             _ChangType?.Invoke(type);
         }
 
-        public DataType GetDataType()
+        public TypeOfData GetDataType()
         {
-            return DataType;
+            return TypeOfData;
         }
 
         public string GetDataTypeName()
@@ -366,34 +361,33 @@ namespace NASDataBaseAPI.Server.Data
         {
             get
             {
-                return boxes.GetValues()[id - (int)OffSet].Data;
+                return boxes.GetValues()[id - (int)Offset].Data;
             }
             set
             {
-                this.boxes.GetValues()[id - (int)OffSet] = new ItemData(id, value);
+                this.boxes.GetValues()[id - (int)Offset] = new ItemData(id, value);
             }
         }
 
         public static bool operator ==(Column left, Column right)
         {
-            return left.DataType == right.DataType;
+            return left.TypeOfData == right.TypeOfData;
         }
 
         public static bool operator !=(Column left, Column right)
         {
-            return left.DataType != right.DataType;
+            return left.TypeOfData != right.TypeOfData;
         }
         #endregion
 
-        public void Init(string Name, DataType dataType, uint offSet)
+        public override void Init(string Name, TypeOfData dataType, uint offSet)
         {
             if (_initialized)
                 throw new Exception("Столбец уже проинициализирован!");
             this.Name = Name;
-            this.DataType = dataType;
-            this.OffSet = offSet;
+            this.TypeOfData = dataType;
+            this.Offset = offSet;
             _initialized = true;
         }
     }
-
 }

@@ -4,7 +4,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class ClearAllBase : ServerCommand
+    public class ClearAllBase : CommandHandler
     {
         private Action _handler;
 

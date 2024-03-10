@@ -5,7 +5,7 @@ using NASDataBaseAPI.Server.Data;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class AddData : ServerCommand
+    public class AddData : CommandHandler
     {
         private DataBase _db;
         private string[] _data;

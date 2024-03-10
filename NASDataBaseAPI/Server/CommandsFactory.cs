@@ -7,16 +7,16 @@ namespace NASDataBaseAPI.Server
     /// <summary>
     /// Фабрика для работы с командами 
     /// </summary>
-    public class CommandsParser
+    public class CommandsFactory
     {
-        private Dictionary<string, ServerCommand> Commands;
+        private Dictionary<string, CommandHandler> Commands;
 
-        public CommandsParser()
+        public CommandsFactory()
         {
-            Commands = new Dictionary<string, ServerCommand>();
+            Commands = new Dictionary<string, CommandHandler>();
         }
         
-        public void AddCommand(string command, ServerCommand commandHandler)
+        public void AddCommand(string command, CommandHandler commandHandler)
         {
             Commands.Add(command, commandHandler);
         }
@@ -26,7 +26,7 @@ namespace NASDataBaseAPI.Server
             Commands.Remove(command);
         }
 
-        public ServerCommand this[string key]
+        public CommandHandler this[string key]
         {
             get { return Commands[key]; }
         }

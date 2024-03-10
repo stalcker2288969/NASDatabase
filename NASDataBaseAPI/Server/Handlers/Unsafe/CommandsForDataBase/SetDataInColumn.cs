@@ -6,7 +6,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class SetDataInColumn : ServerCommand
+    public class SetDataInColumn : CommandHandler
     {
         private Action<string, ItemData> _action;
         private IDataConverter _converter;

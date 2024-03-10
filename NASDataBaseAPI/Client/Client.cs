@@ -5,7 +5,10 @@ using NASDataBaseAPI.Server.Data.DataBaseSettings;
 using NASDataBaseAPI.Interfaces;
 using System;
 using System.Text.Json;
-using System.Threading.Tasks;
+using NASDataBaseAPI.Server;
+using NASDataBaseAPI.Client.Handleres.Base;
+using System.Text;
+using NASDataBaseAPI.Data;
 
 namespace NASDataBaseAPI.Client
 {
@@ -24,16 +27,21 @@ namespace NASDataBaseAPI.Client
         public Action Disconnect { protected get; set; }
         #endregion
 
-        public string Name { get; set; }
-        public string Password { get; set; }
-        public IDataConverter DataConverter { get; set; } = new DataConverter();
+        public readonly string Name;
+        public readonly string Password;
+        public readonly IDataConverter DataConverter;
         public ICommandWorker Worker { get; private set; }
 
-        public Client(string Name, string Password) : base(0,default(DataBaseSettings))
+        public CommandsFactory CommandsFactory { get; private set; }
+
+        public Client(string Name, string Password, IDataConverter DataConverter) : base(0,default(DataBaseSettings))
         {
             this.Name = Name;
             this.Password = Password;
+            this.DataConverter = DataConverter;
         }
+
+        public Client(string Name, string Password) : this(Name, Password, new DataConverter()) { }
 
         private Client(int countColumn, DataBaseSettings settings, int loadedSector = 1) : base(countColumn, settings, loadedSector) { }
 
@@ -62,7 +70,7 @@ namespace NASDataBaseAPI.Client
             }           
         }
 
-        public override void ChengTypeInColumn(string NameColumn, DataType NewDataType)
+        public override void ChengTypeInColumn(string NameColumn, TypeOfData NewDataType)
         {
             Worker.Push(BaseCommands.ChengTypeInColumn + BaseCommands.SEPARATION + NameColumn + BaseCommands.SEPARATION + NewDataType.GetType().Name);
             var msg = NOTIFICATION(); 
@@ -90,7 +98,7 @@ namespace NASDataBaseAPI.Client
             _AddColumn?.Invoke(Name);
         }
 
-        public override void AddColumn(string Name, DataType dataType)
+        public override void AddColumn(string Name, TypeOfData dataType)
         {
             Worker.Push(BaseCommands.AddColumn + BaseCommands.SEPARATION + Name
                 + BaseCommands.SEPARATION + dataType.GetType().Name);
@@ -98,9 +106,9 @@ namespace NASDataBaseAPI.Client
             _AddColumn?.Invoke(Name);
         }
 
-        public override void AddColumn(IColumn column)
+        public override void AddColumn(AColumn aColumn)
         {
-            AddColumn(column.Name);
+            AddColumn(aColumn.Name);
         }
 
         public override void RemoveColumn(string ColumnName)
@@ -117,12 +125,12 @@ namespace NASDataBaseAPI.Client
             _RemoveColumn?.Invoke(this[NumberOFColumn].Name);
         }
 
-        public override void RemoveColumn(IColumn ColumnName)
+        public override void RemoveColumn(AColumn aColumnName)
         {
-            RemoveColumn(ColumnName.Name);
+            RemoveColumn(aColumnName.Name);
         }
 
-        public override void CloneTo(IColumn left, IColumn right)
+        public override void CloneTo(AColumn left, AColumn right)
         {
             CloneTo(left.Name, right.Name);
         }
@@ -135,9 +143,9 @@ namespace NASDataBaseAPI.Client
             _CloneColumn?.Invoke(left, right);
         }
 
-        public override void ClearAllColumn(IColumn column, int InSector = -1)
+        public override void ClearAllColumn(AColumn aColumn, int InSector = -1)
         {
-            ClearAllColumn(column.Name, InSector);
+            ClearAllColumn(aColumn.Name, InSector);
         }
 
         public override void ClearAllColumn(string ColumnName, int InSector = -1)
@@ -154,9 +162,9 @@ namespace NASDataBaseAPI.Client
             _ClearAllBase?.Invoke();
         }
 
-        public override void RenameColumn(IColumn column, string newName)
+        public override void RenameColumn(AColumn aColumn, string newName)
         {
-            RenameColumn(column.Name, newName);
+            RenameColumn(aColumn.Name, newName);
         }
 
         public override void RenameColumn(int n, string newName)
@@ -267,6 +275,7 @@ namespace NASDataBaseAPI.Client
         {
             Worker.Push(BaseCommands.GetAllDataInBaseByColumnName + BaseCommands.SEPARATION +
                 ColumnName + BaseCommands.SEPARATION + data);
+            
             var msg = NOTIFICATION();
 
             return DataConverter.GetDataLines<BaseLine>(msg);
@@ -286,6 +295,10 @@ namespace NASDataBaseAPI.Client
             return DataConverter.GetDataLine<BaseLine>(NOTIFICATION()).GetData();
         }
 
+        public override T[] SmartSearch<T>(AColumn[] Columns, SearchType[] SearchTypes, string[] Params, int InSectro = -1)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         public void ConnectTo<T>(string IP, int Port) where T : ClientCommandsWorker
@@ -293,6 +306,8 @@ namespace NASDataBaseAPI.Client
             Worker = (T)typeof(T).GetConstructor(new Type[]
             { typeof(string), typeof(string), typeof(string), typeof(string) }).Invoke(new object[] 
             { IP, Port.ToString(), Name, Password });
+            
+            InitHandlers();
 
             Worker.Push(BaseCommands.Login + BaseCommands.SEPARATION + Name + BaseCommands.SEPARATION + Password);
             string response = NOTIFICATION();
@@ -303,8 +318,7 @@ namespace NASDataBaseAPI.Client
                 throw new Exception($"Не удалось подключиться к БД! IP: {IP}, Port: {Port}, Name: {Name}, Password: {Password}");
             }
 
-            //Task.Run(() => HandlerCommandsFromServer());
-
+            
             Settings = LoadDataBaseSettings();
             LoadDataBaseColumnsState();
         }
@@ -314,6 +328,15 @@ namespace NASDataBaseAPI.Client
             Worker.Dispose();
             Disconnect?.Invoke();
         }
+
+        private void InitHandlers()
+        {
+            CommandsFactory = new CommandsFactory();
+            CommandsFactory.AddCommand(BaseCommands.HAVENOTPERM, new HAVENOTPERM());
+            CommandsFactory.AddCommand(BaseCommands.ERROR, new ERROR());
+            CommandsFactory.AddCommand(BaseCommands.Disconnect, new Disconnect());
+        }
+
         /// <summary>
         /// Отправляет сообщение на сервер
         /// </summary>
@@ -323,12 +346,12 @@ namespace NASDataBaseAPI.Client
             Worker.Push(BaseCommands.MSG + BaseCommands.SEPARATION + Command);
         }
 
-        public override IColumn this[string index]
+        public override AColumn this[string index]
         {
             get
             {
                 LoadDataBaseColumnsState();
-                return (IColumn)base[index];
+                return (AColumn)base[index];
             }
             protected set
             {
@@ -337,12 +360,12 @@ namespace NASDataBaseAPI.Client
             }
         }
 
-        public override IColumn this[int index]
+        public override AColumn this[int index]
         {
             get
             {
                 LoadDataBaseColumnsState();
-                return (IColumn)base[index];
+                return (AColumn)base[index];
             }
             protected set
             {
@@ -354,22 +377,30 @@ namespace NASDataBaseAPI.Client
         private string NOTIFICATION()
         {
             string res = Worker.Listen();
-            if (res.Split(BaseCommands.SEPARATION.ToCharArray())[0] == BaseCommands.HAVENOTPERM)
+            string[] datas = res.Split(BaseCommands.SEPARATION.ToCharArray(), 
+                StringSplitOptions.RemoveEmptyEntries);
+           
+            var sb = new StringBuilder();
+
+            if (datas.Length > 1)
             {
-                throw new ArgumentException(NoRightsExceptionText + res.Split(BaseCommands.SEPARATION.ToCharArray())[1]);
+                sb.Append(datas[1]);
+                for (int i = 2; i < datas.Length; i++)
+                {
+                    sb.Append(BaseCommands.SEPARATION);
+                    sb.Append(datas[i]);
+                }
             }
-            else if (res.Split(BaseCommands.SEPARATION.ToCharArray())[0] == BaseCommands.ERROR)
+
+            try
             {
-                throw new ArgumentException(ErrorOnServerExceptionText
-                    + res.Split(BaseCommands.SEPARATION.ToCharArray())[1]);
+                CommandsFactory[datas[0]].SetData(sb.ToString());
+                CommandsFactory[datas[0]].Use();
+
             }
+            catch { }
 
             return res;
-        }
-
-        private void HandlerCommandsFromServer()
-        {
-            
         }
     }
 }

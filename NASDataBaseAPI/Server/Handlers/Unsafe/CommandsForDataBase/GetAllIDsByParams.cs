@@ -5,7 +5,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class GetAllIDsByParams : ServerCommand
+    public class GetAllIDsByParams : CommandHandler
     {
         private Func<string, string, int[]> _handler;
         private string _columnName;

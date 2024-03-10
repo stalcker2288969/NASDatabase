@@ -149,7 +149,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             for (int u = 0; u < dataBase.Columns.Count; u++)
             {
-                ColumnsFileLines += dataBase.Columns[u].DataType.Name + "|" + dataBase.Columns[u].Name + "\n";
+                ColumnsFileLines += dataBase.Columns[u].TypeOfData.Name + "|" + dataBase.Columns[u].Name + "\n";
             }
 
             _fileSystem.WriteAllText(ColumnsFileLines, dataBase.Settings.Path + "\\Settings\\TablesType.txt");
@@ -214,8 +214,8 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                 }
             }
 
-            dataBase.DataBaseSaver = _dataBaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseSaver<IColumn>;
-            dataBase.DataBaseLoader = _dataBaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseLoader<IColumn>;
+            dataBase.DataBaseSaver = _dataBaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseSaver<Interfaces.AColumn>;
+            dataBase.DataBaseLoader = _dataBaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseLoader<Interfaces.AColumn>;
             dataBase.DataBaseReplayser = _dataBaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseReplayser;
             dataBase.DataBaseLoger = new DataBaseLoger(dataBaseSettings, "Loger");
 

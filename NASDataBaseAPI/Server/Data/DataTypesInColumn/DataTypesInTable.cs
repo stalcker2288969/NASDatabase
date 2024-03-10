@@ -1,4 +1,5 @@
 ﻿using NASDataBaseAPI.Server.Data.DataTypesInColumn.Types;
+using t = NASDataBaseAPI.Server.Data.DataTypesInColumn.Types;
 using System;
 using System.Reflection;
 using System.Linq;
@@ -12,13 +13,13 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
     /// </summary>
     public static class DataTypesInColumns
     {
-        public static DataType Int { get; private set; } = new DataTypeInt("Int");
-        public static DataType SemicolonNumbers { get; private set; } = new DataTypeDecimal("Float");
-        public static DataType Text { get; private set; } = new DataTypeText("Text");
-        public static DataType Boolean { get; private set; } = new DataTypeBool("Boolean");
-        public static DataType Time { get; private set; } = new DataTypeTime("Time");
+        public static TypeOfData Int { get; private set; } = new Int();
+        public static TypeOfData SemicolonNumbers { get; private set; } = new t.Decimal();
+        public static TypeOfData Text { get; private set; } = new Text();
+        public static TypeOfData Boolean { get; private set; } = new Bool();
+        public static TypeOfData Time { get; private set; } = new Time();
 
-        public static DataType GetType(string typeName)
+        public static TypeOfData GetType(string typeName)
         {
             switch (typeName)
             {
@@ -37,35 +38,57 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
             }
         }
 
-        //Возвращает все зарегистрированные DataTypes в сборке | не протестированно  
-        public static DataType[] GetRegisterDataTypes(string Namespace = "NASDataBaseAPI")
+        /// <summary>
+        /// Возвращает все зарегистрированные типы в сборке 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static TypeOfData[] GetRegisterTypesOfData()
         {
-            Assembly assembly = Assembly.Load(Namespace);
+            AppDomain currentDomain = AppDomain.CurrentDomain;
 
-            var Types = assembly.GetTypes();
+            Assembly[] assemblies = currentDomain.GetAssemblies();           
 
-            var baseType = typeof(DataType);
+            var baseType = typeof(TypeOfData);
 
-            var derivedTypes = Types.Where(type => baseType.IsAssignableFrom(type) && type != baseType);
-
-            List<DataType> dataTypes = new List<DataType>();
+            List<TypeOfData> dataTypes = new List<TypeOfData>();
             
-            foreach (var type in derivedTypes)
+            foreach(var assemb in assemblies)
             {
-                try
-                {
-                    dataTypes.Add(Activator.CreateInstance(type) as DataType);
-                }
-                catch(Exception ex) 
-                {
-                    throw new Exception("При сборе информации о всех типах в сборке обнаружена ошибка! |" + ex.Message, ex);
-                }               
-            }
+                var Types = assemb.GetTypes();
+                var derivedTypes = Types.Where(type => baseType.IsAssignableFrom(type) && type != baseType);
 
+                foreach (var type in derivedTypes)
+                {
+                    try
+                    {
+                        dataTypes.Add(Activator.CreateInstance(type) as TypeOfData);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception("При сборе информации о всех типах в сборке обнаружена ошибка! |" + ex.Message, ex);
+                    }
+                }
+            }
+            
             return dataTypes.ToArray();
         }
 
-        public static DataType GetTypeOfDataByClassName(string className)
+        public static TypeOfData GetTypeOf<T>(T value)
+        {
+            var types = GetRegisterTypesOfData();
+            foreach (var DT in types)
+            { 
+                if (DT.CanConvert(value.ToString()))
+                {
+                    return DT;
+                }
+            }
+
+            throw new Exception("У указанного обьекта нет своего DataType");
+        }
+
+        public static TypeOfData GetTypeOfDataByClassName(string className)
         {
             // Получаем текущий домен приложения
             AppDomain currentDomain = AppDomain.CurrentDomain;
@@ -77,12 +100,12 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
             foreach (Assembly assembly in assemblies)
             {
                 // Ищем тип в текущей сборке с указанным именем
-                Type targetType = assembly.GetTypes().FirstOrDefault(type => type.Name == className && typeof(DataType).IsAssignableFrom(type));
+                Type targetType = assembly.GetTypes().FirstOrDefault(type => type.Name == className && typeof(TypeOfData).IsAssignableFrom(type));
 
                 // Если тип найден, создаем экземпляр и возвращаем его
                 if (targetType != null)
                 {
-                    return (DataType)Activator.CreateInstance(targetType);
+                    return (TypeOfData)Activator.CreateInstance(targetType);
                 }
             }
 
@@ -93,36 +116,24 @@ namespace NASDataBaseAPI.Data.DataTypesInColumn
     /// <summary>
     /// Базовый класс для дипов данных
     /// </summary>
-    public class DataType
+    public abstract class TypeOfData
     {
-        public string Name { get; private set; }
-       
-        public DataType(string Name)
-        {
-            this.Name = Name;
-        }
+        public string Name { get => this.GetType().Name; }
+            
+        public abstract object Convert(object value);
 
-        public DataType()
-        {
-            this.Name = "%None%";
-        }
+        public abstract bool CanConvert(object value);
 
-        /// <summary>
-        /// По умолчанию не работает 
-        /// </summary>
-        public virtual object Convert(object value)
-        {
-            return value;
-        }
+        public abstract bool More(string value1, string value2);
+        public abstract bool Less(string value1, string value2);
+        public abstract bool Equal(string value1, string value2);
+        public abstract bool NotEqual(string value1, string value2);
+        public virtual bool IsBaseValue(string value) => Equal(value, GetBaseValue());
+        public abstract string GetBaseValue();
 
-        /// <summary>
-        /// По умолчанию не работает  
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public virtual bool TryConvert(object value)
-        {
-            return false;
-        }
+
+        public virtual bool Multiple(string value1, string value2) { throw new NotImplementedException(); }
+        public virtual string Share(string value1, string value2) { throw new NotImplementedException(); }
+        public virtual string Mult(string value1, string value2) { throw new NotImplementedException(); }
     }
 }

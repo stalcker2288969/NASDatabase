@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class SetDataServerCommand : ServerCommand
+    public class SetDataServerCommand : CommandHandler
     {
         private BaseLine _line;
         private Action<BaseLine> _handler;

@@ -7,12 +7,12 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class AddColumn : ServerCommand
+    public class AddColumn : CommandHandler
     {
-        private Action<IColumn> _handler;
-        private IColumn _column;
+        private Action<Column> _handler;
+        private Column _column;
 
-        public AddColumn(Action<IColumn> Handler) 
+        public AddColumn(Action<Column> Handler) 
         {
             _handler = Handler;
         }
@@ -24,7 +24,7 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
             _column = new Column(d[0], GetTypeByName(d[1]), 0);
         }
 
-        private DataType GetTypeByName(string name)
+        private TypeOfData GetTypeByName(string name)
         {
            return DataTypesInColumns.GetTypeOfDataByClassName(name);
         }

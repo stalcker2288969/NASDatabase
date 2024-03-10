@@ -4,7 +4,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet
 {
-    public class MSGFromClient : ServerCommand
+    public class MSGFromClient : CommandHandler
     {
         private string _command;
 

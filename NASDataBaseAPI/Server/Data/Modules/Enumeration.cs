@@ -37,15 +37,15 @@ namespace NASDataBaseAPI.Server.Data.Modules
             ForBoxes(_dataBase[InColumn], Handler);
         }
 
-        public void ForBoxes(IColumn InColumn, Action<ItemData> Handler)
+        public void ForBoxes(Interfaces.AColumn inAColumn, Action<ItemData> Handler)
         {
             for (int i = 0; i < _dataBase.Settings.CountBuckets; i++)
             {
-                Handler?.Invoke(_dataBase.GetDataByParams(InColumn.Name, i));
+                Handler?.Invoke(_dataBase.GetDataByParams(inAColumn.Name, i));
             }
         }
 
-        public void ForBoxes<T1>(T1 InColumn, Action<ItemData> Handler) where T1 : IColumn
+        public void ForBoxes<T1>(T1 InColumn, Action<ItemData> Handler) where T1 : Interfaces.AColumn
         {
             for (int i = 0; i < _dataBase.Settings.CountBuckets; i++)
             {

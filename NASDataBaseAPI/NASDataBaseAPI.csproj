@@ -56,6 +56,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\BaseCommands.cs" />
+    <Compile Include="Client\Handleres\Base\Disconnect.cs" />
+    <Compile Include="Client\Handleres\Base\ERROR.cs" />
+    <Compile Include="Client\Handleres\Base\HAVENOTPERM.cs" />
     <Compile Include="Client\Utilities\ClientCommandsWorker.cs" />
     <Compile Include="Client\Client.cs" />
     <Compile Include="Interfaces\ICommandWorker.cs" />
@@ -66,9 +69,9 @@
     <Compile Include="Client\Utilities\IParserItemDataFromString.cs" />
     <Compile Include="Client\Utilities\IRecipientMessage.cs" />
     <Compile Include="Client\Utilities\ISenderCommands.cs" />
-    <Compile Include="Server\CommandsParser.cs" />
+    <Compile Include="Server\CommandsFactory.cs" />
     <Compile Include="Server\DataBaseServer.cs" />
-    <Compile Include="Interfaces\ServerCommand.cs" />
+    <Compile Include="Interfaces\CommandHandler.cs" />
     <Compile Include="Server\Data\BaseLine.cs" />
     <Compile Include="Server\Data\Data.cs" />
     <Compile Include="Server\Data\DataBaseEventType.cs" />
@@ -87,14 +90,14 @@
     <Compile Include="Server\Data\DataTypesInColumn\Converter\ToIntConverter.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\ToStringConverter.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\Converter\ToTimeConverter.cs" />
-    <Compile Include="Server\Data\DataTypesInColumn\Types\DataTypeBool.cs" />
-    <Compile Include="Server\Data\DataTypesInColumn\Types\DataTypeDecimal.cs" />
-    <Compile Include="Server\Data\DataTypesInColumn\Types\DataTypeInt.cs" />
+    <Compile Include="Server\Data\DataTypesInColumn\Types\Bool.cs" />
+    <Compile Include="Server\Data\DataTypesInColumn\Types\Decimal.cs" />
+    <Compile Include="Server\Data\DataTypesInColumn\Types\Int.cs" />
     <Compile Include="Server\Data\DataTypesInColumn\DataTypesInTable.cs" />
-    <Compile Include="Server\Data\DataTypesInColumn\Types\DataTypeText.cs" />
-    <Compile Include="Server\Data\DataTypesInColumn\Types\DataTypeTime.cs" />
+    <Compile Include="Server\Data\DataTypesInColumn\Types\Text.cs" />
+    <Compile Include="Server\Data\DataTypesInColumn\Types\Time.cs" />
     <Compile Include="Server\Data\HashTable.cs" />
-    <Compile Include="Interfaces\IColumn.cs" />
+    <Compile Include="Interfaces\AColumn.cs" />
     <Compile Include="Interfaces\IConnector.cs" />
     <Compile Include="Interfaces\IDataBaseSaver.cs" />
     <Compile Include="Interfaces\IDataline.cs" />
@@ -117,13 +120,17 @@
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AdditionalSet\LoadDataBaseColumnsState.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AdditionalSet\LoadDataBaseSettings.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AdditionalSet\MSGFromClient.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\AdditionalSet\PrintBase.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ChangeEverythingTo.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ChengTypeInColumn.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ClearAllBase.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\ClearAllColumn.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\CloneTo.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\Disconnect.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\GetAllDataInBaseByColumnName.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\GetAllIDsByParams.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\GetDataByID.cs" />
+    <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\GetIDByParams.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\Login.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\RenameColumn.cs" />
     <Compile Include="Server\Handlers\Unsafe\CommandsForDataBase\RemoveColumn.cs" />
@@ -159,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Server\Handlers\README.txt" />
+    <Content Include="SmartSearchSettings\README.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

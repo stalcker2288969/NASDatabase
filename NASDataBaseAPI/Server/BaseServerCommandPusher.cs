@@ -68,12 +68,13 @@ namespace NASDataBaseAPI.Server
 
         public override void CloseConnection()
         {
-            _client.Close();
+            Dispose();
         }
 
         public override void Dispose()
         {
             Push(BaseCommands.Disconnect);
+            _client.Close();
         }
     }
 }

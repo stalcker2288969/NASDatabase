@@ -6,7 +6,7 @@ namespace NASDataBaseAPI.Interfaces
     /// <summary>
     /// Является объектом сохраняющим БД  
     /// </summary>
-    public interface IDataBaseSaver<T> where T : IColumn
+    public interface IDataBaseSaver<T> where T : AColumn
     {       
         void AddElement(DataBaseSettings DataBaseSettings, uint ClusterNumber, ItemData[] ItemDatas);        
         void SaveAllCluster(DataBaseSettings DataBaseSettings, uint ClusterNumber, T[] Columns);
@@ -15,7 +15,7 @@ namespace NASDataBaseAPI.Interfaces
     /// <summary>
     /// Является объектом загружающий БД  
     /// </summary>
-    public interface IDataBaseLoader<T> where T : IColumn
+    public interface IDataBaseLoader<T> where T : AColumn
     {
         T[] LoadCluster(string Path, uint ClusterNumber, string DecodeKey);
         T[] LoadCluster(DataBaseSettings DataBaseSettings, uint ClusterNumber);

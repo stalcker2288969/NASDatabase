@@ -5,7 +5,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class Login : ServerCommand
+    public class Login : CommandHandler
     {
         private ServerSettings ServerSettings;
         private bool _canConnect = false;

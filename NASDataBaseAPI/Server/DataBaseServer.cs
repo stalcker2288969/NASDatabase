@@ -14,15 +14,15 @@ namespace NASDataBaseAPI.Server
         public event Action _OnStopServer;
         #endregion
 
-        public IDataConverter DataConverter = new DataConverter();
+        public readonly IDataConverter DataConverter;
         public List<ServerCommandsPusher> Clients { get; protected set; } = new List<ServerCommandsPusher>();
-        public CommandsParser Commands { get; protected set; }
+        public CommandsFactory Commands { get; protected set; }
 
         protected DataBase DataBase { get; private set; }
         public ServerSettings ServerSettings { get; protected set; }
         
         #region Конструкторы 
-        public DataBaseServer(ServerSettings serverSettings, DataBase db, CommandsParser commandsParser)
+        public DataBaseServer(ServerSettings serverSettings, DataBase db, CommandsFactory commandsParser)
         {
             DataBase = db;
             ServerSettings = serverSettings;
@@ -37,7 +37,7 @@ namespace NASDataBaseAPI.Server
             #endregion
         }
 
-        public DataBaseServer(ServerSettings serverSettings, DataBase dataBase, CommandsParser commandsParser, IDataConverter dataConverter) : this(serverSettings, dataBase, commandsParser)
+        public DataBaseServer(ServerSettings serverSettings, DataBase dataBase, CommandsFactory commandsParser, IDataConverter dataConverter) : this(serverSettings, dataBase, commandsParser)
         {
             DataConverter = dataConverter;
         }
@@ -48,7 +48,7 @@ namespace NASDataBaseAPI.Server
         /// </summary>
         public abstract void InitServer();
 
-        public abstract void DisconnectClient(ICommandWorker Client);
+        public abstract void DisconnectClient(ServerCommandsPusher Client);
 
         /// <summary>
         /// Выключение сервера

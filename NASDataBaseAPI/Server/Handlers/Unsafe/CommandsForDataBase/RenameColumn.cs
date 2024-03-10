@@ -5,7 +5,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class RenameColumn : ServerCommand
+    public class RenameColumn : CommandHandler
     {
         private Action<string, string> _handler;
 

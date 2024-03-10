@@ -7,7 +7,7 @@ using System.Text;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet
 {
-    public class LoadDataBaseColumnsState : ServerCommand
+    public class LoadDataBaseColumnsState : CommandHandler
     {
         private DataBase _db;
         private IDataConverter _converter;

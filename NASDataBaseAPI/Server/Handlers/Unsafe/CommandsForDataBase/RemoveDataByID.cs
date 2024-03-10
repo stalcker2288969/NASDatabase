@@ -4,7 +4,7 @@ using System;
 
 namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class RemoveDataByID : ServerCommand
+    public class RemoveDataByID : CommandHandler
     {
         private string _data = "";
         private Action<int> _handler;

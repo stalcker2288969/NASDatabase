@@ -14,15 +14,15 @@ for(; ;)
     var d1 = Console.ReadLine();
     Console.Write("old >>");
     var d2 = Console.ReadLine();
-    
+
     try
     {
         client.AddData(d1, d2);
     }
-    catch(Exception ex) 
-    { 
+    catch (Exception ex)
+    {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(ex.Message); 
+        Console.WriteLine(ex.Message);
         Console.ResetColor();
     }
 }
