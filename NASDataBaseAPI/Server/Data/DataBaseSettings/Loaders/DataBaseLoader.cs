@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using NASDataBaseAPI.Server.Data.Safety;
 using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Server.Data.Interfases;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
+using NASDataBaseAPI.Interfaces;
 using NASDataBaseAPI.Server.Data.Modules;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
@@ -16,6 +14,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     /// </summary>
     public class DataBaseLoader : ILoader
     {
+        public const string NumberColumnsAndTheirTypesDoNotMatchInNumber = "Кол-во столбцов и их типы не совпадают по количеству!";
         /// <summary>
         /// Шифрование данных
         /// </summary>
@@ -46,7 +45,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <param name="dataBaseSettings"></param>
         /// <param name="ClusterNumber"></param>
         /// <returns></returns>
-        public virtual IColumn[] LoadCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber)
+        public virtual AColumn[] LoadCluster(DatabaseSettings dataBaseSettings, uint ClusterNumber)
         {
             return LoadCluster(dataBaseSettings.Path, ClusterNumber, dataBaseSettings.Key);
         }
@@ -57,15 +56,15 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <param name="path"></param>
         /// <param name="ClusterNumber"></param>
         /// <returns></returns>
-        public virtual IColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
-        {
+        public virtual AColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        {   
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
 
-            List<Column> tables = new List<Column>();
+            List<AColumn> tables = new List<AColumn>();
 
-            DataBaseSettings dataBaseSettings = JsonSerializer.Deserialize<DataBaseSettings>(FileSystem.ReadAllText(path + "\\Settings\\Settings.txt"));
-            
+            DatabaseSettings dataBaseSettings = JsonSerializer.Deserialize<DatabaseSettings>(_Encoder.Decode(FileSystem.ReadAllText(path + "\\Settings\\Settings.txt"), DecodeKey));
+            dataBaseSettings.Key = DecodeKey;
 
             string[] SettingsTables = FileSystem.ReadAllLines(path + "\\Settings\\TablesType.txt");
             
@@ -83,7 +82,9 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             try
             {
-                Lines = _Encoder.Decode(FileSystem.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt").TrimEnd('\n', '\r'), dataBaseSettings.Key).Split('\n');
+                Lines = _Encoder.Decode(FileSystem.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt")
+                    .TrimEnd('\n', '\r'), dataBaseSettings.Key)
+                    .Split(new char[] { '\n' },StringSplitOptions.RemoveEmptyEntries);
             }
             catch
             {
@@ -108,11 +109,11 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             
             string ID = "0";            
 
-            if (SettingsTables.Length != dataBaseSettings.ColumnsCount) throw new Exception("Кол-во столбцов и их типы не совпадают по количеству!");
+            if (SettingsTables.Length != dataBaseSettings.ColumnsCount) throw new Exception(NumberColumnsAndTheirTypesDoNotMatchInNumber);
 
             for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
             {
-                tables.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber-1)));
+                tables.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), dataBaseSettings.CountBucketsInSector * (ClusterNumber - 1)));
             }
 
             foreach (var l in Lines)
@@ -133,7 +134,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                     }
                     boxes = newBoxes;    
                 }
-                ID = boxes[0];
+                ID = boxes[0];                
                 try
                 {
                     for (int i = 1; i < boxes.Length; i++)
@@ -150,7 +151,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             return tables.ToArray();
         }
 
-        public virtual void AddElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+        public virtual void AddElement(DatabaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
@@ -171,11 +172,11 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             str.Add(stringBuilder.ToString());
             
             FileSystem.WriteAllText(_Encoder.Encode(string.Join("\n",str.ToArray()),dataBaseSettings.Key), dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
-            string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings);
-            FileSystem.WriteAllText(Content, dataBaseSettings.Path + "\\Settings\\Settings.txt");
+            string Content = JsonSerializer.Serialize<DatabaseSettings>(dataBaseSettings);
+            FileSystem.WriteAllText(_Encoder.Encode(Content, dataBaseSettings.Key), dataBaseSettings.Path + "\\Settings\\Settings.txt");
         }
 
-        public virtual void ReplayesElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+        public virtual void ReplayesElement(DatabaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
@@ -194,7 +195,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             FileSystem.WriteAllText(result, dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
         }
 
-        public virtual void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, IColumn[] tables)
+        public virtual void SaveAllCluster(DatabaseSettings dataBaseSettings, uint ClusterNumber, Interfaces.AColumn[] tables)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
@@ -205,14 +206,14 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             
             for(int u =0; u < tables.Length; u++)
             {
-                lines += tables[u].DataType.Name + "|" + tables[u].Name +"\n"; 
+                lines += tables[u].TypeOfData.Name + "|" + tables[u].Name +"\n"; 
             }
 
             FileSystem.WriteAllText(lines, dataBaseSettings.Path + "\\Settings\\TablesType.txt");
             //Запоминаем типы столбцов
 
-            string Content = JsonSerializer.Serialize<DataBaseSettings>(dataBaseSettings);
-            FileSystem.WriteAllText(Content, dataBaseSettings.Path + "\\Settings\\Settings.txt");
+            string Content = JsonSerializer.Serialize<DatabaseSettings>(dataBaseSettings);
+            FileSystem.WriteAllText(_Encoder.Encode(Content,dataBaseSettings.Key), dataBaseSettings.Path + "\\Settings\\Settings.txt");
 
             int x = tables[0].GetCounts();
             for (uint g = 0; g < x; g++)

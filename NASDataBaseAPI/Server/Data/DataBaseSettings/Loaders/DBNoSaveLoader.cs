@@ -1,5 +1,4 @@
-﻿using NASDataBaseAPI.Server.Data.Interfases;
-using NASDataBaseAPI.Server.Data.Interfases.Column;
+﻿using NASDataBaseAPI.Interfaces;
 using NASDataBaseAPI.Server.Data.Modules;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders
@@ -14,27 +13,27 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders
 
         }
 
-        public override void AddElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+        public override void AddElement(DatabaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
 
         }
 
-        public override IColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        public override Interfaces.AColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
         {
             return base.LoadCluster(path, ClusterNumber, DecodeKey);
         }
 
-        public override IColumn[] LoadCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber)
+        public override Interfaces.AColumn[] LoadCluster(DatabaseSettings dataBaseSettings, uint ClusterNumber)
         {
             return base.LoadCluster(dataBaseSettings.Path, ClusterNumber, dataBaseSettings.Key);
         }
 
-        public override void ReplayesElement(DataBaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+        public override void ReplayesElement(DatabaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
             
         }
 
-        public override void SaveAllCluster(DataBaseSettings dataBaseSettings, uint ClusterNumber, IColumn[] tables)
+        public override void SaveAllCluster(DatabaseSettings dataBaseSettings, uint ClusterNumber, Interfaces.AColumn[] tables)
         {
             base.SaveAllCluster(dataBaseSettings, ClusterNumber, tables);
         }

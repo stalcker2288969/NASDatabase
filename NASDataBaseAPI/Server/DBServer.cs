@@ -1,63 +1,178 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using NASDataBaseAPI.Client;
+using NASDataBaseAPI.Server.Data;
+using NASDataBaseAPI.Interfaces;
+using NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet;
+using NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase;
+using NASDataBaseAPI.Client.Utilities;
 
 namespace NASDataBaseAPI.Server
 {
     /// <summary>
     /// Основной класс для работы с базой данных по сети (новый функционал не вводит, просто улучшает tcp систему)
     /// </summary>
-    public class DBServer
+    public class DBServer<T> : DatabaseServer where T : BaseServerCommandPusher, new()
     {
+        public const string ErrorOccurredWhenConnectingClientExceptionText = "Во время подключения клиента произошла ошибка: ";
+
         public TcpListener Server { get; private set; }
-        public List<TcpClient> TcpClients = new List<TcpClient>();
-        public event Action<TcpClient> _ClientConnect;
-        public event Action _OnStartServer;
-        public event Action _OnStopServer; 
+
+        public DBServer(ServerSettings serverSettings, Database dataBase) : base(serverSettings, dataBase,  new CommandsFactory(), new DataConverter())
+        { 
+        }
+
+        public DBServer(ServerSettings ServerSettings, Database DataBase, CommandsFactory CommandsParser, IDataConverter DataConverter) : base(ServerSettings, DataBase, CommandsParser, DataConverter) { }
+
         public string ServerIP { get; private set; }
         public int Port { get; private set; }
 
+        private bool _isServerRunning = false;
 
-        public DBServer(string serverIP, int port)
+        public override void InitServer()
         {
-            this.ServerIP = serverIP;
-            this.Port = port;
-        }
-
-        /// <summary>
-        /// Необходим для старта сервера 
-        /// </summary>
-        public void StartServer()
-        {
-            Server = new TcpListener(IPAddress.Parse(ServerIP), Port);
-            Server.Start();
-            _OnStartServer?.Invoke();
-            while (true)
+            if (!_isServerRunning)
             {
-                TcpClients.Add(Server.AcceptTcpClient());
-                Thread clientThread = new Thread(ClientConnect);
-                clientThread.Start(TcpClients[TcpClients.Count - 1]);
+                ServerIP = ServerSettings.IP;
+                Port = ServerSettings.Port;
+            
+                Server = new TcpListener(IPAddress.Parse(ServerIP), Port);  
+                Server.Start();
+
+                _isServerRunning = true;
+                OnServerInit();
+
+                InitCommands(Commands, DataBase);
+                WaitForClients();
             }
         }
 
-        /// <summary>
-        /// Остановка сервера 
-        /// </summary>
-        public void StopServer()
+        private async void WaitForClients()
         {
-            Server.Stop();
-            _OnStopServer?.Invoke();
+            try
+            {
+                while(_isServerRunning)
+                {
+                    TcpClient client = await Server.AcceptTcpClientAsync();
+
+                    var commandWorker = new T();
+                    commandWorker.Init(client);
+
+                    Clients.Add(commandWorker);
+                    
+                    OnClientConnect(Clients[Clients.Count - 1]);
+
+                    Task.Run(() => Handler(Clients[Clients.Count - 1]));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ErrorOccurredWhenConnectingClientExceptionText + ex.Message);
+            }
         }
 
-        private void ClientConnect(object tcpClient)
+        private void Handler(ICommandWorker worker)
         {
-            TcpClient TcpClient = (TcpClient)tcpClient;
-            _ClientConnect?.Invoke(TcpClient);
+            string res = "";
+            var sb = new StringBuilder();
+            
+            while(true)
+            {
+                res = worker.Listen();
+
+                string[] datas = res.Split(BaseCommands.SEPARATION.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                
+                if(datas.Length > 3)
+                {
+                    sb.Append(datas[3]);
+                    for (int i = 4; i < datas.Length; i++)
+                    {
+                        sb.Append(BaseCommands.SEPARATION);
+                        sb.Append(datas[i]);
+                    }            
+                }
+                
+                var c = Commands[datas[2]];
+                              
+                try
+                {
+                    c.SetData(sb.ToString());
+                    
+                    var resText = c.Use();
+
+                    worker.Push(resText);
+                }
+                catch(Exception ex)
+                {
+                    worker.Push(BaseCommands.ERROR + BaseCommands.SEPARATION + ex.Message);
+
+                    break;
+                }
+
+                sb.Clear();
+            }
+        }
+
+        public override void DisconnectClient(ServerCommandsPusher client)
+        {
+            client.CloseConnection();
+            Clients.Remove(client);
+        }
+
+        public override void Shutdown()
+        {
+            if (_isServerRunning)
+            {
+                foreach(var c in Clients)
+                {
+                    c.Push(BaseCommands.Disconnect);
+                }
+
+                _isServerRunning = false;
+                OnServerStop();
+                Server.Stop();
+            }
+        }
+
+        private void InitCommands(CommandsFactory commandsParser, Database db)
+        {
+            commandsParser.AddCommand(BaseCommands.AddData, new AddData(db, DataConverter));
+            commandsParser.AddCommand(BaseCommands.RemoveDataByID, new RemoveDataByID(db.RemoveDataByID));
+            commandsParser.AddCommand(BaseCommands.Login, new Login(ServerSettings, ClientHandler));
+            commandsParser.AddCommand(BaseCommands.MSG, new MSGFromClient());
+            commandsParser.AddCommand(BaseCommands.SetDataInColumn, new SetDataInColumn(DataConverter, db.SetDataInColumn));
+            commandsParser.AddCommand(BaseCommands.GetAllIDsByParams, new GetAllIDsByParams(db.GetAllIDsByParams, DataConverter));
+            commandsParser.AddCommand(BaseCommands.AddColumn, new AddColumn(db.AddColumn));
+            commandsParser.AddCommand(BaseCommands.RemoveColumn, new RemoveColumn(db.RemoveColumn));
+            commandsParser.AddCommand(BaseCommands.CloneColumn, new CloneTo(db.CloneTo));
+            commandsParser.AddCommand(BaseCommands.ClearColumn, new ClearAllColumn(db.ClearAllColumn));
+            commandsParser.AddCommand(BaseCommands.RenameColumn, new RenameColumn(db.RenameColumn));
+            commandsParser.AddCommand(BaseCommands.LoadDataBaseState, new LoadDataBaseSettings(db));
+            commandsParser.AddCommand(BaseCommands.LoadDataBaseColumnsState, new LoadDataBaseColumnsState(db, DataConverter));
+            commandsParser.AddCommand(BaseCommands.ClearAllBase, new ClearAllBase(db.ClearAllBase));
+            commandsParser.AddCommand(BaseCommands.ChangeEverythingTo, new ChangeEverythingTo(db.ChangeEverythingTo));
+            commandsParser.AddCommand(BaseCommands.SetData, new SetDataServerCommand(db.SetData<Rows>, DataConverter));
+            commandsParser.AddCommand(BaseCommands.ChengTypeInColumn, new ChengTypeInColumn(db.ChengTypeInColumn));
+            commandsParser.AddCommand(BaseCommands.PrintBase, new PrintBase(db));
+            commandsParser.AddCommand(BaseCommands.GetAllDataInBaseByColumnName, new GetAllDataInBaseByColumnName(db.GetAllDataInBaseByColumnName, DataConverter));
+            commandsParser.AddCommand(BaseCommands.GetIDByParams, new GetIDByParams(db.GetIDByParams, DataConverter));
+            commandsParser.AddCommand(BaseCommands.GetDataByID, new GetDataByID(db.GetDataByID, DataConverter));
+        }
+
+        /// <summary>
+        /// Обрабатывает подключение клиента
+        /// </summary>
+        /// <param name="canConnect"></param>
+        private void ClientHandler(bool canConnect)
+        {
+            if (!canConnect)
+            {
+                Clients[Clients.Count - 1].CloseConnection();
+                Clients.Remove(Clients[Clients.Count - 1]);
+            }
         }
     }
 }

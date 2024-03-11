@@ -1,20 +1,21 @@
-﻿using NASDataBaseAPI.Server.Data;
+﻿using NASDataBaseAPI.Interfaces;
+using NASDataBaseAPI.Server.Data;
 using System.Collections.Generic;
 
 namespace NASDataBaseAPI.SmartSearchSettings
 {
     internal class ByRange : ISearch
     {
-        public List<int> SearchID(Column ColumnParams, Column In, string Params)
+        public List<int> SearchID(AColumn aColumnParams, AColumn In, string Params)
         {
             List<int> data = new List<int>();
 
-            switch (In.DataType.Name)
+            var d = Params.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+            switch (In.TypeOfData.Name)
             {
                 case "Text":
-                    ItemData[] datas = In.GetDatas();
-
-                    foreach (ItemData item in datas)
+                    foreach (ItemData item in In.GetDatas())
                     {
                         if (item.Data.Contains(Params))
                         {
@@ -22,57 +23,15 @@ namespace NASDataBaseAPI.SmartSearchSettings
                         }
                     }
                     break;
-                case "Int":
-                    
-                    string[] NumbersText = Params.Split(',');
-                    int[] ints = new int[NumbersText.Length];
-                    for(int i =0; i < NumbersText.Length; i++)
+                default:
+                    foreach (var p in In.GetDatas())
                     {
-                        ints[i] = int.Parse(NumbersText[i]);
-                    }
-                    datas = In.GetDatas();
-                    foreach (ItemData item in datas)
-                    {
-                        foreach(int i in ints)
+                        foreach (var c in d)
                         {
-                            if(int.Parse(item.Data) == i)
+                            if (In.TypeOfData.Equal(c, p.Data))
                             {
-                                data.Add(item.ID);
-                            }
-                        }
-                    }
-                    break;
-                case "Float":
-                    datas = In.GetDatas();
-                    NumbersText = Params.Split(',');
-                    decimal[] decs = new decimal[NumbersText.Length];
-                    for (int i = 0; i < NumbersText.Length; i++)
-                    {
-                        decs[i] = int.Parse(NumbersText[i]);
-                    }
-                    datas = In.GetDatas();
-                    foreach (ItemData item in datas)
-                    {
-                        foreach (int i in decs)
-                        {
-                            if (int.Parse(item.Data) == i)
-                            {
-                                data.Add(item.ID);
-                            }
-                        }
-                    }
-                    break;
-                case "Time":
-                    datas = In.GetDatas();
-                    NumbersText = Params.Split(',');
-                    datas = In.GetDatas();
-                    foreach (ItemData item in datas)
-                    {
-                        foreach (string i in NumbersText)
-                        {
-                            if (item.Data == i)
-                            {
-                                data.Add(item.ID);
+                                data.Add(p.ID);
+                                break;
                             }
                         }
                     }
