@@ -9,15 +9,17 @@ namespace NASDataBaseAPI.Server
 {
     public class BaseServerCommandPusher : ServerCommandsPusher
     {
+        #region Ошибки
         public const string NotActiveExeption = "ServerCommandWorker не был актевирован!";
+        public const string ErrorOccurredWhileReadingDataFromClient = "При чтении данных с клиента произошла ошибка!";
+        public const string ErrorSendingMessage = "Произошла ошибка при отправке сообщения клиенту!";
+        #endregion
 
         public override string IP { get => ((IPEndPoint)_client.Client.RemoteEndPoint).Address.ToString(); }
         public override string Port { get => ((IPEndPoint)_client.Client.RemoteEndPoint).Port.ToString(); }
-       
-        private TcpClient _client;
-        
-
         public bool Connected;
+
+        private TcpClient _client;      
 
         private NetworkStream _stream;     
         private StreamReader _reader;
@@ -47,7 +49,7 @@ namespace NASDataBaseAPI.Server
             }
             catch
             {
-                throw new Exception("При чтении данных с клиента произошла ошибка");
+                throw new Exception(ErrorOccurredWhileReadingDataFromClient);
             }
         }
 
@@ -62,7 +64,7 @@ namespace NASDataBaseAPI.Server
             }
             catch (Exception ex)
             {
-                throw new Exception("Произошла ошибка при отправке сообщения клиенту!", ex);
+                throw new Exception(ErrorSendingMessage, ex);
             }
         }
 

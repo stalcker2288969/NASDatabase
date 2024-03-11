@@ -15,7 +15,7 @@ namespace NASDataBaseAPI.Client
     /// <summary>
     /// Класс для работы с сервером/DataBaseSaver, DataBaseReplayser, DataBaseLoader, DataBaseLoger - не работают
     /// </summary>
-    public class Client : DataBase
+    public class Client : Database
     {
         #region Ошибки
         public const string NoRightsExceptionText = "Отказ в действии! ";
@@ -34,7 +34,7 @@ namespace NASDataBaseAPI.Client
 
         public CommandsFactory CommandsFactory { get; private set; }
 
-        public Client(string Name, string Password, IDataConverter DataConverter) : base(0,default(DataBaseSettings))
+        public Client(string Name, string Password, IDataConverter DataConverter) : base(0,default(DatabaseSettings))
         {
             this.Name = Name;
             this.Password = Password;
@@ -43,14 +43,14 @@ namespace NASDataBaseAPI.Client
 
         public Client(string Name, string Password) : this(Name, Password, new DataConverter()) { }
 
-        private Client(int countColumn, DataBaseSettings settings, int loadedSector = 1) : base(countColumn, settings, loadedSector) { }
+        private Client(int countColumn, DatabaseSettings settings, int loadedSector = 1) : base(countColumn, settings, loadedSector) { }
 
         #region Глобальное взаимодействие
 
-        public DataBaseSettings LoadDataBaseSettings()
+        public DatabaseSettings LoadDataBaseSettings()
         {
             Worker.Push(BaseCommands.LoadDataBaseState);
-            return JsonSerializer.Deserialize<DataBaseSettings>(NOTIFICATION());
+            return JsonSerializer.Deserialize<DatabaseSettings>(NOTIFICATION());
         }
 
         public void LoadDataBaseColumnsState()
@@ -193,7 +193,7 @@ namespace NASDataBaseAPI.Client
 
         public override void SetData(int ID, params string[] datas)
         {
-            var bl = new BaseLine();
+            var bl = new Rows();
             bl.Init(ID, datas);
 
             Worker.Push(BaseCommands.SetData + BaseCommands.SEPARATION + DataConverter.ParsDataLine(bl));
@@ -210,7 +210,7 @@ namespace NASDataBaseAPI.Client
 
         public override void AddData(params string[] datas)
         {
-            var bl = new BaseLine();
+            var bl = new Rows();
             bl.Init(-1, datas);
 
             Worker.Push(BaseCommands.AddData + BaseCommands.SEPARATION + DataConverter.ParsDataLine(bl));
@@ -232,7 +232,7 @@ namespace NASDataBaseAPI.Client
         public override void RemoveDataByID(int ID)
         {
             Worker.Push(BaseCommands.GetDataByID + BaseCommands.SEPARATION + ID);
-            var dl = DataConverter.GetDataLine<BaseLine>(NOTIFICATION());   
+            var dl = DataConverter.GetDataLine<Rows>(NOTIFICATION());   
 
             Worker.Push(BaseCommands.RemoveDataByID + BaseCommands.SEPARATION + ID);
             
@@ -242,7 +242,7 @@ namespace NASDataBaseAPI.Client
 
         public override bool RemoveAllData(params string[] datas)
         {
-            var bl = new BaseLine();
+            var bl = new Rows();
             bl.Init(-1, datas);
             Worker.Push(BaseCommands.RemoveAllData + BaseCommands.SEPARATION + DataConverter.ParsDataLine(bl));
             var msg = NOTIFICATION();
@@ -271,14 +271,14 @@ namespace NASDataBaseAPI.Client
             return NOTIFICATION(); 
         }
 
-        public override BaseLine[] GetAllDataInBaseByColumnName(string ColumnName, string data)
+        public override Rows[] GetAllDataInBaseByColumnName(string ColumnName, string data)
         {
             Worker.Push(BaseCommands.GetAllDataInBaseByColumnName + BaseCommands.SEPARATION +
                 ColumnName + BaseCommands.SEPARATION + data);
             
             var msg = NOTIFICATION();
 
-            return DataConverter.GetDataLines<BaseLine>(msg);
+            return DataConverter.GetDataLines<Rows>(msg);
         }
 
         public override int GetIDByParams(string ColumnName, string Data, int InSector = -1)
@@ -292,7 +292,7 @@ namespace NASDataBaseAPI.Client
         public override string[] GetDataByID(int ID)
         {
             Worker.Push(BaseCommands.GetDataByID + BaseCommands.SEPARATION + ID);
-            return DataConverter.GetDataLine<BaseLine>(NOTIFICATION()).GetData();
+            return DataConverter.GetDataLine<Rows>(NOTIFICATION()).GetData();
         }
 
         public override T[] SmartSearch<T>(AColumn[] Columns, SearchType[] SearchTypes, string[] Params, int InSectro = -1)

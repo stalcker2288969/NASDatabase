@@ -11,7 +11,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     /// <summary>
     /// Отвечает за настроку базы данных, а именно фармат хронения данных и прочии вещи под копотом
     /// </summary>
-    public struct DataBaseSettings
+    public struct DatabaseSettings
     {
         #region Settings
         public string Name { get; internal set; }
@@ -29,7 +29,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         #endregion
 
         [JsonConstructor]
-        public DataBaseSettings(string name, string path, uint countBucketsInSector, uint countBuckets, uint ColumnsCount, uint countClusters, bool Logs, bool SaveMod)
+        public DatabaseSettings(string name, string path, uint countBucketsInSector, uint countBuckets, uint ColumnsCount, uint countClusters, bool Logs, bool SaveMod)
         {          
             this.Name = name;
             this.Path = path;
@@ -42,7 +42,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             this.Key = "";
         }
 
-        public DataBaseSettings(string name, string path,string key, uint countBucketsInSector, uint countBuckets, uint ColumnsCount, uint countClusters, bool Logs, bool SaveMod)
+        public DatabaseSettings(string name, string path,string key, uint countBucketsInSector, uint countBuckets, uint ColumnsCount, uint countClusters, bool Logs, bool SaveMod)
         {
             this.Name = name;
             this.Path = path;
@@ -55,7 +55,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             this.Key = key;
         }
 
-        public DataBaseSettings(string name, string path, string key, uint ColumnsCount, uint CountBucketsInSector = 1000000, bool Logs = false, bool SaveMod = true) 
+        public DatabaseSettings(string name, string path, string key, uint ColumnsCount, uint CountBucketsInSector = 1000000, bool Logs = false, bool SaveMod = true) 
         {
             this.Name = name;
             this.Path = path;
@@ -68,7 +68,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             this.SaveMod = SaveMod;
         }
 
-        public DataBaseSettings(string name, string path, uint ColumnsCount = 4, uint CountBucketsInSector = 1000000, bool Logs = false, bool SaveMod = true)
+        public DatabaseSettings(string name, string path, uint ColumnsCount = 4, uint CountBucketsInSector = 1000000, bool Logs = false, bool SaveMod = true)
         {
             this.Name = name;
             this.Path = path;
@@ -81,7 +81,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             this.SaveMod = SaveMod;
         }
 
-        public DataBaseSettings(DataBaseSettings settings, bool SaveMod)
+        public DatabaseSettings(DatabaseSettings settings, bool SaveMod)
         {
             this.Name = settings.Name;
             this.Path = settings.Path;

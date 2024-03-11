@@ -6,7 +6,7 @@ using NASDataBaseAPI.Interfaces;
 
 namespace NASDataBaseAPI.Server
 {
-    public abstract class DataBaseServer 
+    public abstract class DatabaseServer 
     {
         #region События
         public event Action<ServerCommandsPusher> _ClientConnect;
@@ -18,11 +18,11 @@ namespace NASDataBaseAPI.Server
         public List<ServerCommandsPusher> Clients { get; protected set; } = new List<ServerCommandsPusher>();
         public CommandsFactory Commands { get; protected set; }
 
-        protected DataBase DataBase { get; private set; }
+        protected Database DataBase { get; private set; }
         public ServerSettings ServerSettings { get; protected set; }
         
         #region Конструкторы 
-        public DataBaseServer(ServerSettings serverSettings, DataBase db, CommandsFactory commandsParser)
+        public DatabaseServer(ServerSettings serverSettings, Database db, CommandsFactory commandsParser)
         {
             DataBase = db;
             ServerSettings = serverSettings;
@@ -37,7 +37,7 @@ namespace NASDataBaseAPI.Server
             #endregion
         }
 
-        public DataBaseServer(ServerSettings serverSettings, DataBase dataBase, CommandsFactory commandsParser, IDataConverter dataConverter) : this(serverSettings, dataBase, commandsParser)
+        public DatabaseServer(ServerSettings serverSettings, Database dataBase, CommandsFactory commandsParser, IDataConverter dataConverter) : this(serverSettings, dataBase, commandsParser)
         {
             DataConverter = dataConverter;
         }

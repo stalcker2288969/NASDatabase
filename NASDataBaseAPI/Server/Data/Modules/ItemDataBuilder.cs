@@ -1,40 +1,29 @@
 ﻿using NASDataBaseAPI.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDataBaseAPI.Server.Data.Modules
 {
     public static class ItemDataBuilder
     {
-        public static ItemData[] GetItemDatas(int ID, string[] data)
+        public static ItemData[] GetItemDatas(int ID, string[] Data)
         {
-            ItemData[] itemDatas = new ItemData[data.Length];
+            ItemData[] itemDatas = new ItemData[Data.Length];
 
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < Data.Length; i++)
             {
-                itemDatas[i] = new ItemData(ID, data[i]);
+                itemDatas[i] = new ItemData(ID, Data[i]);
             }
 
             return itemDatas;
         }
 
-        public static T GetDataLine<T>(int ID, string[] data) where T : IDataLine
+        public static T GetDataLine<T>(int ID, string[] Data) where T : IDatRows, new() 
         {
             T DL;
-
-            try
-            {
-                DL = Activator.CreateInstance<T>();
-            }
-            catch(MethodAccessException)
-            {
-                throw new Exception("IDataLine должен иметь пустой конструктор!");
-            }
+ 
+            DL = Activator.CreateInstance<T>();         
             
-            DL?.Init(ID, data);
+            DL?.Init(ID, Data);
             return DL;
         }
     }

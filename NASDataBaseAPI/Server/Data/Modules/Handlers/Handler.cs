@@ -4,7 +4,7 @@
     /// Стандрантный класс для обработки событий в базах данных, работает в Connector-е
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class Handler<T1, T2> where T1 : DataBase where T2 : DataBase
+    public abstract class Handler<T1, T2> where T1 : Database where T2 : Database
     {
         public readonly DataBaseEventType Type;
         protected T1 DB1;

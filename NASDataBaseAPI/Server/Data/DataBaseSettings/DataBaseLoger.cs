@@ -9,23 +9,23 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
     /// <summary>
     /// Класс предоставляющий систему логирования  
     /// </summary>
-    internal class DataBaseLoger : ILoger
+    internal class DatabaseLoger : ILoger
     {
         public string Prefix { get; set; }
-        public DataBaseSettings Settings { get; private set; }
+        public DatabaseSettings Settings { get; private set; }
         public DateTime TimeStartLog { get; private set; }
         public IFileWorker FileSystem { get; private set; } = new BaseFileWorker();
 
         private string _pathToFile;
 
 
-        public DataBaseLoger(DataBaseSettings settings, string Prefix)
+        public DatabaseLoger(DatabaseSettings settings, string Prefix)
         {
             this.Settings = settings;
             this.Prefix = Prefix;
         }
 
-        public DataBaseLoger(DataBaseSettings settings, IFileWorker fileWorker, string Prefix)
+        public DatabaseLoger(DatabaseSettings settings, IFileWorker fileWorker, string Prefix)
         {
             this.Settings = settings;
             this.Prefix = Prefix;

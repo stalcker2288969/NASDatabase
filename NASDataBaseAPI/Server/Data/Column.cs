@@ -21,6 +21,7 @@ namespace NASDataBaseAPI.Server.Data
         private HashTable<ItemData> boxes = new HashTable<ItemData>();
 
         private bool _initialized = false;
+        
         #region конструкторы
         public Column(string Name, HashTable<ItemData> boxes, TypeOfData dataType, uint offSet)
         {
@@ -135,10 +136,10 @@ namespace NASDataBaseAPI.Server.Data
                 ulong key = (ulong)boxes.StringHashCode20(data);
                 int x = (int)(key % boxes.CountBuckets);
 
-                ItemData iD = boxes.GetFirstElementByKey((int)x);
-                if (iD != null)
+                ItemData _id = boxes.GetFirstElementByKey((int)x);
+                if (_id != null)
                 {
-                    return iD.ID;
+                    return _id.ID;
                 }
                 else
                 {
@@ -150,7 +151,6 @@ namespace NASDataBaseAPI.Server.Data
             {
                 return -1;
             }
-
         }
 
         /// <summary>

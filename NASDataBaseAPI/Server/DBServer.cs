@@ -15,17 +15,17 @@ namespace NASDataBaseAPI.Server
     /// <summary>
     /// Основной класс для работы с базой данных по сети (новый функционал не вводит, просто улучшает tcp систему)
     /// </summary>
-    public class DBServer<T> : DataBaseServer where T : BaseServerCommandPusher, new()
+    public class DBServer<T> : DatabaseServer where T : BaseServerCommandPusher, new()
     {
         public const string ErrorOccurredWhenConnectingClientExceptionText = "Во время подключения клиента произошла ошибка: ";
 
         public TcpListener Server { get; private set; }
 
-        public DBServer(ServerSettings serverSettings, DataBase dataBase) : base(serverSettings, dataBase,  new CommandsFactory(), new DataConverter())
+        public DBServer(ServerSettings serverSettings, Database dataBase) : base(serverSettings, dataBase,  new CommandsFactory(), new DataConverter())
         { 
         }
 
-        public DBServer(ServerSettings ServerSettings, DataBase DataBase, CommandsFactory CommandsParser, IDataConverter DataConverter) : base(ServerSettings, DataBase, CommandsParser, DataConverter) { }
+        public DBServer(ServerSettings ServerSettings, Database DataBase, CommandsFactory CommandsParser, IDataConverter DataConverter) : base(ServerSettings, DataBase, CommandsParser, DataConverter) { }
 
         public string ServerIP { get; private set; }
         public int Port { get; private set; }
@@ -137,7 +137,7 @@ namespace NASDataBaseAPI.Server
             }
         }
 
-        private void InitCommands(CommandsFactory commandsParser, DataBase db)
+        private void InitCommands(CommandsFactory commandsParser, Database db)
         {
             commandsParser.AddCommand(BaseCommands.AddData, new AddData(db, DataConverter));
             commandsParser.AddCommand(BaseCommands.RemoveDataByID, new RemoveDataByID(db.RemoveDataByID));
@@ -154,7 +154,7 @@ namespace NASDataBaseAPI.Server
             commandsParser.AddCommand(BaseCommands.LoadDataBaseColumnsState, new LoadDataBaseColumnsState(db, DataConverter));
             commandsParser.AddCommand(BaseCommands.ClearAllBase, new ClearAllBase(db.ClearAllBase));
             commandsParser.AddCommand(BaseCommands.ChangeEverythingTo, new ChangeEverythingTo(db.ChangeEverythingTo));
-            commandsParser.AddCommand(BaseCommands.SetData, new SetDataServerCommand(db.SetData<BaseLine>, DataConverter));
+            commandsParser.AddCommand(BaseCommands.SetData, new SetDataServerCommand(db.SetData<Rows>, DataConverter));
             commandsParser.AddCommand(BaseCommands.ChengTypeInColumn, new ChengTypeInColumn(db.ChengTypeInColumn));
             commandsParser.AddCommand(BaseCommands.PrintBase, new PrintBase(db));
             commandsParser.AddCommand(BaseCommands.GetAllDataInBaseByColumnName, new GetAllDataInBaseByColumnName(db.GetAllDataInBaseByColumnName, DataConverter));

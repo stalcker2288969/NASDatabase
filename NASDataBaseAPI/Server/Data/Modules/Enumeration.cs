@@ -7,24 +7,18 @@ namespace NASDataBaseAPI.Server.Data.Modules
     /// <summary>
     /// Инструмент для переборки и обработки элементов базы 
     /// </summary>
-    public class Enumeration<T> : IEnumerationHandler, IDisposable where T : DataBase
+    public static class Enumeration<T> where T : Database
     {
-        private T _dataBase;
 
-        public Enumeration(T dataBase)
-        {
-            this._dataBase = dataBase;
-        }
-
-        public void ForLine(Action<BaseLine> Handler)
+        public static void ForLine(T _dataBase, Action<Rows> Handler)
         {
             for(int i = 0; i < _dataBase.Settings.CountBuckets; i++) 
             {
-                Handler?.Invoke(_dataBase.GetDataLineByID<BaseLine>(i));
+                Handler?.Invoke(_dataBase.GetDataLineByID<Rows>(i));
             }
         }
 
-        public void ForLine<T1>(Action<T1> Handler) where T1 : IDataLine
+        public static void ForLine<T1>(T _dataBase, Action<T1> Handler) where T1 : IDatRows
         {
             for (int i = 0; i < _dataBase.Settings.CountBuckets; i++)
             {
@@ -32,12 +26,12 @@ namespace NASDataBaseAPI.Server.Data.Modules
             }
         }
 
-        public void ForBoxes(string InColumn, Action<ItemData> Handler)
+        public static void ForBoxes(T _dataBase, string InColumn, Action<ItemData> Handler)
         {
-            ForBoxes(_dataBase[InColumn], Handler);
+            ForBoxes(_dataBase, _dataBase[InColumn], Handler);
         }
 
-        public void ForBoxes(Interfaces.AColumn inAColumn, Action<ItemData> Handler)
+        public static void ForBoxes(T _dataBase, AColumn inAColumn, Action<ItemData> Handler)
         {
             for (int i = 0; i < _dataBase.Settings.CountBuckets; i++)
             {
@@ -45,17 +39,12 @@ namespace NASDataBaseAPI.Server.Data.Modules
             }
         }
 
-        public void ForBoxes<T1>(T1 InColumn, Action<ItemData> Handler) where T1 : Interfaces.AColumn
+        public static void ForBoxes<T1>(T _dataBase, T1 InColumn, Action<ItemData> Handler) where T1 : Interfaces.AColumn
         {
             for (int i = 0; i < _dataBase.Settings.CountBuckets; i++)
             {
                 Handler?.Invoke(_dataBase.GetDataByParams(InColumn.Name, i));
             }
-        }
-
-        public void Dispose()
-        {
-            
         }
     }
 }

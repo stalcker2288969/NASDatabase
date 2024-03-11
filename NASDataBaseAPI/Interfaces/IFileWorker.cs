@@ -8,41 +8,41 @@
         /// <summary>
         /// Записть текста в файл
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="path"></param>
-        void WriteAllText(string text, string path);
+        /// <param name="Text"></param>
+        /// <param name="Path"></param>
+        void WriteAllText(string Text, string Path);
         /// <summary>
         /// Построчная запись текста в файл
         /// </summary>
-        /// <param name="lines"></param>
-        /// <param name="path"></param>
-        void WriteLines(string[] lines, string path);
+        /// <param name="Lines"></param>
+        /// <param name="Path"></param>
+        void WriteLines(string[] Lines, string Path);
         /// <summary>
         /// Чтение текста с файла
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="Path"></param>
         /// <returns></returns>
-        string ReadAllText(string path);
+        string ReadAllText(string Path);
         /// <summary>
         /// Чтение строк файла
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="Path"></param>
         /// <returns></returns>
-        string[] ReadAllLines(string path);
+        string[] ReadAllLines(string Path);
         /// <summary>
         /// Удаление файла 
         /// </summary>
-        /// <param name="path"></param>
-        void RemoveFile(string path);
+        /// <param name="Path"></param>
+        void RemoveFile(string Path);
         /// <summary>
         /// Создание директории 
         /// </summary>
-        /// <param name="path"></param>
-        void CreateDirectory(string path);
+        /// <param name="Path"></param>
+        void CreateDirectory(string Path);
         /// <summary>
         /// Удаление директории  
         /// </summary>
-        /// <param name="path"></param>
-        void DeleteDictinory(string path);
+        /// <param name="Path"></param>
+        void DeleteDictinory(string Path);
     }
 }

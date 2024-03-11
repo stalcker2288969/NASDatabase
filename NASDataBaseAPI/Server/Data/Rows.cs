@@ -1,10 +1,12 @@
 ﻿using NASDataBaseAPI.Interfaces;
-using System.IO.Pipes;
 using System.Text;
 
 namespace NASDataBaseAPI.Server.Data
 {
-    public class BaseLine : IDataLine
+    /// <summary>
+    /// Стандартный класс для строки(линии) в базе 
+    /// </summary>
+    public class Rows : IDatRows
     {
         protected string[] Datas;
         public int ID { get; protected set; }

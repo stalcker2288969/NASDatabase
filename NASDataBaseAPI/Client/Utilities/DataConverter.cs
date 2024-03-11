@@ -124,10 +124,10 @@ namespace NASDataBaseAPI.Client.Utilities
             return sb.ToString();
         }
 
-        public T GetDataLine<T>(string text) where T : IDataLine, new()
+        public T GetDataLine<T>(string text) where T : IDatRows, new()
         {
             string[] strings = text.Split(DataSeparationInIDataLine.ToCharArray());
-            IDataLine dataLine;
+            IDatRows dataLine;
             
             dataLine = Activator.CreateInstance<T>();
 
@@ -152,7 +152,7 @@ namespace NASDataBaseAPI.Client.Utilities
             return (T)dataLine;
         }
 
-        public string ParsDataLine<T>(T line) where T : IDataLine
+        public string ParsDataLine<T>(T line) where T : IDatRows
         {
             string[] data = line.GetData();
             StringBuilder sb = new StringBuilder();
@@ -168,7 +168,7 @@ namespace NASDataBaseAPI.Client.Utilities
             return sb.ToString();
         }
 
-        public T[] GetDataLines<T>(string text) where T : IDataLine, new()
+        public T[] GetDataLines<T>(string text) where T : IDatRows, new()
         {
             List<T> data = new List<T>();
             string[] strings = text.Split(SeparationBetweenDateLine.ToCharArray());
@@ -179,7 +179,7 @@ namespace NASDataBaseAPI.Client.Utilities
             return data.ToArray();
         }
 
-        public string ParsDataLines<T>(T[] lines) where T : IDataLine
+        public string ParsDataLines<T>(T[] lines) where T : IDatRows
         {
             var sb = new StringBuilder();
             foreach (var line in lines)

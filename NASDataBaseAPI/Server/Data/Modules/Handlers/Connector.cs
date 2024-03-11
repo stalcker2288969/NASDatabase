@@ -8,12 +8,9 @@ namespace NASDataBaseAPI.Server.Data.Modules
     /// <summary>
     /// Предостовляет удобный интерфейс связи баз данных 
     /// </summary>
-    public class Connector<T1,T2> : IConnector<T1, T2> where T1 : DataBase where T2 : DataBase
+    public class Connector<T1,T2> : AConnector<T1, T2> where T1 : Database where T2 : Database
     {
-        public T1 DB1 { get; protected set; }
-        public T2 DB2 { get; protected set; }
-
-        protected List<Handler<T1,T2>> handlers = new List<Handler<T1,T2>>();
+        protected List<Handler<T1,T2>> _handlers = new List<Handler<T1,T2>>();
 
         private event Action<object, object> _OnAddData;
         private event Action<object, object> _OnRemoveData;
@@ -31,7 +28,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
         {
             if(DB1 == DB2)
             {
-                throw new ArgumentException("Переданные базы данные равны, что не допустимо во избежание ошибок!");
+                throw new ArgumentException("Переданные базы данные равны, что недопустимо во избежание ошибок!");
             }
 
             this.DB1 = DB1;
@@ -51,10 +48,10 @@ namespace NASDataBaseAPI.Server.Data.Modules
         }
 
 
-        public virtual void AddConectionByHandler(Handler<T1, T2> Handler)
+        public override void AddHandler(Handler<T1, T2> Handler)
         {
             Handler.Init(DB1, DB2);
-            handlers.Add(Handler);
+            _handlers.Add(Handler);
 
             switch (Handler.Type)
             {
@@ -94,7 +91,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
             }
         }
         
-        public virtual void DestroyConectionByHandler(Handler<T1, T2> Handler)
+        public override void DestroyHandler(Handler<T1, T2> Handler)
         {
             switch (Handler.Type)
             {
@@ -133,7 +130,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
                     break;
             }
             Handler.OnDestory();
-            handlers.Remove(Handler);
+            _handlers.Remove(Handler);
         }
 
         #region Реакция на изменения
@@ -193,7 +190,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
         }
         #endregion
 
-        ~Connector()
+        public override void Dispose()
         {
             DB1._AddData -= OnAddData;
             DB1._RemoveData -= OnRemoveData;
@@ -207,13 +204,18 @@ namespace NASDataBaseAPI.Server.Data.Modules
             DB1._ClearAllBase -= OnClearBase;
             DB1._SetDataInColumn -= OnSetDataInColumn;
 
-            if (handlers.Count > 0)
+            if (_handlers.Count > 0)
             {
-                for(int i = 0; i < handlers.Count; i++)
+                for (int i = 0; i < _handlers.Count; i++)
                 {
-                    DestroyConectionByHandler(handlers[i]);
-                }           
+                    DestroyHandler(_handlers[i]);
+                }
             }
+        }
+
+        ~Connector()
+        {
+            Dispose();
         }
     }
 }

@@ -6,9 +6,9 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSe
 {
     public class PrintBase : CommandHandler
     {
-        private DataBase _db;
+        private Database _db;
 
-        public PrintBase(DataBase db) { _db = db; }
+        public PrintBase(Database db) { _db = db; }
 
         public override string Use()
         {

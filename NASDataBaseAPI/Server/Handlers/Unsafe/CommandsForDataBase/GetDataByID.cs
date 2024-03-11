@@ -29,7 +29,7 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 
         public override string Use()
         {
-            BaseLine baseLine = new BaseLine();
+            Rows baseLine = new Rows();
             baseLine.Init(_id, _handler?.Invoke(_id));
 
             return _dataConverter.ParsDataLine(baseLine);

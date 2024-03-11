@@ -12,11 +12,11 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class SetDataServerCommand : CommandHandler
     {
-        private BaseLine _line;
-        private Action<BaseLine> _handler;
+        private Rows _line;
+        private Action<Rows> _handler;
         private IDataConverter _dataConverter;
 
-        public SetDataServerCommand(Action<BaseLine> handler, IDataConverter dataConverter)
+        public SetDataServerCommand(Action<Rows> handler, IDataConverter dataConverter)
         {
             _handler = handler;
             _dataConverter = dataConverter;
@@ -24,7 +24,7 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 
         public override void SetData(string data)
         {
-             _line = _dataConverter.GetDataLine<BaseLine>(data);
+             _line = _dataConverter.GetDataLine<Rows>(data);
         }
 
         public override string Use()

@@ -7,11 +7,11 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class AddData : CommandHandler
     {
-        private DataBase _db;
+        private Database _db;
         private string[] _data;
         private IDataConverter _converter;
 
-        public AddData(DataBase dataBase, IDataConverter dataConverter) 
+        public AddData(Database dataBase, IDataConverter dataConverter) 
         {
             _db = dataBase;
             _converter = dataConverter;
@@ -19,7 +19,7 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 
         public override void SetData(string data)
         {
-            var d = _converter.GetDataLine<BaseLine>(data);
+            var d = _converter.GetDataLine<Rows>(data);
 
             this._data = d.GetData();
         }

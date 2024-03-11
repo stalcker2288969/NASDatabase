@@ -12,12 +12,12 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class GetAllDataInBaseByColumnName : CommandHandler
     {
-        private Func<string, string, BaseLine[]> _handler;
+        private Func<string, string, Rows[]> _handler;
         IDataConverter _dataConverter;
         private string _columnName;
         private string _param;
 
-        public GetAllDataInBaseByColumnName(Func<string, string, BaseLine[]> handler, IDataConverter dataConverter) 
+        public GetAllDataInBaseByColumnName(Func<string, string, Rows[]> handler, IDataConverter dataConverter) 
         { _handler = handler; _dataConverter = dataConverter; }
 
         public override void SetData(string data)
