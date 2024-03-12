@@ -1,14 +1,14 @@
-﻿using NASDataBaseAPI.Client;
-using NASDataBaseAPI.Client.Utilities;
-using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Client;
+using NASDatabase.Client.Utilities;
+using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class GetDataByID : CommandHandler
     {
@@ -29,7 +29,7 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 
         public override string Use()
         {
-            Rows baseLine = new Rows();
+            Row baseLine = new Row();
             baseLine.Init(_id, _handler?.Invoke(_id));
 
             return _dataConverter.ParsDataLine(baseLine);

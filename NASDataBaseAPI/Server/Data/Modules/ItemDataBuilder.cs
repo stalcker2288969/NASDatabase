@@ -1,7 +1,7 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System;
 
-namespace NASDataBaseAPI.Server.Data.Modules
+namespace NASDatabase.Server.Data.Modules
 {
     public static class ItemDataBuilder
     {

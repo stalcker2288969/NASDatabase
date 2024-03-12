@@ -1,4 +1,4 @@
-﻿namespace NASDataBaseAPI.Interfaces
+﻿namespace NASDatabase.Interfaces
 {
     /// <summary>
     /// Интерфейс файловой системы для работы БД

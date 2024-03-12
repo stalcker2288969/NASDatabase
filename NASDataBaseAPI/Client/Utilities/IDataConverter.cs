@@ -1,7 +1,7 @@
-﻿using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Server.Data;
+using NASDatabase.Interfaces;
 
-namespace NASDataBaseAPI.Client.Utilities
+namespace NASDatabase.Client.Utilities
 {
     /// <summary>
     /// Конвертация стандартных данных и кодировка данных в байты и обратно

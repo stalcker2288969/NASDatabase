@@ -1,7 +1,7 @@
-﻿using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Server.Data.DataBaseSettings;
+﻿using NASDatabase.Server.Data;
+using NASDatabase.Server.Data.DatabaseSettings;
 
-namespace NASDataBaseAPI.Interfaces
+namespace NASDatabase.Interfaces
 {
     /// <summary>
     /// Является объектом сохраняющим БД  

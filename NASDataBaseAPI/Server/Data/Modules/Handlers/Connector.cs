@@ -1,9 +1,9 @@
-﻿using NASDataBaseAPI.Server.Data.Modules.Handlers;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Server.Data.Modules.Handlers;
+using NASDatabase.Interfaces;
 using System;
 using System.Collections.Generic;
 
-namespace NASDataBaseAPI.Server.Data.Modules
+namespace NASDatabase.Server.Data.Modules
 {
     /// <summary>
     /// Предостовляет удобный интерфейс связи баз данных 

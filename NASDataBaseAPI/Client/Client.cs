@@ -1,16 +1,16 @@
-﻿using NASDataBaseAPI.Client.Utilities;
-using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Server.Data.DataBaseSettings;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Client.Utilities;
+using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Server.Data;
+using NASDatabase.Server.Data.DatabaseSettings;
+using NASDatabase.Interfaces;
 using System;
 using System.Text.Json;
-using NASDataBaseAPI.Server;
-using NASDataBaseAPI.Client.Handleres.Base;
+using NASDatabase.Server;
+using NASDatabase.Client.Handleres.Base;
 using System.Text;
-using NASDataBaseAPI.Data;
+using NASDatabase.Data;
 
-namespace NASDataBaseAPI.Client
+namespace NASDatabase.Client
 {
     /// <summary>
     /// Класс для работы с сервером/DataBaseSaver, DataBaseReplayser, DataBaseLoader, DataBaseLoger - не работают
@@ -193,7 +193,7 @@ namespace NASDataBaseAPI.Client
 
         public override void SetData(int ID, params string[] datas)
         {
-            var bl = new Rows();
+            var bl = new Row();
             bl.Init(ID, datas);
 
             Worker.Push(BaseCommands.SetData + BaseCommands.SEPARATION + DataConverter.ParsDataLine(bl));
@@ -210,7 +210,7 @@ namespace NASDataBaseAPI.Client
 
         public override void AddData(params string[] datas)
         {
-            var bl = new Rows();
+            var bl = new Row();
             bl.Init(-1, datas);
 
             Worker.Push(BaseCommands.AddData + BaseCommands.SEPARATION + DataConverter.ParsDataLine(bl));
@@ -232,7 +232,7 @@ namespace NASDataBaseAPI.Client
         public override void RemoveDataByID(int ID)
         {
             Worker.Push(BaseCommands.GetDataByID + BaseCommands.SEPARATION + ID);
-            var dl = DataConverter.GetDataLine<Rows>(NOTIFICATION());   
+            var dl = DataConverter.GetDataLine<Row>(NOTIFICATION());   
 
             Worker.Push(BaseCommands.RemoveDataByID + BaseCommands.SEPARATION + ID);
             
@@ -242,7 +242,7 @@ namespace NASDataBaseAPI.Client
 
         public override bool RemoveAllData(params string[] datas)
         {
-            var bl = new Rows();
+            var bl = new Row();
             bl.Init(-1, datas);
             Worker.Push(BaseCommands.RemoveAllData + BaseCommands.SEPARATION + DataConverter.ParsDataLine(bl));
             var msg = NOTIFICATION();
@@ -271,14 +271,14 @@ namespace NASDataBaseAPI.Client
             return NOTIFICATION(); 
         }
 
-        public override Rows[] GetAllDataInBaseByColumnName(string ColumnName, string data)
+        public override Row[] GetAllDataInBaseByColumnName(string ColumnName, string data)
         {
             Worker.Push(BaseCommands.GetAllDataInBaseByColumnName + BaseCommands.SEPARATION +
                 ColumnName + BaseCommands.SEPARATION + data);
             
             var msg = NOTIFICATION();
 
-            return DataConverter.GetDataLines<Rows>(msg);
+            return DataConverter.GetDataLines<Row>(msg);
         }
 
         public override int GetIDByParams(string ColumnName, string Data, int InSector = -1)
@@ -292,7 +292,7 @@ namespace NASDataBaseAPI.Client
         public override string[] GetDataByID(int ID)
         {
             Worker.Push(BaseCommands.GetDataByID + BaseCommands.SEPARATION + ID);
-            return DataConverter.GetDataLine<Rows>(NOTIFICATION()).GetData();
+            return DataConverter.GetDataLine<Row>(NOTIFICATION()).GetData();
         }
 
         public override T[] SmartSearch<T>(AColumn[] Columns, SearchType[] SearchTypes, string[] Params, int InSectro = -1)

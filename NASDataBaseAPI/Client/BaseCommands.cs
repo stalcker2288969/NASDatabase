@@ -5,7 +5,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Client
+namespace NASDatabase.Client
 {
     /// <summary>
     /// Предоставляет интерфейс запросов от клиента к БД 

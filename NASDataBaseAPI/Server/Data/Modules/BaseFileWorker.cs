@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System.IO;
 
 
-namespace NASDataBaseAPI.Server.Data.Modules
+namespace NASDatabase.Server.Data.Modules
 {
     /// <summary>
     /// Работает со стандартной файловой системой  

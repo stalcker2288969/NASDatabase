@@ -1,9 +1,9 @@
-﻿using NASDataBaseAPI.Data;
-using NASDataBaseAPI.SmartSearchSettings;
+﻿using NASDatabase.Data;
+using NASDatabase.SmartSearchSettings;
 using System.Collections.Generic;
-using NASDataBaseAPI.Interfaces;
+using NASDatabase.Interfaces;
 
-namespace NASDataBaseAPI.Server.Data
+namespace NASDatabase.Server.Data
 {
     public class SmartSearcher
     {

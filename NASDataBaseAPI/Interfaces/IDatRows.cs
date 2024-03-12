@@ -1,4 +1,4 @@
-﻿namespace NASDataBaseAPI.Interfaces
+﻿namespace NASDatabase.Interfaces
 {
     /// <summary>
     /// Предоставляет возможность объекту стать строкой в базе 

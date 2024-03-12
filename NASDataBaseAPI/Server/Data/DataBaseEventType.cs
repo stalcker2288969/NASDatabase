@@ -1,4 +1,4 @@
-﻿namespace NASDataBaseAPI.Server.Data
+﻿namespace NASDatabase.Server.Data
 {
     public enum DataBaseEventType
     {

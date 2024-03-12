@@ -1,12 +1,12 @@
-﻿using NASDataBaseAPI.Server.Data.DataTypesInColumn.Types;
-using t = NASDataBaseAPI.Server.Data.DataTypesInColumn.Types;
+﻿using NASDatabase.Server.Data.DataTypesInColumn.Types;
+using t = NASDatabase.Server.Data.DataTypesInColumn.Types;
 using System;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 
 
-namespace NASDataBaseAPI.Data.DataTypesInColumn
+namespace NASDatabase.Data.DataTypesInColumn
 {
     /// <summary>
     /// Предоставляет базовый список типов данных для работы БД 

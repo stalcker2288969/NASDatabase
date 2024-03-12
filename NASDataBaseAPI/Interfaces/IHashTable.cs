@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NASDataBaseAPI.Interfaces
+namespace NASDatabase.Interfaces
 {
     public interface IHashTable<T>
     {

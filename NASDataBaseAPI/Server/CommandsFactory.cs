@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System.Collections.Generic;
 
 
-namespace NASDataBaseAPI.Server
+namespace NASDatabase.Server
 {
     /// <summary>
     /// Фабрика для работы с командами 

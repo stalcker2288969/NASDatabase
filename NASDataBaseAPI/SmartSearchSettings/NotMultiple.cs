@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
 using System.Collections.Generic;
 
-namespace NASDataBaseAPI.SmartSearchSettings
+namespace NASDatabase.SmartSearchSettings
 {
     internal class NotMultiple : ISearch
     {

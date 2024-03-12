@@ -1,9 +1,9 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace NASDataBaseAPI.Server.Data.Safety
+namespace NASDatabase.Server.Data.Safety
 {
     public class SimpleEncryptor : IEncoder
     {

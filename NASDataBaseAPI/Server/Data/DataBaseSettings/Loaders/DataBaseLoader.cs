@@ -1,18 +1,18 @@
-﻿using System;
+﻿using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Interfaces;
+using NASDatabase.Server.Data.Modules;
+using NASDatabase.Server.Data.Safety;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
-using NASDataBaseAPI.Server.Data.Safety;
-using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data.Modules;
 
-namespace NASDataBaseAPI.Server.Data.DataBaseSettings
+namespace NASDatabase.Server.Data.DatabaseSettings.Loaders
 {
     /// <summary>
     /// Подгружает частями базу данных
     /// </summary>
-    public class DataBaseLoader : ILoader
+    public class DatabaseLoader : ILoader
     {
         public const string NumberColumnsAndTheirTypesDoNotMatchInNumber = "Кол-во столбцов и их типы не совпадают по количеству!";
         /// <summary>
@@ -21,19 +21,19 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         public IEncoder _Encoder { get; private set; }
         public IFileWorker FileSystem { get; private set; }
 
-        public DataBaseLoader() 
+        public DatabaseLoader() 
         { 
             _Encoder = new SimpleEncryptor();
             FileSystem = new BaseFileWorker();
         }
 
-        public DataBaseLoader(IEncoder Encoder)
+        public DatabaseLoader(IEncoder Encoder)
         {
             this._Encoder = Encoder;
             FileSystem = new BaseFileWorker();
         }
 
-        public DataBaseLoader(IEncoder Encoder, IFileWorker fileWorker)
+        public DatabaseLoader(IEncoder Encoder, IFileWorker fileWorker)
         {
             this._Encoder = Encoder;
             FileSystem = fileWorker;
@@ -53,20 +53,20 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
         /// <summary>
         /// Загружает кластер, нужно понимать что если база данных хранится в одном файле он будет декодировать всю базу, а вернет только нужный кластер (Очень долгий процесс) 
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="Path"></param>
         /// <param name="ClusterNumber"></param>
         /// <returns></returns>
-        public virtual AColumn[] LoadCluster(string path, uint ClusterNumber, string DecodeKey)
+        public virtual AColumn[] LoadCluster(string Path, uint ClusterNumber, string DecodeKey)
         {   
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
 
             List<AColumn> tables = new List<AColumn>();
 
-            DatabaseSettings dataBaseSettings = JsonSerializer.Deserialize<DatabaseSettings>(_Encoder.Decode(FileSystem.ReadAllText(path + "\\Settings\\Settings.txt"), DecodeKey));
+            DatabaseSettings dataBaseSettings = JsonSerializer.Deserialize<DatabaseSettings>(_Encoder.Decode(FileSystem.ReadAllText(Path + "\\Settings\\Settings.txt"), DecodeKey));
             dataBaseSettings.Key = DecodeKey;
 
-            string[] SettingsTables = FileSystem.ReadAllLines(path + "\\Settings\\TablesType.txt");
+            string[] SettingsTables = FileSystem.ReadAllLines(Path + "\\Settings\\TablesType.txt");
             
             string[] Types = new string[SettingsTables.Length];
             string[] Names = new string[SettingsTables.Length];
@@ -82,7 +82,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             try
             {
-                Lines = _Encoder.Decode(FileSystem.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt")
+                Lines = _Encoder.Decode(FileSystem.ReadAllText(Path + $"\\Cluster{ClusterNumber}.txt")
                     .TrimEnd('\n', '\r'), dataBaseSettings.Key)
                     .Split(new char[] { '\n' },StringSplitOptions.RemoveEmptyEntries);
             }
@@ -90,18 +90,18 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             {
                 try
                 {
-                    _Encoder.Decode(FileSystem.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt").TrimEnd('\n','\r'), dataBaseSettings.Key).Split('\n');
+                    _Encoder.Decode(FileSystem.ReadAllText(Path + $"\\Cluster{ClusterNumber}.txt").TrimEnd('\n','\r'), dataBaseSettings.Key).Split('\n');
                 }
                 catch
                 {
                     try
                     {
-                        FileSystem.ReadAllText(path + $"\\Cluster{ClusterNumber}.txt");
+                        FileSystem.ReadAllText(Path + $"\\Cluster{ClusterNumber}.txt");
                     }
                     catch
                     {
                         if (ClusterNumber != 0)
-                            FileSystem.WriteAllText(" ", path + $"\\Cluster{ClusterNumber}.txt");
+                            FileSystem.WriteAllText(" ", Path + $"\\Cluster{ClusterNumber}.txt");
                         Lines = new string[0];
                     }
                 }              
@@ -151,7 +151,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             return tables.ToArray();
         }
 
-        public virtual void AddElement(DatabaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+        public virtual void AddElement(DatabaseSettings DataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
@@ -165,18 +165,18 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 
             List<string> str = new List<string>();
 
-            var l = _Encoder.Decode(FileSystem.ReadAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt"), dataBaseSettings.Key);
+            var l = _Encoder.Decode(FileSystem.ReadAllText(DataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt"), DataBaseSettings.Key);
 
             str.AddRange(l.Split('\n'));
 
             str.Add(stringBuilder.ToString());
             
-            FileSystem.WriteAllText(_Encoder.Encode(string.Join("\n",str.ToArray()),dataBaseSettings.Key), dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
-            string Content = JsonSerializer.Serialize<DatabaseSettings>(dataBaseSettings);
-            FileSystem.WriteAllText(_Encoder.Encode(Content, dataBaseSettings.Key), dataBaseSettings.Path + "\\Settings\\Settings.txt");
+            FileSystem.WriteAllText(_Encoder.Encode(string.Join("\n",str.ToArray()),DataBaseSettings.Key), DataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
+            string Content = JsonSerializer.Serialize<DatabaseSettings>(DataBaseSettings);
+            FileSystem.WriteAllText(_Encoder.Encode(Content, DataBaseSettings.Key), DataBaseSettings.Path + "\\Settings\\Settings.txt");
         }
 
-        public virtual void ReplayesElement(DatabaseSettings dataBaseSettings, uint ClusterNumber, ItemData[] itemDatas)
+        public virtual void ReplayesElement(DatabaseSettings DatabaseSettings, uint ClusterNumber, ItemData[] itemDatas)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
@@ -187,45 +187,45 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
                 stringBuilder.Append($"|/*\\|{i.Data}");
             }
 
-            string[] lines = _Encoder.Decode(FileSystem.ReadAllText(dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt"),dataBaseSettings.Key).Split('\n');
+            string[] lines = _Encoder.Decode(FileSystem.ReadAllText(DatabaseSettings.Path + $"\\Cluster{ClusterNumber}.txt"),DatabaseSettings.Key).Split('\n');
             lines[itemDatas[0].ID] = stringBuilder.ToString();
             stringBuilder.Clear();
 
-            string result = _Encoder.Encode(string.Join("\n", lines), dataBaseSettings.Key);
-            FileSystem.WriteAllText(result, dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
+            string result = _Encoder.Encode(string.Join("\n", lines), DatabaseSettings.Key);
+            FileSystem.WriteAllText(result, DatabaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
         }
 
-        public virtual void SaveAllCluster(DatabaseSettings dataBaseSettings, uint ClusterNumber, Interfaces.AColumn[] tables)
+        public virtual void SaveAllCluster(DatabaseSettings DatabaseSettings, uint ClusterNumber, AColumn[] Column)
         {
             if (ClusterNumber == 0)
                 ClusterNumber = 1;
-            uint i = dataBaseSettings.CountBucketsInSector * (ClusterNumber-1);
+            uint i = DatabaseSettings.CountBucketsInSector * (ClusterNumber-1);
             StringBuilder stringBuilder = new StringBuilder();
             
             string lines = "";
             
-            for(int u =0; u < tables.Length; u++)
+            for(int u =0; u < Column.Length; u++)
             {
-                lines += tables[u].TypeOfData.Name + "|" + tables[u].Name +"\n"; 
+                lines += Column[u].TypeOfData.Name + "|" + Column[u].Name +"\n"; 
             }
 
-            FileSystem.WriteAllText(lines, dataBaseSettings.Path + "\\Settings\\TablesType.txt");
+            FileSystem.WriteAllText(lines, DatabaseSettings.Path + "\\Settings\\TablesType.txt");
             //Запоминаем типы столбцов
 
-            string Content = JsonSerializer.Serialize<DatabaseSettings>(dataBaseSettings);
-            FileSystem.WriteAllText(_Encoder.Encode(Content,dataBaseSettings.Key), dataBaseSettings.Path + "\\Settings\\Settings.txt");
+            string Content = JsonSerializer.Serialize<DatabaseSettings>(DatabaseSettings);
+            FileSystem.WriteAllText(_Encoder.Encode(Content,DatabaseSettings.Key), DatabaseSettings.Path + "\\Settings\\Settings.txt");
 
-            int x = tables[0].GetCounts();
+            int x = Column[0].GetCounts();
             for (uint g = 0; g < x; g++)
             {
                 stringBuilder.Append((g+i).ToString());
-                foreach(var t in tables)
+                foreach(var t in Column)
                 {
                     stringBuilder.Append($"|/*\\|{t.GetDatas()[g]}");
                 }
                 stringBuilder.Append("\n");
             }
-            FileSystem.WriteAllText(_Encoder.Encode(stringBuilder.ToString(),dataBaseSettings.Key), dataBaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
+            FileSystem.WriteAllText(_Encoder.Encode(stringBuilder.ToString(),DatabaseSettings.Key), DatabaseSettings.Path + $"\\Cluster{ClusterNumber}.txt");
         }    
     }
 }

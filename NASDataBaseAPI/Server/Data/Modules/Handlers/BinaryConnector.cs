@@ -1,6 +1,6 @@
-﻿using NASDataBaseAPI.Server.Data.Modules.Handlers;
+﻿using NASDatabase.Server.Data.Modules.Handlers;
 
-namespace NASDataBaseAPI.Server.Data.Modules
+namespace NASDatabase.Server.Data.Modules
 {
     /// <summary>
     /// Устанавливает связь между двуня БД 

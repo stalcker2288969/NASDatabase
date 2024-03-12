@@ -1,10 +1,10 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Server.Data.DataBaseSettings;
+﻿using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
+using NASDatabase.Server.Data.DatabaseSettings;
 using System.Text.Json;
 
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet
 {
     public class LoadDataBaseSettings : CommandHandler
     {

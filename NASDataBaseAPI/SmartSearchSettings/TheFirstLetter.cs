@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System.Collections.Generic;
 
 
-namespace NASDataBaseAPI.SmartSearchSettings
+namespace NASDatabase.SmartSearchSettings
 {
     internal class StartWith : ISearch
     {

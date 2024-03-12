@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Data
+namespace NASDatabase.Data
 {
     /// <summary>
     /// Тип поиска данных в базе

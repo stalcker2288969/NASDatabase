@@ -1,13 +1,13 @@
-﻿using NASDataBaseAPI.Data;
-using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data.DataBaseSettings;
+﻿using NASDatabase.Data;
+using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Interfaces;
+using NASDatabase.Server.Data.DatabaseSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NASDataBaseAPI.Server.Data
+namespace NASDatabase.Server.Data
 {
     public class Database : IDisposable
     {
@@ -66,7 +66,7 @@ namespace NASDataBaseAPI.Server.Data
 
         public List<uint> FreeIDs { get; protected set; } = new List<uint>();
 
-        public DataBaseSettings.DatabaseSettings Settings;
+        public DatabaseSettings.DatabaseSettings Settings;
 
         public IDataBaseSaver<AColumn> DataBaseSaver;
         public IDataBaseReplayser DataBaseReplayser;
@@ -83,7 +83,7 @@ namespace NASDataBaseAPI.Server.Data
 
         #region Конструкторы
 
-        public Database(int countColumn, DataBaseSettings.DatabaseSettings settings, int loadedSector = 1)
+        public Database(int countColumn, DatabaseSettings.DatabaseSettings settings, int loadedSector = 1)
         {
             Columns = new List<AColumn>();
             this.Settings = settings;
@@ -94,7 +94,7 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
-        public Database(List<AColumn> Column, DataBaseSettings.DatabaseSettings settings, int loadedSector = 1)
+        public Database(List<AColumn> Column, DatabaseSettings.DatabaseSettings settings, int loadedSector = 1)
         {
             Columns = Column;
             this.Settings = settings;
@@ -102,7 +102,7 @@ namespace NASDataBaseAPI.Server.Data
         }
 
         /// <summary>
-        /// Изменяет тип мода сохранения данных на безопасный
+        /// Изменяет тип работы сохранения данных на безопасный
         /// </summary>
         public virtual void EnableSafeMode()
         {
@@ -110,7 +110,7 @@ namespace NASDataBaseAPI.Server.Data
             {
                 if (Settings.SaveMod != true)
                 {
-                    Settings = new DataBaseSettings.DatabaseSettings(Settings, true);
+                    Settings = new DatabaseSettings.DatabaseSettings(Settings, true);
                 }
 
                 DataBaseSaver = _myManager._databaseSavers[Convert.ToInt32(true)];
@@ -127,7 +127,7 @@ namespace NASDataBaseAPI.Server.Data
             {
                 if (Settings.SaveMod != false)
                 {
-                    Settings = new DataBaseSettings.DatabaseSettings(Settings, false);
+                    Settings = new DatabaseSettings.DatabaseSettings(Settings, false);
                 }
                 DataBaseSaver = _myManager._databaseSavers[Convert.ToInt32(false)];
                 DataBaseLoader = _myManager._databaseSavers[(int)Convert.ToInt32(false)];
@@ -400,7 +400,7 @@ namespace NASDataBaseAPI.Server.Data
         }
 
         /// <summary>
-        /// Отчищает отдельный столбец в указаном секторе/класторе или везде 
+        /// Отчищает отдельный столбец в указанном секторе/кластере или везде 
         /// </summary>
         /// <param name="Column"></param>
         public virtual void ClearAllColumn(AColumn Column, int InSector = -1)
@@ -482,7 +482,7 @@ namespace NASDataBaseAPI.Server.Data
             lock (Columns)
             {
                 this[name].Name = newName;
-                _myManager.SaveStatesDataBase(this);
+                _myManager.SaveStatesDatabase(this);
             }
         }
 
@@ -602,14 +602,14 @@ namespace NASDataBaseAPI.Server.Data
         }
 
         /// <summary>
-        /// В необходимой табличке происходит добавление данных
+        /// В необходимой табличке происходит замена данных
         /// </summary>
         public virtual void SetDataInColumn(string ColumnName, int ID, string NewData)
         {
             SetDataInColumn(ColumnName, new ItemData(ID, NewData));           
         }
         /// <summary>
-        /// В необходимой табличке происходит добавление данных в NewItemData укажите новые данные и id ячейки в которой нужно перезаписать данные
+        /// В необходимой табличке происходит замена данных в NewItemData укажите новые данные и id ячейки в которой нужно перезаписать данные
         /// </summary>
         /// <param name="ColumnName"></param>
         /// <param name="NewItemData"></param>
@@ -877,7 +877,7 @@ namespace NASDataBaseAPI.Server.Data
 
         #endregion
 
-        #region Сортировка/получение данных по параметрам
+        #region Сортировка/Получение данных по параметрам
         /// <summary>
         /// Отображает загруженный сектор в память. Если происходит ошибка возврат " " 
         /// </summary>
@@ -936,11 +936,11 @@ namespace NASDataBaseAPI.Server.Data
         /// <param name="ColumnName"></param>
         /// <param name="Data"></param>
         /// <returns></returns>
-        public virtual Rows[] GetAllDataInBaseByColumnName(string ColumnName, string Data)
+        public virtual Row[] GetAllDataInBaseByColumnName(string ColumnName, string Data)
         {
             lock (Columns)
             {
-                List<Rows> Boxes = new List<Rows>();
+                List<Row> Boxes = new List<Row>();
 
                 for (int i = 1; i < Settings.CountClusters + 1; i++)
                 {
@@ -950,7 +950,7 @@ namespace NASDataBaseAPI.Server.Data
 
                     for (int j = 0; j < ids.Length; j++)
                     {
-                        Boxes.Add(new Rows());
+                        Boxes.Add(new Row());
                         string[] strings = new string[Columns.Count];
 
                         for (int k = 0; k < Columns.Count; k++)
@@ -971,9 +971,9 @@ namespace NASDataBaseAPI.Server.Data
         /// <param name="ColumnName"></param>
         /// <param name="Data"></param>
         /// <returns></returns>
-        public virtual Rows[] GetAllDataInBaseByColumnName(Interfaces.AColumn aColumn, string Data)
+        public virtual Row[] GetAllDataInBaseByColumnName(AColumn Column, string Data)
         {
-            return GetAllDataInBaseByColumnName(aColumn.Name, Data);
+            return GetAllDataInBaseByColumnName(Column.Name, Data);
         }
 
         /// <summary>
@@ -1199,14 +1199,14 @@ namespace NASDataBaseAPI.Server.Data
             return new ItemData(ID, this[ColumnName].FindDataByID(ID));
         }
 
-        public virtual ItemData GetDataByParams(Interfaces.AColumn aColumn, int ID)
+        public virtual ItemData GetDataByParams(AColumn Column, int ID)
         {
-            return GetDataByParams(aColumn.Name, ID);
+            return GetDataByParams(Column.Name, ID);
         }
         #endregion
 
         #region Индексаторы
-        public virtual Interfaces.AColumn this[string columnName]
+        public virtual AColumn this[string columnName]
         {
             get
             {
@@ -1240,7 +1240,7 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
-        public virtual Interfaces.AColumn this[int index]
+        public virtual AColumn this[int index]
         {
             get
             {

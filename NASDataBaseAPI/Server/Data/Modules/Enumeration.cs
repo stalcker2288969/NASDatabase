@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System;
 
 
-namespace NASDataBaseAPI.Server.Data.Modules
+namespace NASDatabase.Server.Data.Modules
 {
     /// <summary>
     /// Инструмент для переборки и обработки элементов базы 
@@ -10,11 +10,11 @@ namespace NASDataBaseAPI.Server.Data.Modules
     public static class Enumeration<T> where T : Database
     {
 
-        public static void ForLine(T _dataBase, Action<Rows> Handler)
+        public static void ForLine(T _dataBase, Action<Row> Handler)
         {
             for(int i = 0; i < _dataBase.Settings.CountBuckets; i++) 
             {
-                Handler?.Invoke(_dataBase.GetDataLineByID<Rows>(i));
+                Handler?.Invoke(_dataBase.GetDataLineByID<Row>(i));
             }
         }
 

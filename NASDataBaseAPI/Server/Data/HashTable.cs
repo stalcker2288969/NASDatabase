@@ -1,9 +1,9 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System;
 using System.Collections.Generic;
 
 
-namespace NASDataBaseAPI.Server.Data
+namespace NASDatabase.Server.Data
 {
     public class HashTable<T> : IDisposable, IHashTable<T>
     {

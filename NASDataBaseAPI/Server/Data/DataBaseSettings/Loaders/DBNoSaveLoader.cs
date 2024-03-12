@@ -1,9 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data.Modules;
+﻿using NASDatabase.Interfaces;
 
-namespace NASDataBaseAPI.Server.Data.DataBaseSettings.Loaders
+namespace NASDatabase.Server.Data.DatabaseSettings.Loaders
 {
-    public class DBNoSaveLoader : DataBaseLoader
+    public class DBNoSaveLoader : DatabaseLoader
     {
 
         public DBNoSaveLoader() { }

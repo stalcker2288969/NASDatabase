@@ -1,13 +1,13 @@
-﻿using NASDataBaseAPI.Client;
-using NASDataBaseAPI.Client.Utilities;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Client;
+using NASDatabase.Client.Utilities;
+using NASDatabase.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class GetIDByParams : CommandHandler
     {

@@ -1,11 +1,11 @@
-﻿using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NASDataBaseAPI.Client.Utilities
+namespace NASDatabase.Client.Utilities
 {
     /// <summary>
     /// Класс отвечающий за базавую конвертацию данных в строку и из нее

@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
 
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet
 {
     public class PrintBase : CommandHandler
     {

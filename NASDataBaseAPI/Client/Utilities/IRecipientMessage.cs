@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Client.Utilities
+namespace NASDatabase.Client.Utilities
 {
     public interface IRecipientMessage
     {

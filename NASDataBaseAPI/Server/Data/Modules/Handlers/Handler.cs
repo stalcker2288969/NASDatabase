@@ -1,4 +1,4 @@
-﻿namespace NASDataBaseAPI.Server.Data.Modules.Handlers
+﻿namespace NASDatabase.Server.Data.Modules.Handlers
 {
     /// <summary>
     /// Стандрантный класс для обработки событий в базах данных, работает в Connector-е

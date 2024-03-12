@@ -1,4 +1,4 @@
-﻿using NASDataBaseAPI.Server.Data.Safety;
+﻿using NASDatabase.Server.Data.Safety;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Server.Data.DataBaseSettings
+namespace NASDatabase.Server.Data.DatabaseSettings
 {
     /// <summary>
     /// Отвечает за настроку базы данных, а именно фармат хронения данных и прочии вещи под копотом

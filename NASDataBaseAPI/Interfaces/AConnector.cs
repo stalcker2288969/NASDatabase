@@ -1,9 +1,9 @@
-﻿using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Server.Data.Modules.Handlers;
-using NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase;
+﻿using NASDatabase.Server.Data;
+using NASDatabase.Server.Data.Modules.Handlers;
+using NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase;
 using System;
 
-namespace NASDataBaseAPI.Interfaces
+namespace NASDatabase.Interfaces
 {
     public abstract class AConnector<T1, T2> : IDisposable where T1 : Database where T2 : Database 
     {

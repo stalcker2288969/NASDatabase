@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System;
 
 
-namespace NASDataBaseAPI.Server.Data
+namespace NASDatabase.Server.Data
 {
     /// <summary>
     /// Тип представляющий из себя ячейку в столбцах базы  

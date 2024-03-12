@@ -1,7 +1,7 @@
-﻿using NASDataBaseAPI.Client.Utilities;
+﻿using NASDatabase.Client.Utilities;
 using System;
 
-namespace NASDataBaseAPI.Interfaces
+namespace NASDatabase.Interfaces
 {
     public interface ICommandWorker : ISenderCommands, IRecipientMessage, IDisposable
     {

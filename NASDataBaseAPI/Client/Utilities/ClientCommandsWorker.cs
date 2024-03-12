@@ -1,10 +1,10 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
-namespace NASDataBaseAPI.Client.Utilities
+namespace NASDatabase.Client.Utilities
 {
     public class ClientCommandsWorker : ICommandWorker
     {

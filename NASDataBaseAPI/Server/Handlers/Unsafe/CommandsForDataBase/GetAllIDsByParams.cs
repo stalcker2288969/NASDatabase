@@ -1,9 +1,9 @@
-﻿using NASDataBaseAPI.Client;
-using NASDataBaseAPI.Client.Utilities;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Client;
+using NASDatabase.Client.Utilities;
+using NASDatabase.Interfaces;
 using System;
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class GetAllIDsByParams : CommandHandler
     {

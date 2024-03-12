@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Client;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Client;
+using NASDatabase.Interfaces;
 using System;
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class ChangeEverythingTo : CommandHandler
     {

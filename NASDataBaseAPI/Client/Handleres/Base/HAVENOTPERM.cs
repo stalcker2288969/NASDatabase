@@ -1,7 +1,7 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 using System;
 
-namespace NASDataBaseAPI.Client.Handleres.Base
+namespace NASDatabase.Client.Handleres.Base
 {
     public class HAVENOTPERM : CommandHandler
     {

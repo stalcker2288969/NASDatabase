@@ -1,5 +1,5 @@
 ﻿
-namespace NASDataBaseAPI.Interfaces
+namespace NASDatabase.Interfaces
 {
     public interface ILoger
     {

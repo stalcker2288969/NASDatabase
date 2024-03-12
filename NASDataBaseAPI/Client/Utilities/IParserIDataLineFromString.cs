@@ -1,6 +1,6 @@
-﻿using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Interfaces;
 
-namespace NASDataBaseAPI.Client.Utilities
+namespace NASDatabase.Client.Utilities
 {
     public interface IParserIDataLineFromString
     {

@@ -72,14 +72,14 @@
     <Compile Include="Server\CommandsFactory.cs" />
     <Compile Include="Server\DatabaseServer.cs" />
     <Compile Include="Interfaces\CommandHandler.cs" />
-    <Compile Include="Server\Data\Rows.cs" />
+    <Compile Include="Server\Data\Row.cs" />
     <Compile Include="Server\Data\Data.cs" />
     <Compile Include="Server\Data\DataBaseEventType.cs" />
     <Compile Include="Server\Data\Modules\Handlers\BinaryConnector.cs" />
     <Compile Include="Server\Data\Modules\Handlers\Connector.cs" />
     <Compile Include="Server\Data\Modules\Enumeration.cs" />
     <Compile Include="Server\Data\Modules\Handlers\Handler.cs" />
-    <Compile Include="Server\Data\DataBaseSettings\Loaders\DataBaseLoader.cs" />
+    <Compile Include="Server\Data\DataBaseSettings\Loaders\DatabaseLoader.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DatabaseLoger.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DatabaseManager.cs" />
     <Compile Include="Server\Data\DataBaseSettings\DatabaseSettings.cs" />

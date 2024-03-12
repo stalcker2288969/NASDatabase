@@ -1,7 +1,7 @@
-﻿using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Server.Data;
 
-namespace NASDataBaseAPI.Interfaces
+namespace NASDatabase.Interfaces
 {
     public abstract class AColumn
     {

@@ -1,5 +1,5 @@
 ﻿
-namespace NASDataBaseAPI.Server
+namespace NASDatabase.Server
 {
     public struct ServerSettings
     {

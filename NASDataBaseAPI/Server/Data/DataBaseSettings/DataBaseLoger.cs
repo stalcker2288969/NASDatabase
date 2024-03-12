@@ -1,10 +1,10 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data.Modules;
+﻿using NASDatabase.Interfaces;
+using NASDatabase.Server.Data.Modules;
 using System;
 using System.Collections.Generic;
 
 
-namespace NASDataBaseAPI.Server.Data.DataBaseSettings
+namespace NASDatabase.Server.Data.DatabaseSettings
 {
     /// <summary>
     /// Класс предоставляющий систему логирования  

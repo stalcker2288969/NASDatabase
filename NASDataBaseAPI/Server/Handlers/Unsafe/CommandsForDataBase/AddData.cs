@@ -1,9 +1,9 @@
-﻿using NASDataBaseAPI.Client.Utilities;
-using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Client.Utilities;
+using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
 
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class AddData : CommandHandler
     {
@@ -19,7 +19,7 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
 
         public override void SetData(string data)
         {
-            var d = _converter.GetDataLine<Rows>(data);
+            var d = _converter.GetDataLine<Row>(data);
 
             this._data = d.GetData();
         }

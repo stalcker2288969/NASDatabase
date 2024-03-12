@@ -1,8 +1,8 @@
-﻿using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Server.Data.DataTypesInColumn.Converter;
+﻿using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Server.Data.DataTypesInColumn.Converter;
 
 
-namespace NASDataBaseAPI.Server.Data.DataTypesInColumn.Types
+namespace NASDatabase.Server.Data.DataTypesInColumn.Types
 {
     public class Bool : TypeOfData
     {

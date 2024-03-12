@@ -1,11 +1,11 @@
-﻿using NASDataBaseAPI.Client;
-using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Client;
+using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Interfaces;
+using NASDatabase.Server.Data;
 using System;
 
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class AddColumn : CommandHandler
     {

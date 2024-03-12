@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Server.Data.DataTypesInColumn.Converter
+namespace NASDatabase.Server.Data.DataTypesInColumn.Converter
 {
     public class ToTimeConverter : IDataTypeConverter<DateTime>
     {

@@ -3,14 +3,14 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using NASDataBaseAPI.Client;
-using NASDataBaseAPI.Server.Data;
-using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet;
-using NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase;
-using NASDataBaseAPI.Client.Utilities;
+using NASDatabase.Client;
+using NASDatabase.Server.Data;
+using NASDatabase.Interfaces;
+using NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSet;
+using NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase;
+using NASDatabase.Client.Utilities;
 
-namespace NASDataBaseAPI.Server
+namespace NASDatabase.Server
 {
     /// <summary>
     /// Основной класс для работы с базой данных по сети (новый функционал не вводит, просто улучшает tcp систему)
@@ -74,14 +74,14 @@ namespace NASDataBaseAPI.Server
             }
         }
 
-        private void Handler(ICommandWorker worker)
+        private void Handler(ICommandWorker Worker)
         {
             string res = "";
             var sb = new StringBuilder();
             
             while(true)
             {
-                res = worker.Listen();
+                res = Worker.Listen();
 
                 string[] datas = res.Split(BaseCommands.SEPARATION.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                 
@@ -103,11 +103,11 @@ namespace NASDataBaseAPI.Server
                     
                     var resText = c.Use();
 
-                    worker.Push(resText);
+                    Worker.Push(resText);
                 }
                 catch(Exception ex)
                 {
-                    worker.Push(BaseCommands.ERROR + BaseCommands.SEPARATION + ex.Message);
+                    Worker.Push(BaseCommands.ERROR + BaseCommands.SEPARATION + ex.Message);
 
                     break;
                 }
@@ -126,9 +126,9 @@ namespace NASDataBaseAPI.Server
         {
             if (_isServerRunning)
             {
-                foreach(var c in Clients)
+                foreach(var client in Clients)
                 {
-                    c.Push(BaseCommands.Disconnect);
+                    client.Push(BaseCommands.Disconnect);
                 }
 
                 _isServerRunning = false;
@@ -137,29 +137,29 @@ namespace NASDataBaseAPI.Server
             }
         }
 
-        private void InitCommands(CommandsFactory commandsParser, Database db)
+        private void InitCommands(CommandsFactory CommandsParser, Database DB)
         {
-            commandsParser.AddCommand(BaseCommands.AddData, new AddData(db, DataConverter));
-            commandsParser.AddCommand(BaseCommands.RemoveDataByID, new RemoveDataByID(db.RemoveDataByID));
-            commandsParser.AddCommand(BaseCommands.Login, new Login(ServerSettings, ClientHandler));
-            commandsParser.AddCommand(BaseCommands.MSG, new MSGFromClient());
-            commandsParser.AddCommand(BaseCommands.SetDataInColumn, new SetDataInColumn(DataConverter, db.SetDataInColumn));
-            commandsParser.AddCommand(BaseCommands.GetAllIDsByParams, new GetAllIDsByParams(db.GetAllIDsByParams, DataConverter));
-            commandsParser.AddCommand(BaseCommands.AddColumn, new AddColumn(db.AddColumn));
-            commandsParser.AddCommand(BaseCommands.RemoveColumn, new RemoveColumn(db.RemoveColumn));
-            commandsParser.AddCommand(BaseCommands.CloneColumn, new CloneTo(db.CloneTo));
-            commandsParser.AddCommand(BaseCommands.ClearColumn, new ClearAllColumn(db.ClearAllColumn));
-            commandsParser.AddCommand(BaseCommands.RenameColumn, new RenameColumn(db.RenameColumn));
-            commandsParser.AddCommand(BaseCommands.LoadDataBaseState, new LoadDataBaseSettings(db));
-            commandsParser.AddCommand(BaseCommands.LoadDataBaseColumnsState, new LoadDataBaseColumnsState(db, DataConverter));
-            commandsParser.AddCommand(BaseCommands.ClearAllBase, new ClearAllBase(db.ClearAllBase));
-            commandsParser.AddCommand(BaseCommands.ChangeEverythingTo, new ChangeEverythingTo(db.ChangeEverythingTo));
-            commandsParser.AddCommand(BaseCommands.SetData, new SetDataServerCommand(db.SetData<Rows>, DataConverter));
-            commandsParser.AddCommand(BaseCommands.ChengTypeInColumn, new ChengTypeInColumn(db.ChengTypeInColumn));
-            commandsParser.AddCommand(BaseCommands.PrintBase, new PrintBase(db));
-            commandsParser.AddCommand(BaseCommands.GetAllDataInBaseByColumnName, new GetAllDataInBaseByColumnName(db.GetAllDataInBaseByColumnName, DataConverter));
-            commandsParser.AddCommand(BaseCommands.GetIDByParams, new GetIDByParams(db.GetIDByParams, DataConverter));
-            commandsParser.AddCommand(BaseCommands.GetDataByID, new GetDataByID(db.GetDataByID, DataConverter));
+            CommandsParser.AddCommand(BaseCommands.AddData, new AddData(DB, DataConverter));
+            CommandsParser.AddCommand(BaseCommands.RemoveDataByID, new RemoveDataByID(DB.RemoveDataByID));
+            CommandsParser.AddCommand(BaseCommands.Login, new Login(ServerSettings, ClientHandler));
+            CommandsParser.AddCommand(BaseCommands.MSG, new MSGFromClient());
+            CommandsParser.AddCommand(BaseCommands.SetDataInColumn, new SetDataInColumn(DataConverter, DB.SetDataInColumn));
+            CommandsParser.AddCommand(BaseCommands.GetAllIDsByParams, new GetAllIDsByParams(DB.GetAllIDsByParams, DataConverter));
+            CommandsParser.AddCommand(BaseCommands.AddColumn, new AddColumn(DB.AddColumn));
+            CommandsParser.AddCommand(BaseCommands.RemoveColumn, new RemoveColumn(DB.RemoveColumn));
+            CommandsParser.AddCommand(BaseCommands.CloneColumn, new CloneTo(DB.CloneTo));
+            CommandsParser.AddCommand(BaseCommands.ClearColumn, new ClearAllColumn(DB.ClearAllColumn));
+            CommandsParser.AddCommand(BaseCommands.RenameColumn, new RenameColumn(DB.RenameColumn));
+            CommandsParser.AddCommand(BaseCommands.LoadDataBaseState, new LoadDataBaseSettings(DB));
+            CommandsParser.AddCommand(BaseCommands.LoadDataBaseColumnsState, new LoadDataBaseColumnsState(DB, DataConverter));
+            CommandsParser.AddCommand(BaseCommands.ClearAllBase, new ClearAllBase(DB.ClearAllBase));
+            CommandsParser.AddCommand(BaseCommands.ChangeEverythingTo, new ChangeEverythingTo(DB.ChangeEverythingTo));
+            CommandsParser.AddCommand(BaseCommands.SetData, new SetDataServerCommand(DB.SetData<Row>, DataConverter));
+            CommandsParser.AddCommand(BaseCommands.ChengTypeInColumn, new ChengTypeInColumn(DB.ChengTypeInColumn));
+            CommandsParser.AddCommand(BaseCommands.PrintBase, new PrintBase(DB));
+            CommandsParser.AddCommand(BaseCommands.GetAllDataInBaseByColumnName, new GetAllDataInBaseByColumnName(DB.GetAllDataInBaseByColumnName, DataConverter));
+            CommandsParser.AddCommand(BaseCommands.GetIDByParams, new GetIDByParams(DB.GetIDByParams, DataConverter));
+            CommandsParser.AddCommand(BaseCommands.GetDataByID, new GetDataByID(DB.GetDataByID, DataConverter));
         }
 
         /// <summary>

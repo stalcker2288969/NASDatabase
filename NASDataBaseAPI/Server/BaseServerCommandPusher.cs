@@ -3,9 +3,9 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Net;
-using NASDataBaseAPI.Client;
+using NASDatabase.Client;
 
-namespace NASDataBaseAPI.Server
+namespace NASDatabase.Server
 {
     public class BaseServerCommandPusher : ServerCommandsPusher
     {

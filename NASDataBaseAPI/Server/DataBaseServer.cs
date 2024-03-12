@@ -1,10 +1,10 @@
-﻿using NASDataBaseAPI.Server.Data;
+﻿using NASDatabase.Server.Data;
 using System;
 using System.Collections.Generic;
-using NASDataBaseAPI.Client.Utilities;
-using NASDataBaseAPI.Interfaces;
+using NASDatabase.Client.Utilities;
+using NASDatabase.Interfaces;
 
-namespace NASDataBaseAPI.Server
+namespace NASDatabase.Server
 {
     public abstract class DatabaseServer 
     {

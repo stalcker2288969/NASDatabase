@@ -1,12 +1,12 @@
-﻿using NASDataBaseAPI.Client;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Client;
+using NASDatabase.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase
+namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
     public class Disconnect : CommandHandler
     {

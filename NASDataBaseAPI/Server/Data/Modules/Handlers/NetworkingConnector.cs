@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NASDataBaseAPI.Server.Data.Modules.Handlers
+namespace NASDatabase.Server.Data.Modules.Handlers
 {
     public class NetworkingConnector : Connector<Database, Client.Client>
     {

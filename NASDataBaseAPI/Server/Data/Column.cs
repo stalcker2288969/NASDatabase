@@ -1,10 +1,10 @@
-﻿using NASDataBaseAPI.Data.DataTypesInColumn;
-using NASDataBaseAPI.Interfaces;
+﻿using NASDatabase.Data.DataTypesInColumn;
+using NASDatabase.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NASDataBaseAPI.Server.Data
+namespace NASDatabase.Server.Data
 {
     /// <summary>
     /// Класс распределяющий данные по столбцу
