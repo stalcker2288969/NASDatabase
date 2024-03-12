@@ -5,6 +5,7 @@ using NASDatabase.Server.Data.Safety;
 using NASDatabase.Data.DataTypesInColumn;
 using NASDatabase.Server.Data.DatabaseSettings.Loaders;
 using NASDatabase.Server.Data.Modules;
+using NASDatabase.Server.Data.Log;
 
 namespace NASDatabase.Server.Data.DatabaseSettings
 {

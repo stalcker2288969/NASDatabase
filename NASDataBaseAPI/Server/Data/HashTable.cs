@@ -7,6 +7,10 @@ namespace NASDatabase.Server.Data
 {
     public class HashTable<T> : IDisposable, IHashTable<T>
     {
+        #region Ошибки  
+        public const string HaveNotElement = "Элемент не был обнаружен!";
+        #endregion
+        public const int StandartBucketsCount = 10;
         public uint CountBuckets { get; private set; } = 10;
         public uint NumberElements { get; private set; }
         public uint BucketRatio = 2;
@@ -17,7 +21,7 @@ namespace NASDatabase.Server.Data
         public HashTable(T[] values)
         {
             _hashTable = new List<List<T>>();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < StandartBucketsCount; i++)
             {
                 _hashTable.Add(new List<T>());
             }
@@ -31,7 +35,7 @@ namespace NASDatabase.Server.Data
         public HashTable()
         {
             _hashTable = new List<List<T>>();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < StandartBucketsCount; i++)
             {
                 _hashTable.Add(new List<T>());
             }
@@ -50,7 +54,7 @@ namespace NASDatabase.Server.Data
             }
             catch
             {
-                return default(T);
+                throw new Exception(HaveNotElement);
             }
         }
         /// <summary>
@@ -250,7 +254,7 @@ namespace NASDatabase.Server.Data
             }
             else
             {
-                throw new ArgumentException("Объект не может равняться null! ");
+                throw new ArgumentException("Объект на удаление не может равняться null! ");
             }
         }
 
@@ -264,19 +268,17 @@ namespace NASDatabase.Server.Data
         /// </summary>
         public void Clear()
         {           
-            _datas.Clear();
-            _datas = null;
+            _datas.Clear();           
             _datas = new List<T> { };
 
             _hashTable.Clear();
-            _hashTable = null;
             _hashTable = new List<List<T>> { };
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < StandartBucketsCount; i++)
             {
                 _hashTable.Add(new List<T>());
             }
-            CountBuckets = 10;
+            CountBuckets = StandartBucketsCount;
             NumberElements = 0;
         }
 

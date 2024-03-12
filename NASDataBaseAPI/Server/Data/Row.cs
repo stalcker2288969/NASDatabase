@@ -6,7 +6,7 @@ namespace NASDatabase.Server.Data
     /// <summary>
     /// Стандартный класс для строки(линии) в базе 
     /// </summary>
-    public class Row : IDatRows
+    public class Row : IDataRow
     {
         protected string[] Datas;
         public int ID { get; protected set; }

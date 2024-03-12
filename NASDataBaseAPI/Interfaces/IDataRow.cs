@@ -3,7 +3,7 @@
     /// <summary>
     /// Предоставляет возможность объекту стать строкой в базе 
     /// </summary>
-    public interface IDatRows
+    public interface IDataRow
     {
         int ID { get; }
         void Init(int ID, params string[] datas);
