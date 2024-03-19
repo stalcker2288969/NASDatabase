@@ -6,7 +6,7 @@ namespace NASDatabase.Client.Utilities
     /// <summary>
     /// Конвертация стандартных данных и кодировка данных в байты и обратно
     /// </summary>
-    public interface IDataConverter : IParserIColumnFromString, IParserIDataLineFromString, IParserItemDataFromString 
+    public interface IDataConverter : IParserIColumnFromString, IParserIDataRowFromString, IParserItemDataFromString 
     {
         /// <summary>
         /// Получение строки из байт 

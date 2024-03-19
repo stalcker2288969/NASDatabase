@@ -4,13 +4,13 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class ClearAllBase : CommandHandler
+    internal class ClearAllBase : CommandHandler
     {
         private Action _handler;
 
-        public ClearAllBase(Action Handler) 
+        public ClearAllBase(Action handler) 
         {
-            _handler = Handler;
+            _handler = handler;
         }
 
         public override string Use()

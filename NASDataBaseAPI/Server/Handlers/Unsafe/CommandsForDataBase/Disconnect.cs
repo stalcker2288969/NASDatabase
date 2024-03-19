@@ -2,13 +2,10 @@
 using NASDatabase.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class Disconnect : CommandHandler
+    internal class Disconnect : CommandHandler
     {
         List<ServerCommandsPusher> _pushers;
         private ServerCommandsPusher _serverCommandsPusher;

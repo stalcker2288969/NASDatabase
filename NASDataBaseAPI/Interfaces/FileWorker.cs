@@ -3,46 +3,46 @@
     /// <summary>
     /// Интерфейс файловой системы для работы БД
     /// </summary>
-    public interface IFileWorker
+    public abstract class FileWorker
     {
         /// <summary>
         /// Записть текста в файл
         /// </summary>
-        /// <param name="Text"></param>
-        /// <param name="Path"></param>
-        void WriteAllText(string Text, string Path);
+        /// <param name="text"></param>
+        /// <param name="path"></param>
+        public abstract void WriteAllText(string text, string path);
         /// <summary>
         /// Построчная запись текста в файл
         /// </summary>
-        /// <param name="Lines"></param>
-        /// <param name="Path"></param>
-        void WriteLines(string[] Lines, string Path);
+        /// <param name="lines"></param>
+        /// <param name="path"></param>
+        public abstract void WriteLines(string[] lines, string path);
         /// <summary>
         /// Чтение текста с файла
         /// </summary>
-        /// <param name="Path"></param>
+        /// <param name="path"></param>
         /// <returns></returns>
-        string ReadAllText(string Path);
+        public abstract string ReadAllText(string path);
         /// <summary>
         /// Чтение строк файла
         /// </summary>
-        /// <param name="Path"></param>
+        /// <param name="path"></param>
         /// <returns></returns>
-        string[] ReadAllLines(string Path);
+        public abstract string[] ReadAllLines(string path);
         /// <summary>
         /// Удаление файла 
         /// </summary>
-        /// <param name="Path"></param>
-        void RemoveFile(string Path);
+        /// <param name="path"></param>
+        public abstract void RemoveFile(string path);
         /// <summary>
         /// Создание директории 
         /// </summary>
-        /// <param name="Path"></param>
-        void CreateDirectory(string Path);
+        /// <param name="path"></param>
+        public abstract void CreateDirectory(string path);
         /// <summary>
         /// Удаление директории  
         /// </summary>
-        /// <param name="Path"></param>
-        void DeleteDictinory(string Path);
+        /// <param name="path"></param>
+        public abstract void DeleteDictinory(string path);
     }
 }

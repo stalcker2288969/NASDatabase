@@ -1,6 +1,5 @@
 ﻿using NASDatabase.Server.Data;
 using NASDatabase.Server.Data.Modules.Handlers;
-using NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase;
 using System;
 
 namespace NASDatabase.Interfaces
@@ -12,9 +11,9 @@ namespace NASDatabase.Interfaces
         /// <summary>
         /// Добавляет связь через обработчик
         /// </summary>
-        /// <param name="Handler"></param>
-        public abstract void AddHandler(Handler<T1,T2> Handler);
-        public abstract void DestroyHandler(Handler<T1, T2> Handler);
+        /// <param name="handler"></param>
+        public abstract void AddHandler(Handler<T1,T2> handler);
+        public abstract void DestroyHandler(Handler<T1, T2> handler);
 
         public abstract void Dispose();
     }

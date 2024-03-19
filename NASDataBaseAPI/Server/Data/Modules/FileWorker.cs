@@ -1,5 +1,4 @@
-﻿using NASDatabase.Interfaces;
-using System.IO;
+﻿using System.IO;
 
 
 namespace NASDatabase.Server.Data.Modules
@@ -7,39 +6,39 @@ namespace NASDatabase.Server.Data.Modules
     /// <summary>
     /// Работает со стандартной файловой системой  
     /// </summary>
-    public class BaseFileWorker : IFileWorker
+    public class FileWorker : Interfaces.FileWorker
     {
-        public void CreateDirectory(string path)
+        public override void CreateDirectory(string path)
         {
             Directory.CreateDirectory(path);
         }
 
-        public void DeleteDictinory(string path)
+        public override void DeleteDictinory(string path)
         {
             Directory.Delete(path, true);
         }
 
-        public string[] ReadAllLines(string path)
+        public override string[] ReadAllLines(string path)
         {
             return File.ReadAllLines(path);
         }
 
-        public string ReadAllText(string path)
+        public override string ReadAllText(string path)
         {
             return File.ReadAllText(path);
         }
 
-        public void RemoveFile(string path)
+        public override void RemoveFile(string path)
         {
             File.Delete(path);
         }
 
-        public void WriteAllText(string text, string path)
+        public override void WriteAllText(string text, string path)
         {
             File.WriteAllText(path, text);
         }
 
-        public void WriteLines(string[] lines, string path)
+        public override void WriteLines(string[] lines, string path)
         {
             File.WriteAllLines(path, lines);
         }

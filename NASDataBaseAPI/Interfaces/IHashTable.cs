@@ -11,7 +11,7 @@ namespace NASDatabase.Interfaces
         bool HasElement(T value, ref int code);
         void AddElement(T value);             
         bool TryReplacementByKey(T newData, int Key);
-        bool TryReplacementByKeyAndOldData(T newData, T OldData, int Key);
+        bool TryReplacementByKeyAndOldData(T newData, T oldData, int key);
         void RemoveElement(T value);
         List<T> GetValues();
         void Clear();

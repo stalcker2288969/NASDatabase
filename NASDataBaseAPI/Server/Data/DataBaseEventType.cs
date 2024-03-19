@@ -1,6 +1,6 @@
 ﻿namespace NASDatabase.Server.Data
 {
-    public enum DataBaseEventType
+    public enum DatabaseEventType
     {
         AddData,
         RemoveData,

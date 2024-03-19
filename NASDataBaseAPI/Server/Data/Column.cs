@@ -11,6 +11,8 @@ namespace NASDatabase.Server.Data
     /// </summary>
     public class Column : AColumn, IDisposable
     {
+        public const string ExtprionInit = "Столбец уже проинициализирован!";
+
         #region Ивенты
         public event Action<int> _DeleteData;
         public event Action<ItemData> _AddData;
@@ -23,37 +25,33 @@ namespace NASDatabase.Server.Data
         private bool _initialized = false;
         
         #region конструкторы
-        public Column(string Name, HashTable<ItemData> boxes, TypeOfData dataType, uint offSet)
+        public Column(string name, HashTable<ItemData> boxes, TypeOfData typeOfData, uint offSet)
         {
-            this.Name = Name;
+            this.Name = name;
             this.boxes = boxes;
-            this.TypeOfData = dataType;
+            this.TypeOfData = typeOfData;
             this.Offset = offSet;
         }
-        public Column(string Name, TypeOfData dataType, uint offSet)
+        public Column(string name, TypeOfData typeOfData, uint offSet)
         {
-            this.Name = Name;
-            this.TypeOfData = dataType;
+            this.Name = name;
+            this.TypeOfData = typeOfData;
             this.Offset = offSet;
-        }
-        public Column(string Name, uint offSet)
-        {
-            this.Name = Name;
-            this.TypeOfData = DataTypesInColumns.Text;
-            Offset = offSet;
-        }
-        public Column(string Name)
-        {
-            this.Name = Name;
-            this.TypeOfData = DataTypesInColumns.Text;
-            Offset = 0;
         }
 
-        public Column()
+        public Column(string name, uint offSet) : this(name, DataTypesInColumns.Text, offSet)
         {
-            this.Name = "";
-            this.TypeOfData = DataTypesInColumns.Text;
-            Offset = 0;
+
+        }
+        
+        public Column(string name) : this(name, 0)
+        {
+
+        }
+        
+        public Column() : this(string.Empty)
+        {
+            
         }
 
         #endregion
@@ -202,13 +200,13 @@ namespace NASDatabase.Server.Data
         /// Добавляет данные в конец 
         /// </summary>
         /// <param name="data"></param>
-        public override bool Push(string data, uint CountBoxes)
+        public override bool Push(string data, uint countBoxes)
         {
             bool result = false;
             if (TypeOfData.CanConvert(data))
             {
-                boxes.AddElement(new ItemData((int)CountBoxes, data));
-                _AddData?.Invoke(new ItemData((int)CountBoxes, data));
+                boxes.AddElement(new ItemData((int)countBoxes, data));
+                _AddData?.Invoke(new ItemData((int)countBoxes, data));
                 result = true;
             }
             return result;
@@ -330,7 +328,7 @@ namespace NASDatabase.Server.Data
         }
 
         /// <summary>
-        /// !!Очищает себя и меняет тип! 
+        /// !!Очищает столбец и меняет тип! 
         /// </summary>
         /// <param name="type"></param>
         public override void ChangType(TypeOfData type)
@@ -380,12 +378,12 @@ namespace NASDatabase.Server.Data
         }
         #endregion
 
-        public override void Init(string Name, TypeOfData dataType, uint offSet)
+        public override void Init(string name, TypeOfData typeOfData, uint offSet)
         {
             if (_initialized)
-                throw new Exception("Столбец уже проинициализирован!");
-            this.Name = Name;
-            this.TypeOfData = dataType;
+                throw new Exception(ExtprionInit);
+            this.Name = name;
+            this.TypeOfData = typeOfData;
             this.Offset = offSet;
             _initialized = true;
         }

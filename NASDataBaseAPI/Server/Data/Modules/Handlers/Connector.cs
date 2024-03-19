@@ -55,37 +55,37 @@ namespace NASDatabase.Server.Data.Modules
 
             switch (Handler.Type)
             {
-                case DataBaseEventType.AddData:                    
+                case DatabaseEventType.AddData:                    
                     _OnAddData += Handler.Work;
                     break;
-                case DataBaseEventType.RemoveData:
+                case DatabaseEventType.RemoveData:
                     _OnRemoveData += Handler.Work;
                     break;
-                case DataBaseEventType.RemoveDataByData:
+                case DatabaseEventType.RemoveDataByData:
                     _OnRemoveDataByData += Handler.Work;
                     break;
-                case DataBaseEventType.AddColumn:
+                case DatabaseEventType.AddColumn:
                     _OnAddColumn += Handler.Work;
                     break;
-                case DataBaseEventType.RemoveColumn:
+                case DatabaseEventType.RemoveColumn:
                     _OnRemoveColumn += Handler.Work;
                     break;
-                case DataBaseEventType.LoadedNewSector:
+                case DatabaseEventType.LoadedNewSector:
                     _OnLoadedNewSector += Handler.Work;
                     break;
-                case DataBaseEventType.CloneColumn:
+                case DatabaseEventType.CloneColumn:
                     _OnCloneColumn += Handler.Work;
                     break;
-                case DataBaseEventType.ClearAllColumn:
+                case DatabaseEventType.ClearAllColumn:
                     _OnClearAllColumn += Handler.Work;
                     break;
-                case DataBaseEventType.ClearAllBase:
+                case DatabaseEventType.ClearAllBase:
                     _OnClearAllBase += Handler.Work;
                     break;
-                case DataBaseEventType.RenamedColumn:
+                case DatabaseEventType.RenamedColumn:
                     _OnRenameColumn += Handler.Work;
                     break;
-                case DataBaseEventType.SetDataInColumn:
+                case DatabaseEventType.SetDataInColumn:
                     _OnSetDataInColumn += Handler.Work;
                     break;
             }
@@ -95,37 +95,37 @@ namespace NASDatabase.Server.Data.Modules
         {
             switch (Handler.Type)
             {
-                case DataBaseEventType.AddData:
+                case DatabaseEventType.AddData:
                     _OnAddData -= Handler.Work;
                     break;
-                case DataBaseEventType.RemoveData:
+                case DatabaseEventType.RemoveData:
                     _OnRemoveData -= Handler.Work;
                     break;
-                case DataBaseEventType.RemoveDataByData:
+                case DatabaseEventType.RemoveDataByData:
                     _OnRemoveDataByData -= Handler.Work;
                     break;
-                case DataBaseEventType.AddColumn:
+                case DatabaseEventType.AddColumn:
                     _OnAddColumn -= Handler.Work;
                     break;
-                case DataBaseEventType.RemoveColumn:
+                case DatabaseEventType.RemoveColumn:
                     _OnRemoveColumn -= Handler.Work;
                     break;
-                case DataBaseEventType.LoadedNewSector:
+                case DatabaseEventType.LoadedNewSector:
                     _OnLoadedNewSector -= Handler.Work;
                     break;
-                case DataBaseEventType.CloneColumn:
+                case DatabaseEventType.CloneColumn:
                     _OnCloneColumn -= Handler.Work;
                     break;
-                case DataBaseEventType.ClearAllColumn:
+                case DatabaseEventType.ClearAllColumn:
                     _OnClearAllColumn -= Handler.Work;
                     break;
-                case DataBaseEventType.ClearAllBase:
+                case DatabaseEventType.ClearAllBase:
                     _OnClearAllBase -= Handler.Work;
                     break;
-                case DataBaseEventType.RenamedColumn:
+                case DatabaseEventType.RenamedColumn:
                     _OnRenameColumn -= Handler.Work;
                     break;
-                case DataBaseEventType.SetDataInColumn:
+                case DatabaseEventType.SetDataInColumn:
                     _OnSetDataInColumn -= Handler.Work; 
                     break;
             }

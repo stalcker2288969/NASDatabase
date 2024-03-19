@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class CloneTo : CommandHandler
+    internal class CloneTo : CommandHandler
     {
         private Action<string, string> _handler;
 

@@ -68,10 +68,17 @@ namespace NASDatabase.Server.Data
 
         public DatabaseSettings.DatabaseSettings Settings;
 
-        public IDataBaseSaver<AColumn> DataBaseSaver;
-        public IDataBaseReplayser DataBaseReplayser;
-        public IDataBaseLoader<AColumn> DataBaseLoader;
-        public ILoger DataBaseLoger;
+        public IDataBaseSaver<AColumn> DatabaseSaver;
+        public IDataBaseReplayser DatabaseReplayser;
+        public IDataBaseLoader<AColumn> DatabaseLoader;
+       
+        public Loger DatabaseLoger
+        {
+            set 
+            {
+                DatabaseLoger = value;               
+            }
+        }
 
         public DatabaseServer Server;
 
@@ -94,9 +101,9 @@ namespace NASDatabase.Server.Data
             }
         }
 
-        public Database(List<AColumn> Column, DatabaseSettings.DatabaseSettings settings, int loadedSector = 1)
+        public Database(List<AColumn> columns, DatabaseSettings.DatabaseSettings settings, int loadedSector = 1)
         {
-            Columns = Column;
+            Columns = columns;
             this.Settings = settings;
             SetLoadedSector((int)loadedSector);
         }
@@ -113,9 +120,9 @@ namespace NASDatabase.Server.Data
                     Settings = new DatabaseSettings.DatabaseSettings(Settings, true);
                 }
 
-                DataBaseSaver = _myManager._databaseSavers[Convert.ToInt32(true)];
-                DataBaseLoader = _myManager._databaseSavers[(int)Convert.ToInt32(true)];
-                DataBaseReplayser = _myManager._databaseSavers[((int)Convert.ToInt32(true))];
+                DatabaseSaver = _myManager._databaseSavers[Convert.ToInt32(true)];
+                DatabaseLoader = _myManager._databaseSavers[(int)Convert.ToInt32(true)];
+                DatabaseReplayser = _myManager._databaseSavers[((int)Convert.ToInt32(true))];
             }
         }
         /// <summary>
@@ -129,9 +136,9 @@ namespace NASDatabase.Server.Data
                 {
                     Settings = new DatabaseSettings.DatabaseSettings(Settings, false);
                 }
-                DataBaseSaver = _myManager._databaseSavers[Convert.ToInt32(false)];
-                DataBaseLoader = _myManager._databaseSavers[(int)Convert.ToInt32(false)];
-                DataBaseReplayser = _myManager._databaseSavers[((int)Convert.ToInt32(false))];
+                DatabaseSaver = _myManager._databaseSavers[Convert.ToInt32(false)];
+                DatabaseLoader = _myManager._databaseSavers[(int)Convert.ToInt32(false)];
+                DatabaseReplayser = _myManager._databaseSavers[((int)Convert.ToInt32(false))];
             }
         }
 
@@ -147,29 +154,29 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Сеттер для LoadedSector, оповещает о изменение свойства
         /// </summary>
-        /// <param name="NewSectorsID"></param>
-        protected void SetLoadedSector(int NewSectorsID)
+        /// <param name="newSectorsID"></param>
+        protected void SetLoadedSector(int newSectorsID)
         {
-            LoadedSector = (uint)NewSectorsID; 
+            LoadedSector = (uint)newSectorsID;
             Settings.CountClusters = LoadedSector - 1 == Settings.CountClusters ? LoadedSector : Settings.CountClusters;
-            _LoadedNewSector?.Invoke(NewSectorsID);
+            _LoadedNewSector?.Invoke(newSectorsID);
         }
 
         /// <summary>
         /// Загрузка класера/просто сокрщает код  
         /// </summary>
-        /// <param name="NewSector"></param>
+        /// <param name="newSector"></param>
         /// <returns></returns>
-        private void _LoadDataBase(int NewSector)
+        private void _LoadDataBase(int newSector)
         {
-            if (NewSector == 0)
-                NewSector = 1;
+            if (newSector == 0)
+                newSector = 1;
 
-            if (LoadedSector != NewSector)
+            if (LoadedSector != newSector)
             {
                 Columns.Clear();
-                Columns.AddRange((IEnumerable<AColumn>)DataBaseLoader.LoadCluster(Settings.Path, (uint)NewSector, Settings.Key));
-                SetLoadedSector((int)NewSector);
+                Columns.AddRange((IEnumerable<AColumn>)DatabaseLoader.LoadCluster(Settings.Path, (uint)newSector, Settings.Key));
+                SetLoadedSector((int)newSector);
             }
         }
         #endregion
@@ -178,10 +185,10 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Получает айдишики все строк по параметрам
         /// </summary>
-        /// <param name="NameColumn"></param>
-        /// <param name="Data"></param>
+        /// <param name="nameColumn"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
-        public virtual int[] GetAllIDsByParams(string NameColumn, string Data)
+        public virtual int[] GetAllIDsByParams(string nameColumn, string data)
         {
             lock (Columns)
             {
@@ -191,83 +198,83 @@ namespace NASDatabase.Server.Data
                 {
                     _LoadDataBase(i);
 
-                    IDs.AddRange(this[NameColumn].FindIDs(Data) ?? new int[0]);
+                    IDs.AddRange(this[nameColumn].FindIDs(data) ?? new int[0]);
                 }
 
                 return IDs.ToArray();
             }
         }
 
-        public virtual int[] GetAllIDsByParams(int NumberColumn, string Data)
+        public virtual int[] GetAllIDsByParams(int numberColumn, string data)
         {
-            return GetAllIDsByParams(Columns[NumberColumn].Name, Data);
+            return GetAllIDsByParams(Columns[numberColumn].Name, data);
         }
         /// <summary>
         /// Изменяет тип в указанном столбце 
         /// </summary>
-        /// <param name="NameColumn"></param>
-        /// <param name="TypeOfData"></param>
-        public virtual void ChangTypeInColumn(string NameColumn, TypeOfData TypeOfData)
-        {
-            lock (Columns)
-            {
-                for(int i = 0; i < Settings.CountClusters; i++)
-                {
-                    _LoadDataBase(i);
-                    foreach (var column in Columns)
-                    {
-                        column.ChangType(TypeOfData);
-                    }
-                    DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
-                }     
-            }
-        }
-
-        public void ChangTypeInColumn(AColumn Column, TypeOfData DataType)
-        {
-            ChengTypeInColumn(Column.Name, DataType);
-        }
-
-        public void ChangTypeInColumn(int column, TypeOfData DataType)
-        {
-            ChengTypeInColumn(Columns[column].Name, DataType);
-        }
-        /// <summary>
-        /// Удаляет столбец
-        /// </summary>
-        /// <param name="ColumnName"></param>
-        public virtual void RemoveColumn(string ColumnName)
+        /// <param name="nameColumn"></param>
+        /// <param name="typeOfData"></param>
+        public virtual void ChangTypeInColumn(string nameColumn, TypeOfData typeOfData)
         {
             lock (Columns)
             {
                 for (int i = 0; i < Settings.CountClusters; i++)
                 {
                     _LoadDataBase(i);
-                    this[ColumnName].ClearBoxes();
-
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                    foreach (var column in Columns)
+                    {
+                        column.ChangType(typeOfData);
+                    }
+                    DatabaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
-
-                Settings.ColumnsCount -= 1;
-                _RemoveColumn?.Invoke(ColumnName);
             }
         }
 
-        public virtual void RemoveColumn(int NumberOFColumn)
+        public void ChangTypeInColumn(AColumn column, TypeOfData typeOfData)
         {
-            RemoveColumn(Columns[NumberOFColumn].Name);
+            ChangTypeInColumn(column.Name, typeOfData);
         }
 
-        public virtual void RemoveColumn(Interfaces.AColumn ColumnName)
+        public void ChangTypeInColumn(int column, TypeOfData typeOfData)
         {
-            RemoveColumn(ColumnName.Name);
+            ChangTypeInColumn(Columns[column].Name, typeOfData);
+        }
+        /// <summary>
+        /// Удаляет столбец
+        /// </summary>
+        /// <param name="columnName"></param>
+        public virtual void RemoveColumn(string columnName)
+        {
+            lock (Columns)
+            {
+                for (int i = 0; i < Settings.CountClusters; i++)
+                {
+                    _LoadDataBase(i);
+                    this[columnName].ClearBoxes();
+
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                }
+
+                Settings.ColumnsCount -= 1;
+                _RemoveColumn?.Invoke(columnName);
+            }
+        }
+
+        public virtual void RemoveColumn(int numberOfColumn)
+        {
+            RemoveColumn(Columns[numberOfColumn].Name);
+        }
+
+        public virtual void RemoveColumn(AColumn column)
+        {
+            RemoveColumn(column.Name);
         }
 
         /// <summary>
         /// Добавляет новый столбец. Процедура очень не продуктивная
         /// </summary>
-        /// <param name="Name"></param>
-        public virtual void AddColumn(string Name)
+        /// <param name="name"></param>
+        public virtual void AddColumn(string name)
         {
             lock (Columns)
             {
@@ -276,7 +283,7 @@ namespace NASDatabase.Server.Data
                 {
                     _LoadDataBase(i);
 
-                    Column column = new Column(Name, Columns[0].Offset);//Новый столбец
+                    Column column = new Column(name, Columns[0].Offset);//Новый столбец
 
                     ItemData[] itemDatas = new ItemData[Columns[0].GetCounts()];
 
@@ -288,19 +295,19 @@ namespace NASDatabase.Server.Data
                     column.SetDatas(itemDatas); //записываем пустые ячейки в новый столбец
 
                     Columns.Add(column);
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
-               
-                _AddColumn?.Invoke(Name);
+
+                _AddColumn?.Invoke(name);
             }
         }
 
         /// <summary>
         /// Добавляет столбик и задет тип данных в столбике
         /// </summary>
-        /// <param name="Name"></param>
-        /// <param name="dataType"></param>
-        public virtual void AddColumn(string Name, TypeOfData dataType)
+        /// <param name="name"></param>
+        /// <param name="typeOfData"></param>
+        public virtual void AddColumn(string name, TypeOfData typeOfData)
         {
             lock (Columns)
             {
@@ -309,7 +316,7 @@ namespace NASDatabase.Server.Data
                 {
                     _LoadDataBase(i);
 
-                    Column column = new Column(Name, dataType, Columns[0].Offset);//Новый столбец
+                    Column column = new Column(name, typeOfData, Columns[0].Offset);//Новый столбец
 
                     ItemData[] itemDatas = new ItemData[Columns[0].GetCounts()];
 
@@ -321,36 +328,36 @@ namespace NASDatabase.Server.Data
                     column.SetDatas(itemDatas); //записываем пустые ячейки данные в новый столбец
 
                     Columns.Add(column);
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
-                }               
-                _AddColumn?.Invoke(Name);
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                }
+                _AddColumn?.Invoke(name);
             }
         }
 
         /// <summary>
         /// Добавляет столбик и задет тип данных в столбике
         /// </summary>
-        public virtual void AddColumn(AColumn Column)
+        public virtual void AddColumn(AColumn column)
         {
-            AddColumn(Column.Name, Column.TypeOfData);
+            AddColumn(column.Name, column.TypeOfData);
         }
 
         /// <summary>
         /// Копирует данные из левого столбца в правый. Важно, что копирует внутри самой базы данных
         /// </summary>
-        /// <param name="LeftColumn"></param>
-        /// <param name="RightColumn"></param>
-        public virtual void CloneTo(AColumn LeftColumn, AColumn RightColumn)
+        /// <param name="leftColumn"></param>
+        /// <param name="rightColumn"></param>
+        public virtual void CloneTo(AColumn leftColumn, AColumn rightColumn)
         {
             lock (Columns)
             {
-                var leftName = LeftColumn.Name;
-                var rightName = RightColumn.Name;
+                var leftName = leftColumn.Name;
+                var rightName = rightColumn.Name;
 
                 if (this[leftName].TypeOfData != this[rightName].TypeOfData)
                 {
-                    RightColumn.ChangType(RightColumn.TypeOfData);
-                    DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
+                    rightColumn.ChangType(rightColumn.TypeOfData);
+                    DatabaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
                 for (int i = 1; i < Settings.CountClusters; i++)
@@ -358,8 +365,8 @@ namespace NASDatabase.Server.Data
                     _LoadDataBase(i);
                     ItemData[] itemDatas = this[leftName].GetDatas();
                     this[rightName].SetDatas(itemDatas);
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
-                }                
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                }
                 _CloneColumn?.Invoke(leftName, rightName);
             }
         }
@@ -367,59 +374,59 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Копирует данные из левого столбца в правый. Важно, что копирует внутри самой базы данных 
         /// </summary>
-        /// <param name="LeftColumn"></param>
-        /// <param name="RigthColumn"></param>
-        public virtual void CloneTo(string LeftColumn, string RigthColumn)
+        /// <param name="left"></param>
+        /// <param name="rigth"></param>
+        public virtual void CloneTo(string left, string rigth)
         {
             lock (Columns)
             {
-                var rightColumn = this[RigthColumn];
-                var leftColumn = this[LeftColumn];
+                var rightColumn = this[rigth];
+                var leftColumn = this[left];
 
                 if (leftColumn.TypeOfData != rightColumn.TypeOfData)
                 {
                     rightColumn.ChangType(leftColumn.TypeOfData);
-                    DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
                 for (int i = 1; i < Settings.CountClusters; i++)
                 {
                     _LoadDataBase(i);
-                    ItemData[] itemDatas = this[LeftColumn].GetDatas();
-                    this[RigthColumn].SetDatas(itemDatas);
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                    ItemData[] itemDatas = this[left].GetDatas();
+                    this[rigth].SetDatas(itemDatas);
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
-                _CloneColumn?.Invoke(LeftColumn, RigthColumn);
+                _CloneColumn?.Invoke(left, rigth);
             }
         }
 
         /// <summary>
         /// Отчищает отдельный столбец в указанном секторе/кластере или везде 
         /// </summary>
-        /// <param name="Column"></param>
-        public virtual void ClearAllColumn(AColumn Column, int InSector = -1)
+        /// <param name="column"></param>
+        public virtual void ClearAllColumn(AColumn column, int inSector = -1)
         {
-            if (InSector == -1)
+            if (inSector == -1)
             {
                 for (int i = 1; i < Settings.CountClusters; i++)
                 {
-                    var _column = this[Column.Name];
-                    if (_column.TypeOfData == Column.TypeOfData)
+                    var _column = this[column.Name];
+                    if (_column.TypeOfData == column.TypeOfData)
                     {
                         _LoadDataBase(i);
                         _column.ClearBoxes();
-                        DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());                       
+                        DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                     }
                 }
             }
             else
             {
-                var _column = this[Column.Name];
-                if (_column.TypeOfData == Column.TypeOfData)
+                var _column = this[column.Name];
+                if (_column.TypeOfData == column.TypeOfData)
                 {
-                    _LoadDataBase(InSector);
+                    _LoadDataBase(inSector);
                     _column.ClearBoxes();
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)InSector, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)inSector, Columns.ToArray());
                 }
             }
         }
@@ -427,25 +434,25 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Отчищает отдельный столбец в указаном секторе/класторе или везде 
         /// </summary>
-        /// <param name="ColumnName"></param>
-        public virtual void ClearAllColumn(string ColumnName, int InSector = -1)
+        /// <param name="columnName"></param>
+        public virtual void ClearAllColumn(string columnName, int inSector = -1)
         {
-            if (InSector == -1)
+            if (inSector == -1)
             {
                 for (int i = 1; i < Settings.CountClusters; i++)
                 {
-                    var _column = this[ColumnName];
+                    var _column = this[columnName];
                     _LoadDataBase(i);
                     _column.ClearBoxes();
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
             }
             else
             {
-                var _column = this[ColumnName];
-                _LoadDataBase(InSector);
+                var _column = this[columnName];
+                _LoadDataBase(inSector);
                 _column.ClearBoxes();
-                DataBaseSaver.SaveAllCluster(Settings, (uint)InSector, Columns.ToArray());
+                DatabaseSaver.SaveAllCluster(Settings, (uint)inSector, Columns.ToArray());
             }
         }
         /// <summary>
@@ -462,7 +469,7 @@ namespace NASDatabase.Server.Data
                     {
                         t.ClearBoxes();
                     }
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
                 Settings.CountBuckets = 0;
             }
@@ -482,9 +489,9 @@ namespace NASDatabase.Server.Data
             RenameColumn(Columns[name].Name, newName);
         }
 
-        public virtual void RenameColumn(AColumn Column, string newName)
+        public virtual void RenameColumn(AColumn column, string newName)
         {
-            RenameColumn(Column.Name, newName);
+            RenameColumn(column.Name, newName);
         }
 
         #endregion
@@ -494,24 +501,24 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Заменяет все элементы в указанном столбце на новые данные, довольно тяжелая операция 
         /// </summary>
-        /// <param name="Params"></param>
-        /// <param name="New"></param>
-        /// <param name="SectorID"></param>
-        /// <param name="ColumnName"></param>
-        public virtual void ChangeEverythingTo(string ColumnName, string Params, string New, int SectorID = -1)
+        /// <param name="params"></param>
+        /// <param name="newData"></param>
+        /// <param name="sectorID"></param>
+        /// <param name="columnName"></param>
+        public virtual void ChangeEverythingTo(string columnName, string @params, string newData, int sectorID = -1)
         {
             lock (Columns)
             {
-                if (SectorID == -1)
+                if (sectorID == -1)
                 {
                     for (int i = 1; i < Settings.CountClusters; i++)
                     {
-                        _LoadAndChengeDataInCluster(i, ColumnName, Params, New);
+                        _LoadAndChengeDataInCluster(i, columnName, @params, newData);
                     }
                 }
                 else
                 {
-                    _LoadAndChengeDataInCluster((int)SectorID, ColumnName, Params, New);
+                    _LoadAndChengeDataInCluster((int)sectorID, columnName, @params, newData);
                 }
             }
         }
@@ -519,27 +526,27 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Приватынй метод для ChangeEverythingTo
         /// </summary>
-        /// <param name="Sector"></param>
-        /// <param name="ColumnName"></param>
-        /// <param name="Params"></param>
-        /// <param name="New"></param>
-        private void _LoadAndChengeDataInCluster(int Sector, string ColumnName, string Params, string New)
-        {sector
-            _LoadDataBase(Sector);
-            foreach (Interfaces.AColumn t in Columns)
+        /// <param name="sector"></param>
+        /// <param name="columnName"></param>
+        /// <param name="params"></param>
+        /// <param name="newData"></param>
+        private void _LoadAndChengeDataInCluster(int sector, string columnName, string @params, string newData)
+        {
+            _LoadDataBase(sector);
+            foreach (AColumn column in Columns)
             {
-                if (t.Name == ColumnName)
+                if (column.Name == columnName)
                 {
-                    var ids = t.FindIDs(Params);
+                    var ids = column.FindIDs(@params);
                     foreach (var id in ids)
                     {
-                        var itemData = new ItemData(id, New);
-                        t.SetDataByID(itemData);
-                        _SetDataInColumn?.Invoke(ColumnName, itemData);
+                        var itemData = new ItemData(id, newData);
+                        column.SetDataByID(itemData);
+                        _SetDataInColumn?.Invoke(columnName, itemData);
                     }
                 }
             }
-            DataBaseSaver.SaveAllCluster(Settings, (uint)Sector, Columns.ToArray());
+            DatabaseSaver.SaveAllCluster(Settings, (uint)sector, Columns.ToArray());
         }
 
 
@@ -547,12 +554,12 @@ namespace NASDatabase.Server.Data
         /// Заменяет строку
         /// </summary>
         /// <param name="ID"></param>
-        /// <param name="Data"></param>
-        public virtual void SetData(int ID, params string[] Data)
+        /// <param name="data"></param>
+        public virtual void SetData(int ID, params string[] data)
         {
             uint SectorID = GetSectorByID((uint)ID);
 
-            ReplayesDataBySectorAndID(SectorID, ID, Data);
+            ReplayesDataBySectorAndID(SectorID, ID, data);
         }
 
         /// <summary>
@@ -560,14 +567,14 @@ namespace NASDatabase.Server.Data
         /// </summary>
         /// <param name="ID"></param>
         /// <param name="datas"></param>
-        public virtual void SetData(IDataRow Row)
+        public virtual void SetData(IDataRow row)
         {
-            SetData(Row.ID, Row.GetData());
+            SetData(row.ID, row.GetData());
         }
 
-        public virtual void SetData<T>(T Row) where T : IDataRow
+        public virtual void SetData<T>(T row) where T : IDataRow
         {
-            SetData(Row.ID, Row.GetData());
+            SetData(row.ID, row.GetData());
         }
         /// <summary>
         /// Создает экземпляр IDataRow и заполняет им строчку
@@ -583,54 +590,54 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Заменяет строку
         /// </summary>
-        /// <param name="Data"></param>
-        public virtual void SetData(params ItemData[] Data)
+        /// <param name="data"></param>
+        public virtual void SetData(params ItemData[] data)
         {
             List<string> _datas = new List<string>();
 
-            foreach (var d in Data)
+            foreach (var d in data)
             {
                 _datas.Add(d.Data);
             }
 
-            SetData(Data[0].ID, _datas.ToArray());
+            SetData(data[0].ID, _datas.ToArray());
         }
 
         /// <summary>
         /// В необходимой табличке происходит замена данных
         /// </summary>
-        public virtual void SetDataInColumn(string ColumnName, int ID, string NewData)
+        public virtual void SetDataInColumn(string columnName, int ID, string newData)
         {
-            SetDataInColumn(ColumnName, new ItemData(ID, NewData));           
+            SetDataInColumn(columnName, new ItemData(ID, newData));
         }
         /// <summary>
         /// В необходимой табличке происходит замена данных в NewItemData укажите новые данные и id ячейки в которой нужно перезаписать данные
         /// </summary>
-        /// <param name="ColumnName"></param>
-        /// <param name="NewItemData"></param>
-        public virtual void SetDataInColumn(string ColumnName, ItemData NewItemData)
+        /// <param name="columnName"></param>
+        /// <param name="newItemData"></param>
+        public virtual void SetDataInColumn(string columnName, ItemData newItemData)
         {
             lock (Columns)
             {
-                uint SectorID = GetSectorByID((uint)NewItemData.ID);
+                uint SectorID = GetSectorByID((uint)newItemData.ID);
 
                 _LoadDataBase((int)SectorID);
 
-                this[ColumnName].SetDataByID(NewItemData);
-               
-                DataBaseSaver.SaveAllCluster(Settings, SectorID, Columns.ToArray());
-                _SetDataInColumn?.Invoke(ColumnName, NewItemData);
+                this[columnName].SetDataByID(newItemData);
+
+                DatabaseSaver.SaveAllCluster(Settings, SectorID, Columns.ToArray());
+                _SetDataInColumn?.Invoke(columnName, newItemData);
             }
         }
 
-        public virtual void SetDataInColumn(AColumn Column, ItemData NewItemData)
+        public virtual void SetDataInColumn(AColumn column, ItemData newItemData)
         {
-            SetDataInColumn(Column.Name, NewItemData);
+            SetDataInColumn(column.Name, newItemData);
         }
 
-        public virtual void SetDataInColumn(AColumn Column, int ID, string NewData)
+        public virtual void SetDataInColumn(AColumn column, int ID, string newData)
         {
-            SetDataInColumn(Column.Name, new ItemData(ID, NewData));
+            SetDataInColumn(column.Name, new ItemData(ID, newData));
         }
         /// <summary>
         /// Добавляет данные в таблицу, важно чтобы длина поступающего массива была равна кол-ву столбцов  
@@ -670,9 +677,9 @@ namespace NASDatabase.Server.Data
         /// Ошибки: Exception($"Длина поступивших данных меньше кол-ва столбцов: {Columns.Count}")
         /// </summary>
         /// <param name="datas"></param>
-        public virtual void AddData(IDataRow Row)
+        public virtual void AddData(IDataRow row)
         {
-            AddData(Row.GetData());
+            AddData(row.GetData());
         }
 
         /// <summary>
@@ -692,50 +699,50 @@ namespace NASDatabase.Server.Data
             AddData(strings.ToArray());
         }
 
-        private void ReplayesDataBySectorAndID(uint SectorID, int ID, string[] Data)
+        private void ReplayesDataBySectorAndID(uint sectorID, int ID, string[] data)
         {
             lock (Columns)
             {
-                _LoadDataBase((int)SectorID);
+                _LoadDataBase((int)sectorID);
                 bool res = false;
 
                 List<ItemData> itemDatas = new List<ItemData>();
                 for (int i = 0; i < this.Columns.Count; i++)
                 {
-                    res = Columns[i].SetDataByID(new ItemData(ID, Data[i]));
-                    itemDatas.Add(new ItemData(ID, Data[i]));
+                    res = Columns[i].SetDataByID(new ItemData(ID, data[i]));
+                    itemDatas.Add(new ItemData(ID, data[i]));
                 }
 
                 Settings.CountBuckets += 1;
-                DataBaseReplayser.ReplayesElement(Settings, SectorID, itemDatas.ToArray());
-               
-                
-                if(res)
-                    _AddData?.Invoke(Data, ID);
+                DatabaseReplayser.ReplayesElement(Settings, sectorID, itemDatas.ToArray());
+
+
+                if (res)
+                    _AddData?.Invoke(data, ID);
             }
         }
         /// <summary>
         /// Добавляет данные по сектору и id
         /// </summary>
-        /// <param name="SectorID"></param>
-        /// <param name="Data"></param>
-        private void AddBySectorAndID(uint SectorID, int ID, string[] Data)
+        /// <param name="sectorID"></param>
+        /// <param name="data"></param>
+        private void AddBySectorAndID(uint sectorID, int ID, string[] data)
         {
             lock (Columns)
             {
-                _LoadDataBase((int)SectorID);
+                _LoadDataBase((int)sectorID);
 
                 List<ItemData> itemDatas = new List<ItemData>();
                 for (int i = 0; i < this.Columns.Count; i++)
                 {
-                    itemDatas.Add(new ItemData(ID, Data[i]));
-                    Columns[i].Push(Data[i], (uint)ID);
+                    itemDatas.Add(new ItemData(ID, data[i]));
+                    Columns[i].Push(data[i], (uint)ID);
                 }
                 Settings.CountBuckets += 1;
-                DataBaseSaver.AddElement(Settings, SectorID, itemDatas.ToArray());
-                
+                DatabaseSaver.AddElement(Settings, sectorID, itemDatas.ToArray());
 
-                _AddData?.Invoke(Data, ID);
+
+                _AddData?.Invoke(data, ID);
             }
         }
         #endregion
@@ -762,9 +769,9 @@ namespace NASDatabase.Server.Data
                     ItemDatas.Add(new ItemData((int)ID, " "));
                 }
                 FreeIDs.Add((uint)ID);
-                DataBaseReplayser.ReplayesElement(Settings, SectorID, ItemDatas.ToArray());
+                DatabaseReplayser.ReplayesElement(Settings, SectorID, ItemDatas.ToArray());
                 Settings.CountBuckets -= 1;
-              
+
 
                 _RemoveData?.Invoke(data, (int)ID);
             }
@@ -794,7 +801,7 @@ namespace NASDatabase.Server.Data
                     if (bools.Count == Columns.Count)
                     {
                         Settings.CountBuckets -= 1;
-                        DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                        DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
 
                         string _datas = "";//для логирования
 
@@ -807,7 +814,7 @@ namespace NASDatabase.Server.Data
                     }
                     else
                     {
-                        DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                        DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                         return false;
                     }
 
@@ -820,9 +827,9 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Удаляет все данные из базы подходящие по параметру.
         /// </summary>
-        public virtual bool RemoveAllData(IDatRows dataline)
+        public virtual bool RemoveAllData(IDataRow row)
         {
-            return RemoveAllData(dataline.GetData());
+            return RemoveAllData(row.GetData());
         }
 
         /// <summary>
@@ -907,10 +914,10 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Сканирует всю БД в поисках подходящих строк 
         /// </summary>
-        /// <param name="ColumnName"></param>
-        /// <param name="Data"></param>
+        /// <param name="columnName"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
-        public virtual Row[] GetAllDataInBaseByColumnName(string ColumnName, string Data)
+        public virtual Row[] GetAllDataInBaseByColumnName(string columnName, string data)
         {
             lock (Columns)
             {
@@ -920,7 +927,7 @@ namespace NASDatabase.Server.Data
                 {
                     _LoadDataBase(i);
 
-                    int[] ids = this[ColumnName].FindIDs(Data);
+                    int[] ids = this[columnName].FindIDs(data);
 
                     for (int j = 0; j < ids.Length; j++)
                     {
@@ -932,7 +939,7 @@ namespace NASDatabase.Server.Data
                             strings[k] = Columns[k].FindDataByID((int)ids[j]);
                         }
                         Boxes[j].Init(ids[j], strings);
-                    }                  
+                    }
                 }
                 return Boxes.ToArray();
             }
@@ -943,24 +950,24 @@ namespace NASDatabase.Server.Data
         /// Сканирует всю БД в поисках подходящих строк 
         /// </summary>
         /// <param name="ColumnName"></param>
-        /// <param name="Data"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
-        public virtual Row[] GetAllDataInBaseByColumnName(AColumn Column, string Data)
+        public virtual Row[] GetAllDataInBaseByColumnName(AColumn column, string data)
         {
-            return GetAllDataInBaseByColumnName(Column.Name, Data);
+            return GetAllDataInBaseByColumnName(column.Name, data);
         }
 
         /// <summary>
         /// По введенным параметрам ищет данные в БД
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="Columns">Табличка параметр</param>
-        /// <param name="SearchTypes">способ поиска данных</param>
-        /// <param name="Params">Данные от которых нужно операться</param>
-        /// <param name="InSectro">Сектор в котором нужно искать данные(-1 - во всех)</param>
+        /// <param name="columns">Табличка параметр</param>
+        /// <param name="typesOfSearch">способ поиска данных</param>
+        /// <param name="params">Данные от которых нужно операться</param>
+        /// <param name="inSectro">Сектор в котором нужно искать данные(-1 - во всех)</param>
         /// <returns></returns>
-        public virtual T[] SmartSearch<T>(AColumn[] Columns, SearchType[] SearchTypes, string[] Params, int InSectro = -1)
-            where T : IDatRows, new()
+        public virtual T[] SmartSearch<T>(AColumn[] columns, SearchType[] typesOfSearch, string[] @params, int inSectro = -1)
+            where T : IDataRow, new()
         {
             lock (this.Columns)
             {
@@ -968,27 +975,27 @@ namespace NASDatabase.Server.Data
                 List<List<int>> Search = new List<List<int>>();
                 List<int> resultIDs = new List<int>();
 
-                if (Columns.Length != SearchTypes.Length && Columns.Length != Params.Length)
+                if (columns.Length != typesOfSearch.Length && columns.Length != @params.Length)
                     throw new ArgumentException(ExeptionTheParametersDoNotMatchInQuantity);
 
-                if (InSectro == -1)
+                if (inSectro == -1)
                 {
                     for (int i = 0; i < Settings.CountClusters; i++)
                     {
-                        Boxes.AddRange(SmartSearch<T>(Columns, SearchTypes, Params, i));
+                        Boxes.AddRange(SmartSearch<T>(columns, typesOfSearch, @params, i));
                     }
                 }
                 else
                 {
-                    _LoadDataBase(InSectro);
-                    for (int j = 0; j < Params.Length; j++)
+                    _LoadDataBase(inSectro);
+                    for (int j = 0; j < @params.Length; j++)
                     {
-                        var _colomn = this[Columns[j].Name];
+                        var _colomn = this[columns[j].Name];
 
-                        if (_colomn.TypeOfData == Columns[j].TypeOfData)
+                        if (_colomn.TypeOfData == columns[j].TypeOfData)
                         {
                             List<int> IDs = new List<int>();
-                            IDs = new SmartSearcher(Columns[j], _colomn, SearchTypes[j], Params[j]).Search();
+                            IDs = new SmartSearcher(columns[j], _colomn, typesOfSearch[j], @params[j]).Search();
                             Search.Add(IDs);
                         }
                     }
@@ -1009,13 +1016,13 @@ namespace NASDatabase.Server.Data
                     {
                         List<string> data = new List<string>();
                         foreach (var t in this.Columns)
-                        { 
+                        {
                             data.Add(t.FindDataByID(resultIDs[i]));
                         }
 
                         var dl = new T();
                         dl.Init(resultIDs[i], data.ToArray());
-                        
+
                         Boxes.Add(dl);
                     }
                 }
@@ -1028,19 +1035,19 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Ищет первый id элемента по параметрам, если IsSector = -1, то ищет везде 
         /// </summary>
-        /// <param name="ColumnName"></param>
-        /// <param name="Data"></param>
-        /// <param name="InSector"></param>
+        /// <param name="columnName"></param>
+        /// <param name="data"></param>
+        /// <param name="inSector"></param>
         /// <returns></returns>
-        public virtual int GetIDByParams(string ColumnName, string Data, int InSector = -1)
+        public virtual int GetIDByParams(string columnName, string data, int inSector = -1)
         {
             int result = -1;
 
-            if (InSector == -1)
+            if (inSector == -1)
             {
                 for (int i = 0; i < Settings.CountClusters; i++)
                 {
-                    result = GetIDByParams(ColumnName, Data, i);
+                    result = GetIDByParams(columnName, data, i);
 
                     if (result != -1)
                     {
@@ -1051,9 +1058,9 @@ namespace NASDatabase.Server.Data
             }
             else
             {
-                _LoadDataBase(InSector);
+                _LoadDataBase(inSector);
 
-                result = this[ColumnName].FindID(Data);
+                result = this[columnName].FindID(data);
             }
             return result;
         }
@@ -1062,12 +1069,12 @@ namespace NASDatabase.Server.Data
         /// Ищет первый id элемента по параметрам, если IsSector = -1, то ищет везде 
         /// </summary>
         /// <param name="ColumnName"></param>
-        /// <param name="Data"></param>
-        /// <param name="InSector"></param>
+        /// <param name="data"></param>
+        /// <param name="inSector"></param>
         /// <returns></returns>
-        public virtual int GetIDByParams(Interfaces.AColumn aColumn, string Data, int InSector = -1)
+        public virtual int GetIDByParams(AColumn column, string data, int inSector = -1)
         {
-            return GetIDByParams(aColumn.Name, Data, InSector);
+            return GetIDByParams(column.Name, data, inSector);
         }
 
         /// <summary>
@@ -1107,7 +1114,7 @@ namespace NASDatabase.Server.Data
             return data.ToArray();
         }
 
-        public virtual T GetDataLineByID<T>(int ID) where T : IDatRows
+        public virtual T GetDataLineByID<T>(int ID) where T : IDataRow
         {
             var line = Activator.CreateInstance<T>();
             line.Init(ID, GetDataByID(ID));
@@ -1117,11 +1124,11 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Ищет и возвращает первую строку подходящую под введенные параметры возврат через массив ячеек, если не находит => массив пустой
         /// </summary>
-        /// <param name="ColumnName"></param>
-        /// <param name="Data"></param>
-        /// <param name="InSector">Если -1, то ищет во всех сразу, иначе в загруженном</param>
+        /// <param name="columnName"></param>
+        /// <param name="data"></param>
+        /// <param name="inSector">Если -1, то ищет во всех сразу, иначе в загруженном</param>
         /// <returns></returns>
-        public virtual ItemData[] GetDataInBaseByColumnName(string ColumnName, string Data, int InSector = -1)
+        public virtual ItemData[] GetDataInBaseByColumnName(string columnName, string data, int inSector = -1)
         {
             lock (Columns)
             {
@@ -1131,7 +1138,7 @@ namespace NASDatabase.Server.Data
 
                 for (int i = 0; i < Settings.CountClusters; i++)
                 {
-                    if (InSector != -1 && Use == true)
+                    if (inSector != -1 && Use == true)
                     {
                         if (Use == true)
                         {
@@ -1140,7 +1147,7 @@ namespace NASDatabase.Server.Data
                         else
                         {
                             Use = true;
-                            _LoadDataBase(InSector);
+                            _LoadDataBase(inSector);
                         }
                     }
                     else
@@ -1149,13 +1156,13 @@ namespace NASDatabase.Server.Data
                     }
 
 
-                    int id = this[ColumnName].FindID(Data);
+                    int id = this[columnName].FindID(data);
 
                     if (id != -1)
                     {
-                        foreach (Interfaces.AColumn table1 in Columns)
+                        foreach (AColumn column in Columns)
                         {
-                            _data.Add(new ItemData(id, table1.FindDataByID(id)));
+                            _data.Add(new ItemData(id, column.FindDataByID(id)));
                         }
                         return _data.ToArray();
                     }
@@ -1166,16 +1173,16 @@ namespace NASDatabase.Server.Data
             }
         }
 
-        public virtual ItemData GetDataByParams(string ColumnName, int ID)
+        public virtual ItemData GetDataByParams(string columnName, int ID)
         {
             var Sector = GetSectorByID((uint)ID);
             _LoadDataBase((int)Sector);
-            return new ItemData(ID, this[ColumnName].FindDataByID(ID));
+            return new ItemData(ID, this[columnName].FindDataByID(ID));
         }
 
-        public virtual ItemData GetDataByParams(AColumn Column, int ID)
+        public virtual ItemData GetDataByParams(AColumn column, int ID)
         {
-            return GetDataByParams(Column.Name, ID);
+            return GetDataByParams(column.Name, ID);
         }
         #endregion
 
@@ -1195,7 +1202,7 @@ namespace NASDatabase.Server.Data
                     }
 
                     throw new IndexOutOfRangeException(ExeptionThereIsNotColumn);
-                } 
+                }
             }
             protected set
             {
@@ -1229,12 +1236,15 @@ namespace NASDatabase.Server.Data
             }
         }
         #endregion
-    
-        public void InitManager(DatabaseManager dataBaseManager) { _myManager = _myManager == null ? dataBaseManager : _myManager; }
+
+        public void InitManager(DatabaseManager databaseManager) { _myManager = _myManager == null ? databaseManager : _myManager; }
 
         public void Dispose()
         {
-
+            EnableSafeMode();
+            DatabaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
         }
+
+        ~Database() => Dispose();
     }
 }

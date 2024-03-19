@@ -1,19 +1,21 @@
 ﻿
 namespace NASDatabase.Interfaces
 {
-    public interface ILoger
+    public abstract class Loger
     {
-        string Prefix { get; set; }
+        public string Prefix { get; set; }
         /// <summary>
         /// Запускет логирование
         /// </summary>
-        void StartLog();
+        public abstract void StartLog();
         /// <summary>
         /// Выводит сообщение во время логирования
         /// </summary>
         /// <param name="message"></param>
-        void Log(string message);
-
-        void StopLog();
+        public abstract void Log(string message);
+        /// <summary>
+        /// Остоновка логирования
+        /// </summary>
+        public abstract void StopLog();
     }
 }

@@ -18,7 +18,7 @@ namespace NASDatabase.Server.Data.Modules
             }
         }
 
-        public static void ForLine<T1>(T _dataBase, Action<T1> Handler) where T1 : IDatRows
+        public static void ForLine<T1>(T _dataBase, Action<T1> Handler) where T1 : IDataRow
         {
             for (int i = 0; i < _dataBase.Settings.CountBuckets; i++)
             {

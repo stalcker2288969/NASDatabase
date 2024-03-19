@@ -94,7 +94,7 @@ namespace NASDatabase.Client.Utilities
         /// <param name="text"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public T GetColumn<T>(string text) where T : Interfaces.AColumn, new()
+        public T GetColumn<T>(string text) where T : AColumn, new()
         {
             var d = text.Split(DataSeparationInItemData.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -111,7 +111,7 @@ namespace NASDatabase.Client.Utilities
         /// <param name="column"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public string ParsColumn<T>(T column) where T : Interfaces.AColumn
+        public string ParsColumn<T>(T column) where T : AColumn
         {
             var sb = new StringBuilder();
 
@@ -124,10 +124,10 @@ namespace NASDatabase.Client.Utilities
             return sb.ToString();
         }
 
-        public T GetDataLine<T>(string text) where T : IDatRows, new()
+        public T GetDataLine<T>(string text) where T : IDataRow, new()
         {
             string[] strings = text.Split(DataSeparationInIDataLine.ToCharArray());
-            IDatRows dataLine;
+            IDataRow dataLine;
             
             dataLine = Activator.CreateInstance<T>();
 
@@ -152,7 +152,7 @@ namespace NASDatabase.Client.Utilities
             return (T)dataLine;
         }
 
-        public string ParsDataLine<T>(T line) where T : IDatRows
+        public string ParsDataLine<T>(T line) where T : IDataRow
         {
             string[] data = line.GetData();
             StringBuilder sb = new StringBuilder();
@@ -168,7 +168,7 @@ namespace NASDatabase.Client.Utilities
             return sb.ToString();
         }
 
-        public T[] GetDataLines<T>(string text) where T : IDatRows, new()
+        public T[] GetDataLines<T>(string text) where T : IDataRow, new()
         {
             List<T> data = new List<T>();
             string[] strings = text.Split(SeparationBetweenDateLine.ToCharArray());
@@ -179,7 +179,7 @@ namespace NASDatabase.Client.Utilities
             return data.ToArray();
         }
 
-        public string ParsDataLines<T>(T[] lines) where T : IDatRows
+        public string ParsDataLines<T>(T[] lines) where T : IDataRow
         {
             var sb = new StringBuilder();
             foreach (var line in lines)

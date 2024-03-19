@@ -4,11 +4,11 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class ChangeEverythingTo : CommandHandler
+    internal class ChangeEverythingTo : CommandHandler
     {
         private Action<string, string, string, int> _handler;
         private string[] _data;
-        public ChangeEverythingTo(Action<string, string, string, int> Handler) { _handler = Handler; }
+        public ChangeEverythingTo(Action<string, string, string, int> handler) { _handler = handler; }
 
         public override void SetData(string data)
         {

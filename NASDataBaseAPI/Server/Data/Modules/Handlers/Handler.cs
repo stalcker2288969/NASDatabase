@@ -6,13 +6,13 @@
     /// <typeparam name="T"></typeparam>
     public abstract class Handler<T1, T2> where T1 : Database where T2 : Database
     {
-        public readonly DataBaseEventType Type;
+        public readonly DatabaseEventType Type;
         protected T1 DB1;
         protected T2 DB2;
 
-        public Handler(DataBaseEventType Type)
+        public Handler(DatabaseEventType type)
         {
-            this.Type = Type;
+            this.Type = type;
         }
 
         public void Init(T1 DB1, T2 DB2)

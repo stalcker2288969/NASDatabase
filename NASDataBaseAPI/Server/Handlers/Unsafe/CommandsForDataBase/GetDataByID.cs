@@ -3,23 +3,19 @@ using NASDatabase.Client.Utilities;
 using NASDatabase.Interfaces;
 using NASDatabase.Server.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class GetDataByID : CommandHandler
+    internal class GetDataByID : CommandHandler
     {
         private Func<int, string[]> _handler;
         private IDataConverter _dataConverter;
         private int _id;
 
-        public GetDataByID(Func<int, string[]> Handler, IDataConverter DataConverter) 
+        public GetDataByID(Func<int, string[]> handler, IDataConverter dataConverter) 
         {
-            _handler = Handler;
-            _dataConverter = DataConverter;
+            _handler = handler;
+            _dataConverter = dataConverter;
         }
 
         public override void SetData(string data)

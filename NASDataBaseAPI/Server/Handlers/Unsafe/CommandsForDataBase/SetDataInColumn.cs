@@ -6,16 +6,16 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class SetDataInColumn : CommandHandler
+    internal class SetDataInColumn : CommandHandler
     {
         private Action<string, ItemData> _action;
         private IDataConverter _converter;
         private string _columnName;
         private ItemData _DestroyedData;
 
-        public SetDataInColumn(IDataConverter dataConverter, Action<string, ItemData> Handler)
+        public SetDataInColumn(IDataConverter dataConverter, Action<string, ItemData> handler)
         {
-            _action = Handler;
+            _action = handler;
             _converter = dataConverter;
         }
 

@@ -9,15 +9,15 @@ namespace NASDatabase.Server.Data
     public class Row : IDataRow
     {
         protected string[] Datas;
-        public int ID { get; protected set; }
+        public int ID { get; private set; }
 
-        public virtual void Init(int ID, params string[] datas)
+        public void Init(int ID, params string[] datas)
         {
             Datas = datas;
             this.ID = ID;
         }
 
-        public virtual string[] GetData()
+        public string[] GetData()
         {
             return Datas;
         }

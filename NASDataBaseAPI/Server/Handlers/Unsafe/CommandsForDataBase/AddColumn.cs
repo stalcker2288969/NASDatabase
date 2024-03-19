@@ -7,14 +7,14 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class AddColumn : CommandHandler
+    internal class AddColumn : CommandHandler
     {
         private Action<Column> _handler;
         private Column _column;
 
-        public AddColumn(Action<Column> Handler) 
+        public AddColumn(Action<Column> handler) 
         {
-            _handler = Handler;
+            _handler = handler;
         }
 
         public override void SetData(string data)

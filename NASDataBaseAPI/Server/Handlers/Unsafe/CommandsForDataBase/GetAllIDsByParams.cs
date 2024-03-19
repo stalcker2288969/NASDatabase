@@ -5,15 +5,15 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class GetAllIDsByParams : CommandHandler
+    internal class GetAllIDsByParams : CommandHandler
     {
         private Func<string, string, int[]> _handler;
         private string _columnName;
         private string _param;
         private IDataConverter _converter;
         
-        public GetAllIDsByParams(Func<string, string, int[]> Handler, IDataConverter converter)
-        { _handler = Handler;
+        public GetAllIDsByParams(Func<string, string, int[]> handler, IDataConverter converter)
+        { _handler = handler;
             _converter = converter;
         }
 

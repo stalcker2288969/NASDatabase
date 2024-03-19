@@ -5,7 +5,7 @@ using NASDatabase.Server.Data.Safety;
 using NASDatabase.Data.DataTypesInColumn;
 using NASDatabase.Server.Data.DatabaseSettings.Loaders;
 using NASDatabase.Server.Data.Modules;
-using NASDatabase.Server.Data.Log;
+using NASDataBaseAPI.Server.Data.LogSystem;
 
 namespace NASDatabase.Server.Data.DatabaseSettings
 {
@@ -18,10 +18,10 @@ namespace NASDatabase.Server.Data.DatabaseSettings
         public static DBNoSaveLoader DBNoSaveLoader { get; private set; } = new DBNoSaveLoader();
 
         public static IEncoder Encoder { get; private set; } = new SimpleEncryptor();
-        public static IFileWorker FileSystem { get; private set; } = new BaseFileWorker();
+        public static Interfaces.FileWorker FileSystem { get; private set; } = new Modules.FileWorker();
 
         public ILoader[] _databaseSavers { get; private set; }
-        private IFileWorker _fileSystem;
+        private Interfaces.FileWorker _fileSystem;
         private IEncoder _encoder;
 
         public DatabaseManager()
@@ -31,14 +31,14 @@ namespace NASDatabase.Server.Data.DatabaseSettings
             Init();
         }
 
-        public DatabaseManager(IFileWorker FileWorker) 
+        public DatabaseManager(Interfaces.FileWorker FileWorker) 
         {            
             _fileSystem = FileWorker;
             _encoder = Encoder;
             Init();
         }
 
-        public DatabaseManager(IFileWorker FileWorker, IEncoder Encoder)
+        public DatabaseManager(Interfaces.FileWorker FileWorker, IEncoder Encoder)
         {           
             _fileSystem = FileWorker;
             _encoder = Encoder;
@@ -102,7 +102,7 @@ namespace NASDatabase.Server.Data.DatabaseSettings
             T dataBase = (T)Activator.CreateInstance(typeof(T), (int)DatabaseSettings.ColumnsCount, DatabaseSettings, 1);
             dataBase.InitManager(this);
 
-            dataBase.DataBaseLoger = new DatabaseLoger(DatabaseSettings, "Loger");
+            dataBase.DatabaseLoger = new DatabaseLoger(DatabaseSettings, "Loger");
 
             if (DatabaseSettings.SaveMod)
             {
@@ -211,14 +211,14 @@ namespace NASDatabase.Server.Data.DatabaseSettings
                 dataBase.Columns.Clear();
                 for (int i = 0; i < dataBaseSettings.ColumnsCount; i++)
                 {
-                    dataBase.Columns.Add(new Column(Names[i], DataTypesInColumns.GetType(Types[i]), 0));
+                    dataBase.Columns.Add(new Column(Names[i], DataTypesInColumns.GetBaseTypeOfData(Types[i]), 0));
                 }
             }
 
-            dataBase.DataBaseSaver = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseSaver<Interfaces.AColumn>;
-            dataBase.DataBaseLoader = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseLoader<Interfaces.AColumn>;
-            dataBase.DataBaseReplayser = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseReplayser;
-            dataBase.DataBaseLoger = new DatabaseLoger(dataBaseSettings, "Loger");
+            dataBase.DatabaseSaver = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseSaver<Interfaces.AColumn>;
+            dataBase.DatabaseLoader = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseLoader<Interfaces.AColumn>;
+            dataBase.DatabaseReplayser = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseReplayser;
+            dataBase.DatabaseLoger = new DatabaseLoger(dataBaseSettings, "Loger");
 
             return dataBase;
         }

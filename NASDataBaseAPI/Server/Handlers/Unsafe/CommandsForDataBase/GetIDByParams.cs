@@ -2,14 +2,10 @@
 using NASDatabase.Client.Utilities;
 using NASDatabase.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class GetIDByParams : CommandHandler
+    internal class GetIDByParams : CommandHandler
     {
         private Func<string, string, int, int> _handler;
         private IDataConverter _dataConverter;
@@ -17,10 +13,10 @@ namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
         private string _param;
         private int _sector;
 
-        public GetIDByParams(Func<string, string, int, int> Handler, IDataConverter DataConverter)
+        public GetIDByParams(Func<string, string, int, int> handler, IDataConverter dataConverter)
         {
-            _handler = Handler;
-            _dataConverter = DataConverter;
+            _handler = handler;
+            _dataConverter = dataConverter;
         }
 
         public override void SetData(string data)

@@ -4,15 +4,15 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class ClearAllColumn : CommandHandler
+    internal class ClearAllColumn : CommandHandler
     {
         private Action<string, int> _handler;
         private string _columnName;
         private string _inSector;
 
-        public ClearAllColumn(Action<string, int> Handler) 
+        public ClearAllColumn(Action<string, int> handler) 
         { 
-            _handler = Handler;
+            _handler = handler;
         }
 
         public override void SetData(string data)

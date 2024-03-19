@@ -5,16 +5,16 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class Login : CommandHandler
+    internal class Login : CommandHandler
     {
         private ServerSettings ServerSettings;
         private bool _canConnect = false;
         private Action<bool> Handler;
 
-        public Login(ServerSettings ServerSettings, Action<bool> Handler)
+        public Login(ServerSettings serverSettings, Action<bool> handler)
         {
-            this.ServerSettings = ServerSettings;
-            this.Handler = Handler;
+            this.ServerSettings = serverSettings;
+            this.Handler = handler;
         }
 
         public override void SetData(string data)

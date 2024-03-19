@@ -5,16 +5,16 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class RenameColumn : CommandHandler
+    internal class RenameColumn : CommandHandler
     {
         private Action<string, string> _handler;
 
         private string _name;
         private string _newName;
 
-        public RenameColumn(Action<string, string> Handler)
+        public RenameColumn(Action<string, string> handler)
         {
-            _handler = Handler;
+            _handler = handler;
         }
 
         public override void SetData(string data)

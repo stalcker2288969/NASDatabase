@@ -5,15 +5,15 @@ using NASDatabase.Server.Data;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class AddData : CommandHandler
+    internal class AddData : CommandHandler
     {
         private Database _db;
         private string[] _data;
         private IDataConverter _converter;
 
-        public AddData(Database dataBase, IDataConverter dataConverter) 
+        public AddData(Database database, IDataConverter dataConverter) 
         {
-            _db = dataBase;
+            _db = database;
             _converter = dataConverter;
         }
 

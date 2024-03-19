@@ -16,17 +16,17 @@ namespace NASDatabase.Interfaces
         public abstract int[] FindIDs(string data);
         public abstract string FindDataByID(int id);
 
-        public abstract bool Push(string data, uint CountBoxes);
+        public abstract bool Push(string data, uint countBoxes);
         public abstract bool Push(string data, int ID);
         public abstract bool Pop(string data);
         public abstract bool TryPopByIDAndData(ItemData itemData);
         public abstract void PopByID(int id);
 
-        public abstract void ChangType(TypeOfData type);
+        public abstract void ChangType(TypeOfData typeOfData);
         public abstract void ClearBoxes();
         public abstract int GetCounts();
         public abstract ItemData[] GetDatas();
 
-        public abstract void Init(string Name, TypeOfData dataType, uint Offset);
+        public abstract void Init(string name, TypeOfData typeOfData, uint offset);
     }
 }

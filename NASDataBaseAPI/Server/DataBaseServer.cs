@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using NASDatabase.Client.Utilities;
-using NASDatabase.Interfaces;
 
 namespace NASDatabase.Server
 {
+    /// <summary>
+    /// Базовый класс для создания сервера у БД
+    /// </summary>
     public abstract class DatabaseServer 
     {
         #region События
@@ -18,13 +20,13 @@ namespace NASDatabase.Server
         public List<ServerCommandsPusher> Clients { get; protected set; } = new List<ServerCommandsPusher>();
         public CommandsFactory Commands { get; protected set; }
 
-        protected Database DataBase { get; private set; }
+        protected Database Database { get; private set; }
         public ServerSettings ServerSettings { get; protected set; }
         
         #region Конструкторы 
         public DatabaseServer(ServerSettings serverSettings, Database db, CommandsFactory commandsParser)
         {
-            DataBase = db;
+            Database = db;
             ServerSettings = serverSettings;
 
             #region Создание обработчиков на команды с сервера           
@@ -48,7 +50,7 @@ namespace NASDatabase.Server
         /// </summary>
         public abstract void InitServer();
 
-        public abstract void DisconnectClient(ServerCommandsPusher Client);
+        public abstract void DisconnectClient(ServerCommandsPusher client);
 
         /// <summary>
         /// Выключение сервера

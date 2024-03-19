@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 
-
 namespace NASDatabase.Data.DataTypesInColumn
 {
     /// <summary>
@@ -13,25 +12,35 @@ namespace NASDatabase.Data.DataTypesInColumn
     /// </summary>
     public static class DataTypesInColumns
     {
+        public const string IntString = nameof(Int);
+        public const string DecimalString = nameof(t.Decimal);
+        public const string TextString = nameof(Text);
+        public const string BoolText = nameof(Boolean);
+        public const string TimeText = nameof(Time);
+        
         public static TypeOfData Int { get; private set; } = new Int();
         public static TypeOfData SemicolonNumbers { get; private set; } = new t.Decimal();
         public static TypeOfData Text { get; private set; } = new Text();
         public static TypeOfData Boolean { get; private set; } = new Bool();
         public static TypeOfData Time { get; private set; } = new Time();
 
-        public static TypeOfData GetType(string typeName)
+        public static TypeOfData GetBaseTypeOfData(string typeName)
         {
             switch (typeName)
             {
-                case "Int":
+                case IntString:
                     return DataTypesInColumns.Int;
-                case "Boolean":
+                case BoolText:
                     return DataTypesInColumns.Boolean;
-                case "Text":
+                case TextString:
                     return DataTypesInColumns.Text;
+                #region Float
+                case DecimalString:
+                    return DataTypesInColumns.SemicolonNumbers;
                 case "Float":
                     return DataTypesInColumns.SemicolonNumbers;
-                case "Time":
+                #endregion
+                case TimeText:
                     return DataTypesInColumns.Time;
                 default:
                     return DataTypesInColumns.Text;
@@ -85,7 +94,7 @@ namespace NASDatabase.Data.DataTypesInColumn
                 }
             }
 
-            throw new Exception("У указанного обьекта нет своего DataType");
+            throw new Exception("У указанного обьекта нет своего TypeOfData");
         }
 
         public static TypeOfData GetTypeOfDataByClassName(string className)
@@ -95,8 +104,7 @@ namespace NASDatabase.Data.DataTypesInColumn
 
             // Получаем все загруженные сборки в текущем домене
             Assembly[] assemblies = currentDomain.GetAssemblies();
-
-            // Перебираем все сборки
+            
             foreach (Assembly assembly in assemblies)
             {
                 // Ищем тип в текущей сборке с указанным именем

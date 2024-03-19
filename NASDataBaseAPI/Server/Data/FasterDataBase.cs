@@ -51,7 +51,7 @@ namespace NASDatabase.Server.Data
                     {
                         column.ChangType(TypeOfColumn);
                     }
-                    DataBaseSaver.SaveAllCluster(db.Settings, LoadedSector, db.Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(db.Settings, LoadedSector, db.Columns.ToArray());
                 });
             }
         }
@@ -95,7 +95,7 @@ namespace NASDatabase.Server.Data
 
                     Database[ColumnName].ClearBoxes();
 
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 });
                 Settings.ColumnsCount -= 1;
                 _RemoveColumn?.Invoke(ColumnName);     
@@ -125,7 +125,7 @@ namespace NASDatabase.Server.Data
                     column.SetDatas(itemDatas); //записываем пустые ячейки в новый столбец
                     DB.Columns.Add(column);
 
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
                 Settings.ColumnsCount += 1;       
                 _AddColumn?.Invoke(Name);
@@ -156,7 +156,7 @@ namespace NASDatabase.Server.Data
                     table.SetDatas(itemDatas); //записываем пустые ячейки данные в новый столбец
 
                     DB.Columns.Add(table);
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
                 Settings.ColumnsCount += 1;               
                 _AddColumn?.Invoke(Name);
@@ -173,7 +173,7 @@ namespace NASDatabase.Server.Data
                 if (this[leftName].TypeOfData != this[rightName].TypeOfData)
                 {
                     right.ChangType(right.TypeOfData);
-                    DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
                 Parallel.For(1, Settings.CountClusters, new ParallelOptions()
@@ -185,7 +185,7 @@ namespace NASDatabase.Server.Data
                     var DB = _LoadDatabase((int)i);
                     ItemData[] itemDatas = DB[leftName].GetDatas();
                     DB[rightName].SetDatas(itemDatas);
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
     
                 _CloneColumn?.Invoke(leftName, rightName);
@@ -202,7 +202,7 @@ namespace NASDatabase.Server.Data
                 if (leftColumn.TypeOfData != rightColumn.TypeOfData)
                 {
                     rightColumn.ChangType(leftColumn.TypeOfData);
-                    DataBaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
                 }
 
                 Parallel.For(1, Settings.CountClusters, new ParallelOptions()
@@ -214,7 +214,7 @@ namespace NASDatabase.Server.Data
                     var DB = _LoadDatabase((int)i);
                     ItemData[] itemDatas = DB[left].GetDatas();
                     DB[right].SetDatas(itemDatas);
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                 });
 
                 _CloneColumn?.Invoke(left, right);
@@ -239,7 +239,7 @@ namespace NASDatabase.Server.Data
                             var DB = _LoadDatabase((int)i);
                             _column = DB[Column.Name];
                             _column.ClearBoxes();
-                            DataBaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
+                            DatabaseSaver.SaveAllCluster(Settings, (uint)i, DB.Columns.ToArray());
                         }
                     });
                 }
@@ -251,7 +251,7 @@ namespace NASDatabase.Server.Data
                         var DB = _LoadDatabase(InSector);
                         _column = DB[Column.Name];
                         _column.ClearBoxes();
-                        DataBaseSaver.SaveAllCluster(Settings, (uint)InSector, DB.Columns.ToArray());     
+                        DatabaseSaver.SaveAllCluster(Settings, (uint)InSector, DB.Columns.ToArray());     
                     }
                 }
                 _ClearAllColumn?.Invoke(Column.Name, InSector);
@@ -278,7 +278,7 @@ namespace NASDatabase.Server.Data
                     {
                         t.ClearBoxes();
                     }
-                    DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
+                    DatabaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 });
                 _ClearAllBase?.Invoke();
             }
@@ -323,7 +323,7 @@ namespace NASDatabase.Server.Data
         /// <param name="New"></param>
         private void _LoadAndChengeDataInCluster(int sector, string ColumnName, string Params, string New)
         {
-            var _Columns = (IEnumerable<Interfaces.AColumn>)DataBaseLoader.LoadCluster(Settings.Path, (uint)sector, Settings.Key);
+            var _Columns = (IEnumerable<Interfaces.AColumn>)DatabaseLoader.LoadCluster(Settings.Path, (uint)sector, Settings.Key);
 
             foreach (Interfaces.AColumn t in _Columns)
             {
@@ -336,7 +336,7 @@ namespace NASDatabase.Server.Data
                     }
                 }
             }
-            DataBaseSaver.SaveAllCluster(Settings, (uint)sector, Columns.ToArray());
+            DatabaseSaver.SaveAllCluster(Settings, (uint)sector, Columns.ToArray());
         }
 
         #endregion
@@ -455,7 +455,7 @@ namespace NASDatabase.Server.Data
 
             if (LoadedSector != i)
             {
-                Database.Columns.AddRange((IEnumerable<AColumn>)DataBaseLoader.LoadCluster(Settings.Path, (uint)i + 1, Settings.Key));
+                Database.Columns.AddRange((IEnumerable<AColumn>)DatabaseLoader.LoadCluster(Settings.Path, (uint)i + 1, Settings.Key));
             }
             else
             {

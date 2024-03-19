@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 
-
 namespace NASDatabase.Server.Data
 {
     public class HashTable<T> : IDisposable, IHashTable<T>
@@ -222,17 +221,17 @@ namespace NASDatabase.Server.Data
         /// Пытается заменить данные по ключу и старым данным
         /// </summary>
         /// <param name="newData"></param>
-        /// <param name="OldData"></param>
-        /// <param name="Key"></param>
+        /// <param name="oldData"></param>
+        /// <param name="key"></param>
         /// <returns></returns>
-        public bool TryReplacementByKeyAndOldData(T newData, T OldData, int Key)
+        public bool TryReplacementByKeyAndOldData(T newData, T oldData, int key)
         {
-            for (int i = 0; i < _hashTable[Key].Count; i++)
+            for (int i = 0; i < _hashTable[key].Count; i++)
             {
-                if (_hashTable[Key][i].Equals(OldData))
+                if (_hashTable[key][i].Equals(oldData))
                 {
-                    _hashTable[Key].RemoveAt(i);
-                    _hashTable[Key].Add(newData);
+                    _hashTable[key].RemoveAt(i);
+                    _hashTable[key].Add(newData);
                 }
             }
             return false;

@@ -2,7 +2,7 @@
 {
     public interface IEncoder
     {
-        string Encode(string Data,string Key);
-        string Decode(string Data, string Key);
+        string Encode(string data,string key);
+        string Decode(string data, string key);
     }
 }

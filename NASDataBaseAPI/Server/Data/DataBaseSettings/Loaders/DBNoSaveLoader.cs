@@ -7,7 +7,7 @@ namespace NASDatabase.Server.Data.DatabaseSettings.Loaders
 
         public DBNoSaveLoader() { }
 
-        public DBNoSaveLoader(IEncoder encoder,IFileWorker fileWorker) : base(encoder,fileWorker)
+        public DBNoSaveLoader(IEncoder encoder,FileWorker fileWorker) : base(encoder,fileWorker)
         {
 
         }

@@ -8,8 +8,8 @@ namespace NASDatabase.Interfaces
     /// </summary>
     public interface IDataBaseSaver<T> where T : AColumn
     {       
-        void AddElement(DatabaseSettings DataBaseSettings, uint ClusterNumber, ItemData[] ItemDatas);        
-        void SaveAllCluster(DatabaseSettings DataBaseSettings, uint ClusterNumber, T[] Columns);
+        void AddElement(DatabaseSettings databaseSettings, uint clusterNumber, ItemData[] itemDatas);        
+        void SaveAllCluster(DatabaseSettings databaseSettings, uint clusterNumber, T[] columns);
     }
 
     /// <summary>
@@ -17,8 +17,8 @@ namespace NASDatabase.Interfaces
     /// </summary>
     public interface IDataBaseLoader<T> where T : AColumn
     {
-        T[] LoadCluster(string Path, uint ClusterNumber, string DecodeKey);
-        T[] LoadCluster(DatabaseSettings DataBaseSettings, uint ClusterNumber);
+        T[] LoadCluster(string path, uint clusterNumber, string decodeKey);
+        T[] LoadCluster(DatabaseSettings databaseSettings, uint clusterNumber);
     }
 
     /// <summary>
@@ -26,6 +26,6 @@ namespace NASDatabase.Interfaces
     /// </summary>
     public interface IDataBaseReplayser
     {
-        void ReplayesElement(DatabaseSettings DataBaseSettings, uint ClusterNumber, ItemData[] ItemDatas);
+        void ReplayesElement(DatabaseSettings databaseSettings, uint clusterNumber, ItemData[] itemDatas);
     }
 }

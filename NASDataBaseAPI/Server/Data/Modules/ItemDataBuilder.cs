@@ -17,7 +17,7 @@ namespace NASDatabase.Server.Data.Modules
             return itemDatas;
         }
 
-        public static T GetDataLine<T>(int ID, string[] Data) where T : IDatRows, new() 
+        public static T GetDataLine<T>(int ID, string[] Data) where T : IDataRow, new() 
         {
             T DL;
  

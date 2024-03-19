@@ -3,14 +3,10 @@ using NASDatabase.Client.Utilities;
 using NASDatabase.Interfaces;
 using NASDatabase.Server.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class GetAllDataInBaseByColumnName : CommandHandler
+    internal class GetAllDataInBaseByColumnName : CommandHandler
     {
         private Func<string, string, Row[]> _handler;
         IDataConverter _dataConverter;

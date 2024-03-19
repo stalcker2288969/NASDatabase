@@ -45,7 +45,7 @@ namespace NASDatabase.Server
                 _isServerRunning = true;
                 OnServerInit();
 
-                InitCommands(Commands, DataBase);
+                InitCommands(Commands, Database);
                 WaitForClients();
             }
         }
@@ -155,7 +155,7 @@ namespace NASDatabase.Server
             CommandsParser.AddCommand(BaseCommands.ClearAllBase, new ClearAllBase(DB.ClearAllBase));
             CommandsParser.AddCommand(BaseCommands.ChangeEverythingTo, new ChangeEverythingTo(DB.ChangeEverythingTo));
             CommandsParser.AddCommand(BaseCommands.SetData, new SetDataServerCommand(DB.SetData<Row>, DataConverter));
-            CommandsParser.AddCommand(BaseCommands.ChengTypeInColumn, new ChengTypeInColumn(DB.ChengTypeInColumn));
+            CommandsParser.AddCommand(BaseCommands.ChengTypeInColumn, new ChangTypeInColumn(DB.ChangTypeInColumn));
             CommandsParser.AddCommand(BaseCommands.PrintBase, new PrintBase(DB));
             CommandsParser.AddCommand(BaseCommands.GetAllDataInBaseByColumnName, new GetAllDataInBaseByColumnName(DB.GetAllDataInBaseByColumnName, DataConverter));
             CommandsParser.AddCommand(BaseCommands.GetIDByParams, new GetIDByParams(DB.GetIDByParams, DataConverter));

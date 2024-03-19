@@ -4,14 +4,14 @@ using System;
 
 namespace NASDatabase.Server.Handlers.Unsafe.CommandsForDataBase
 {
-    public class RemoveDataByID : CommandHandler
+    internal class RemoveDataByID : CommandHandler
     {
         private string _data = "";
         private Action<int> _handler;
 
-        public RemoveDataByID(Action<int> Handler)
+        public RemoveDataByID(Action<int> handler)
         {
-            this._handler = Handler;
+            this._handler = handler;
         }
 
         public override void SetData(string data)

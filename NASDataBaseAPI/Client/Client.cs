@@ -34,14 +34,14 @@ namespace NASDatabase.Client
 
         public CommandsFactory CommandsFactory { get; private set; }
 
-        public Client(string Name, string Password, IDataConverter DataConverter) : base(0,default(DatabaseSettings))
+        public Client(string name, string password, IDataConverter dataConverter) : base(0,default(DatabaseSettings))
         {
-            this.Name = Name;
-            this.Password = Password;
-            this.DataConverter = DataConverter;
+            this.Name = name;
+            this.Password = password;
+            this.DataConverter = dataConverter;
         }
 
-        public Client(string Name, string Password) : this(Name, Password, new DataConverter()) { }
+        public Client(string name, string password) : this(name, password, new DataConverter()) { }
 
         private Client(int countColumn, DatabaseSettings settings, int loadedSector = 1) : base(countColumn, settings, loadedSector) { }
 
@@ -70,64 +70,64 @@ namespace NASDatabase.Client
             }           
         }
 
-        public override void ChengTypeInColumn(string NameColumn, TypeOfData NewDataType)
+        public override void ChangTypeInColumn(string nameColumn, TypeOfData newTypeOfData)
         {
-            Worker.Push(BaseCommands.ChengTypeInColumn + BaseCommands.SEPARATION + NameColumn + BaseCommands.SEPARATION + NewDataType.GetType().Name);
+            Worker.Push(BaseCommands.ChengTypeInColumn + BaseCommands.SEPARATION + nameColumn + BaseCommands.SEPARATION + newTypeOfData.GetType().Name);
             var msg = NOTIFICATION(); 
         }
 
-        public override int[] GetAllIDsByParams(int NumberColumn, string data)
+        public override int[] GetAllIDsByParams(int numberColumn, string data)
         {
-            return GetAllIDsByParams(this[NumberColumn].Name, data);
+            return GetAllIDsByParams(this[numberColumn].Name, data);
         }
 
-        public override int[] GetAllIDsByParams(string ColumnName, string data)
+        public override int[] GetAllIDsByParams(string columnName, string data)
         {
             Worker.Push(BaseCommands.GetAllIDsByParams + BaseCommands.SEPARATION +
-                ColumnName + BaseCommands.SEPARATION + data);
+                columnName + BaseCommands.SEPARATION + data);
             
             return DataConverter.GetInts(NOTIFICATION());
         }
 
-        public override void AddColumn(string Name)
+        public override void AddColumn(string columnName)
         {
-            Worker.Push(BaseCommands.AddColumn + BaseCommands.SEPARATION + Name 
+            Worker.Push(BaseCommands.AddColumn + BaseCommands.SEPARATION + columnName 
                 + BaseCommands.SEPARATION + DataTypesInColumns.Text.GetType().Name);
             
             NOTIFICATION();
-            _AddColumn?.Invoke(Name);
+            _AddColumn?.Invoke(columnName);
         }
 
-        public override void AddColumn(string Name, TypeOfData dataType)
+        public override void AddColumn(string name, TypeOfData typeOfData)
         {
-            Worker.Push(BaseCommands.AddColumn + BaseCommands.SEPARATION + Name
-                + BaseCommands.SEPARATION + dataType.GetType().Name);
+            Worker.Push(BaseCommands.AddColumn + BaseCommands.SEPARATION + name
+                + BaseCommands.SEPARATION + typeOfData.GetType().Name);
             NOTIFICATION();
-            _AddColumn?.Invoke(Name);
+            _AddColumn?.Invoke(name);
         }
 
-        public override void AddColumn(AColumn aColumn)
+        public override void AddColumn(AColumn column)
         {
-            AddColumn(aColumn.Name);
+            AddColumn(column.Name);
         }
 
-        public override void RemoveColumn(string ColumnName)
+        public override void RemoveColumn(string columnName)
         {
-            Worker.Push(BaseCommands.RemoveColumn + BaseCommands.SEPARATION + ColumnName);
+            Worker.Push(BaseCommands.RemoveColumn + BaseCommands.SEPARATION + columnName);
             NOTIFICATION();
-            _RemoveColumn?.Invoke(ColumnName);
+            _RemoveColumn?.Invoke(columnName);
         }
 
-        public override void RemoveColumn(int NumberOFColumn)
+        public override void RemoveColumn(int numberOfColumn)
         {
-            Worker.Push(BaseCommands.RemoveColumn + BaseCommands.SEPARATION + this[NumberOFColumn].Name);
+            Worker.Push(BaseCommands.RemoveColumn + BaseCommands.SEPARATION + this[numberOfColumn].Name);
             NOTIFICATION();
-            _RemoveColumn?.Invoke(this[NumberOFColumn].Name);
+            _RemoveColumn?.Invoke(this[numberOfColumn].Name);
         }
 
-        public override void RemoveColumn(AColumn aColumnName)
+        public override void RemoveColumn(AColumn columnName)
         {
-            RemoveColumn(aColumnName.Name);
+            RemoveColumn(columnName.Name);
         }
 
         public override void CloneTo(AColumn left, AColumn right)
@@ -143,16 +143,16 @@ namespace NASDatabase.Client
             _CloneColumn?.Invoke(left, right);
         }
 
-        public override void ClearAllColumn(AColumn aColumn, int InSector = -1)
+        public override void ClearAllColumn(AColumn column, int inSector = -1)
         {
-            ClearAllColumn(aColumn.Name, InSector);
+            ClearAllColumn(column.Name, inSector);
         }
 
-        public override void ClearAllColumn(string ColumnName, int InSector = -1)
+        public override void ClearAllColumn(string columnName, int inSector = -1)
         {
-            Worker.Push(BaseCommands.ClearColumn + BaseCommands.SEPARATION + ColumnName + BaseCommands.SEPARATION + InSector);
+            Worker.Push(BaseCommands.ClearColumn + BaseCommands.SEPARATION + columnName + BaseCommands.SEPARATION + inSector);
             NOTIFICATION();
-            _ClearAllColumn?.Invoke(ColumnName, InSector);
+            _ClearAllColumn?.Invoke(columnName, inSector);
         }
 
         public override void ClearAllBase()
@@ -162,9 +162,9 @@ namespace NASDatabase.Client
             _ClearAllBase?.Invoke();
         }
 
-        public override void RenameColumn(AColumn aColumn, string newName)
+        public override void RenameColumn(AColumn column, string newName)
         {
-            RenameColumn(aColumn.Name, newName);
+            RenameColumn(column.Name, newName);
         }
 
         public override void RenameColumn(int n, string newName)
@@ -183,11 +183,11 @@ namespace NASDatabase.Client
 
         #region Добавление/замена данных 
 
-        public override void ChangeEverythingTo(string ColumnName, string Params, string New, int SectorID = -1)
+        public override void ChangeEverythingTo(string columnName, string @params, string newData, int sectorID = -1)
         {
             Worker.Push(BaseCommands.ChangeEverythingTo + BaseCommands.SEPARATION + 
-                ColumnName + BaseCommands.SEPARATION + Params + BaseCommands.SEPARATION +
-                New + BaseCommands.SEPARATION + SectorID);
+                columnName + BaseCommands.SEPARATION + @params + BaseCommands.SEPARATION +
+                newData + BaseCommands.SEPARATION + sectorID);
             NOTIFICATION();           
         }
 
@@ -200,9 +200,9 @@ namespace NASDatabase.Client
             NOTIFICATION();
         }
 
-        public override void SetDataInColumn(string ColumnName, ItemData itemData)
+        public override void SetDataInColumn(string columnName, ItemData itemData)
         {
-            Worker.Push(BaseCommands.SetDataInColumn + BaseCommands.SEPARATION + ColumnName + BaseCommands.SEPARATION + 
+            Worker.Push(BaseCommands.SetDataInColumn + BaseCommands.SEPARATION + columnName + BaseCommands.SEPARATION + 
                DataConverter.ParsItemData(itemData));
             
             NOTIFICATION(); 
@@ -271,20 +271,20 @@ namespace NASDatabase.Client
             return NOTIFICATION(); 
         }
 
-        public override Row[] GetAllDataInBaseByColumnName(string ColumnName, string data)
+        public override Row[] GetAllDataInBaseByColumnName(string columnName, string data)
         {
             Worker.Push(BaseCommands.GetAllDataInBaseByColumnName + BaseCommands.SEPARATION +
-                ColumnName + BaseCommands.SEPARATION + data);
+                columnName + BaseCommands.SEPARATION + data);
             
             var msg = NOTIFICATION();
 
             return DataConverter.GetDataLines<Row>(msg);
         }
 
-        public override int GetIDByParams(string ColumnName, string Data, int InSector = -1)
+        public override int GetIDByParams(string columnName, string data, int inSector = -1)
         {
-            Worker.Push(BaseCommands.GetIDByParams + BaseCommands.SEPARATION + ColumnName + BaseCommands.SEPARATION +
-                Data + BaseCommands.SEPARATION + InSector);
+            Worker.Push(BaseCommands.GetIDByParams + BaseCommands.SEPARATION + columnName + BaseCommands.SEPARATION +
+                data + BaseCommands.SEPARATION + inSector);
             var msg = NOTIFICATION();
             return int.Parse(msg);
         }
@@ -295,7 +295,7 @@ namespace NASDatabase.Client
             return DataConverter.GetDataLine<Row>(NOTIFICATION()).GetData();
         }
 
-        public override T[] SmartSearch<T>(AColumn[] Columns, SearchType[] SearchTypes, string[] Params, int InSectro = -1)
+        public override T[] SmartSearch<T>(AColumn[] columns, SearchType[] typesOfSearch, string[] @params, int inSectro = -1)
         {
             throw new NotImplementedException();
         }
@@ -340,10 +340,10 @@ namespace NASDatabase.Client
         /// <summary>
         /// Отправляет сообщение на сервер
         /// </summary>
-        /// <param name="Command"></param>
-        public void PushCastomCommand(string Command)
+        /// <param name="command"></param>
+        public void PushCastomCommand(string command)
         {
-            Worker.Push(BaseCommands.MSG + BaseCommands.SEPARATION + Command);
+            Worker.Push(BaseCommands.MSG + BaseCommands.SEPARATION + command);
         }
 
         public override AColumn this[string index]
