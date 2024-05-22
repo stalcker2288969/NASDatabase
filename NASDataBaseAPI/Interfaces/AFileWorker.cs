@@ -3,7 +3,7 @@
     /// <summary>
     /// Интерфейс файловой системы для работы БД
     /// </summary>
-    public abstract class FileWorker
+    public abstract class AFileWorker
     {
         /// <summary>
         /// Записть текста в файл

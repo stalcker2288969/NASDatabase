@@ -76,7 +76,14 @@
     <Compile Include="Server\Data\Database.cs" />
     <Compile Include="Server\Data\LogSystem\DatabaseLoger.cs" />
     <Compile Include="Server\Data\LogSystem\OnAddDataLog.cs" />
+    <Compile Include="Server\Data\LogSystem\OnClearAllColumn.cs" />
     <Compile Include="Server\Data\LogSystem\OnCloneColumn.cs" />
+    <Compile Include="Server\Data\LogSystem\OnLoadedNewSector.cs" />
+    <Compile Include="Server\Data\LogSystem\OnRemoveData.cs" />
+    <Compile Include="Server\Data\LogSystem\OnRenameColumn.cs" />
+    <Compile Include="Server\Data\LogSystem\OnSetDataInColumn.cs" />
+    <Compile Include="Server\Data\LogSystem\RemoveColumn.cs" />
+    <Compile Include="Server\Data\LogSystem\OnClearAllBase.cs" />
     <Compile Include="Server\Data\Row.cs" />
     <Compile Include="Server\Data\DatabaseEventType.cs" />
     <Compile Include="Server\Data\Modules\Handlers\BinaryConnector.cs" />
@@ -104,7 +111,7 @@
     <Compile Include="Interfaces\AConnector.cs" />
     <Compile Include="Interfaces\IDataBaseSaver.cs" />
     <Compile Include="Interfaces\IEncoder.cs" />
-    <Compile Include="Interfaces\FileWorker.cs" />
+    <Compile Include="Interfaces\AFileWorker.cs" />
     <Compile Include="Interfaces\IHashTable.cs" />
     <Compile Include="Interfaces\IItemData.cs" />
     <Compile Include="Interfaces\ILoader.cs" />

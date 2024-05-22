@@ -1,5 +1,6 @@
 ﻿using NASDatabase.Interfaces;
-using NASDatabase.Server.Data.DatabaseSettings;
+using NASDatabase.Server.Data;
+using NASDatabase.Server.Data.Modules;
 using System;
 using System.Collections.Generic;
 
@@ -7,23 +8,36 @@ namespace NASDataBaseAPI.Server.Data.LogSystem
 {
     public class DatabaseLoger : Loger
     {
-        public DatabaseSettings Settings { get; private set; }
+        public Database Database { get; private set; }
         public DateTime TimeStartLog { get; private set; }
-        public readonly NASDatabase.Interfaces.FileWorker FileSystem = new NASDatabase.Server.Data.Modules.FileWorker();
+        public readonly AFileWorker FileSystem = new FileWorker();
 
         private string _pathToFile;
+        private Connector<Database, Database> _connector;
 
-        public DatabaseLoger(DatabaseSettings settings, NASDatabase.Interfaces.FileWorker fileWorker, string prefix)
+        public DatabaseLoger(Database db, AFileWorker fileWorker, string prefix)
         {
-            this.Settings = settings;
+            Database = db;
             this.Prefix = prefix;
             this.FileSystem = fileWorker;
+            InitConnection();
         }
 
-        public DatabaseLoger(DatabaseSettings settings, string prefix)
+        public DatabaseLoger(Database db, string prefix) : this(db, new FileWorker(), prefix)
         {
-            this.Settings = settings;
-            this.Prefix = prefix;
+
+        }
+
+        private void InitConnection()
+        {
+            _connector = new Connector<Database, Database>(Database, null);
+            _connector.AddHandler(new OnAddDataLog(this));
+            _connector.AddHandler(new OnCloneColumn(this));
+            _connector.AddHandler(new OnRemoveData(this));
+            _connector.AddHandler(new OnLoadedNewSector(this));
+            _connector.AddHandler(new OnClearAllColumn(this));
+            _connector.AddHandler(new OnClearAllBase(this));
+            _connector.AddHandler(new OnRenameColumn(this));
         }
 
         /// <summary>
@@ -32,8 +46,8 @@ namespace NASDataBaseAPI.Server.Data.LogSystem
         public override void StartLog()
         {
             TimeStartLog = DateTime.Now;
-            FileSystem.CreateDirectory(Settings.Path + "\\Logs");
-            _pathToFile = Settings.Path + $"\\Logs\\Log{TimeStartLog.Day}_{TimeStartLog.Hour}_{TimeStartLog.Minute}.txt";
+            FileSystem.CreateDirectory(Database.Settings.Path + "\\Logs");
+            _pathToFile = Database.Settings.Path + $"\\Logs\\Log{TimeStartLog.Day}_{TimeStartLog.Hour}_{TimeStartLog.Minute}.txt";
             FileSystem.WriteAllText($"Log started at {TimeStartLog}", _pathToFile);
         }
 

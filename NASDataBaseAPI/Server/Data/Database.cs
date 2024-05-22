@@ -501,11 +501,11 @@ namespace NASDatabase.Server.Data
         /// <summary>
         /// Заменяет все элементы в указанном столбце на новые данные, довольно тяжелая операция 
         /// </summary>
-        /// <param name="params"></param>
+        /// <param name="param"></param>
         /// <param name="newData"></param>
         /// <param name="sectorID"></param>
         /// <param name="columnName"></param>
-        public virtual void ChangeEverythingTo(string columnName, string @params, string newData, int sectorID = -1)
+        public virtual void ChangeEverythingTo(string columnName, string param, string newData, int sectorID = -1)
         {
             lock (Columns)
             {
@@ -513,12 +513,12 @@ namespace NASDatabase.Server.Data
                 {
                     for (int i = 1; i < Settings.CountClusters; i++)
                     {
-                        _LoadAndChengeDataInCluster(i, columnName, @params, newData);
+                        _LoadAndChengeDataInCluster(i, columnName, param, newData);
                     }
                 }
                 else
                 {
-                    _LoadAndChengeDataInCluster((int)sectorID, columnName, @params, newData);
+                    _LoadAndChengeDataInCluster((int)sectorID, columnName, param, newData);
                 }
             }
         }
@@ -963,10 +963,10 @@ namespace NASDatabase.Server.Data
         /// <typeparam name="T"></typeparam>
         /// <param name="columns">Табличка параметр</param>
         /// <param name="typesOfSearch">способ поиска данных</param>
-        /// <param name="params">Данные от которых нужно операться</param>
+        /// <param name="param">Данные от которых нужно операться</param>
         /// <param name="inSectro">Сектор в котором нужно искать данные(-1 - во всех)</param>
         /// <returns></returns>
-        public virtual T[] SmartSearch<T>(AColumn[] columns, SearchType[] typesOfSearch, string[] @params, int inSectro = -1)
+        public virtual T[] SmartSearch<T>(AColumn[] columns, SearchType[] typesOfSearch, string[] param, int inSectro = -1)
             where T : IDataRow, new()
         {
             lock (this.Columns)
@@ -975,27 +975,27 @@ namespace NASDatabase.Server.Data
                 List<List<int>> Search = new List<List<int>>();
                 List<int> resultIDs = new List<int>();
 
-                if (columns.Length != typesOfSearch.Length && columns.Length != @params.Length)
+                if (columns.Length != typesOfSearch.Length && columns.Length != param.Length)
                     throw new ArgumentException(ExeptionTheParametersDoNotMatchInQuantity);
 
                 if (inSectro == -1)
                 {
                     for (int i = 0; i < Settings.CountClusters; i++)
                     {
-                        Boxes.AddRange(SmartSearch<T>(columns, typesOfSearch, @params, i));
+                        Boxes.AddRange(SmartSearch<T>(columns, typesOfSearch, param, i));
                     }
                 }
                 else
                 {
                     _LoadDataBase(inSectro);
-                    for (int j = 0; j < @params.Length; j++)
+                    for (int j = 0; j < param.Length; j++)
                     {
                         var _colomn = this[columns[j].Name];
 
                         if (_colomn.TypeOfData == columns[j].TypeOfData)
                         {
                             List<int> IDs = new List<int>();
-                            IDs = new SmartSearcher(columns[j], _colomn, typesOfSearch[j], @params[j]).Search();
+                            IDs = new SmartSearcher(columns[j], _colomn, typesOfSearch[j], param[j]).Search();
                             Search.Add(IDs);
                         }
                     }
@@ -1241,7 +1241,6 @@ namespace NASDatabase.Server.Data
 
         public void Dispose()
         {
-            EnableSafeMode();
             DatabaseSaver.SaveAllCluster(Settings, LoadedSector, Columns.ToArray());
         }
 

@@ -4,21 +4,20 @@ using NASDatabase.Server.Data.Modules.Handlers;
 
 namespace NASDataBaseAPI.Server.Data.LogSystem
 {
-    internal class OnCloneColumn : Handler<Database, Database>
+    internal class RemoveColumn : Handler<Database, Database>
     {
         readonly Loger _loger;
 
-        public OnCloneColumn(Loger loger) : base(DatabaseEventType.CloneColumn)
+        public RemoveColumn(Loger loger) : base(DatabaseEventType.RemoveColumn)
         {
             _loger = loger;
         }
 
         public override void Work(object v1, object v2)
         {
-            string left = (string)v1;
-            string right = (string)v2;
+            string columnName = (string)v1;
 
-            _loger.Log($"A {left} was copied to {right}"); 
+            _loger.Log($"The column [{columnName}] has been deleted!");
         }
     }
 }

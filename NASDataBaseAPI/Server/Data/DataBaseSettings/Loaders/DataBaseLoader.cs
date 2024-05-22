@@ -19,7 +19,7 @@ namespace NASDatabase.Server.Data.DatabaseSettings.Loaders
         /// Шифрование данных
         /// </summary>
         public IEncoder _Encoder { get; private set; }
-        public Interfaces.FileWorker FileSystem { get; private set; }
+        public Interfaces.AFileWorker FileSystem { get; private set; }
 
         public DatabaseLoader() 
         { 
@@ -33,7 +33,7 @@ namespace NASDatabase.Server.Data.DatabaseSettings.Loaders
             FileSystem = new Modules.FileWorker();
         }
 
-        public DatabaseLoader(IEncoder encoder, Interfaces.FileWorker fileWorker)
+        public DatabaseLoader(IEncoder encoder, Interfaces.AFileWorker fileWorker)
         {
             this._Encoder = encoder;
             FileSystem = fileWorker;

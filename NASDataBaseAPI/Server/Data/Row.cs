@@ -25,9 +25,10 @@ namespace NASDatabase.Server.Data
         public override string ToString()
         {
             var sb = new StringBuilder();
+            sb.Append($"{ID}|");
             foreach (var data in Datas)
             {
-                sb.Append(data.ToString());
+                sb.Append(data);
                 sb.Append("|");
             }
             return sb.ToString();

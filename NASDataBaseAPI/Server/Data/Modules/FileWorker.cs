@@ -6,7 +6,7 @@ namespace NASDatabase.Server.Data.Modules
     /// <summary>
     /// Работает со стандартной файловой системой  
     /// </summary>
-    public class FileWorker : Interfaces.FileWorker
+    public class FileWorker : Interfaces.AFileWorker
     {
         public override void CreateDirectory(string path)
         {

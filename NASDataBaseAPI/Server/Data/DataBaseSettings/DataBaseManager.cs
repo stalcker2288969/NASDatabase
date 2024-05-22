@@ -18,10 +18,10 @@ namespace NASDatabase.Server.Data.DatabaseSettings
         public static DBNoSaveLoader DBNoSaveLoader { get; private set; } = new DBNoSaveLoader();
 
         public static IEncoder Encoder { get; private set; } = new SimpleEncryptor();
-        public static Interfaces.FileWorker FileSystem { get; private set; } = new Modules.FileWorker();
+        public static Interfaces.AFileWorker FileSystem { get; private set; } = new Modules.FileWorker();
 
         public ILoader[] _databaseSavers { get; private set; }
-        private Interfaces.FileWorker _fileSystem;
+        private Interfaces.AFileWorker _fileSystem;
         private IEncoder _encoder;
 
         public DatabaseManager()
@@ -31,14 +31,14 @@ namespace NASDatabase.Server.Data.DatabaseSettings
             Init();
         }
 
-        public DatabaseManager(Interfaces.FileWorker FileWorker) 
+        public DatabaseManager(Interfaces.AFileWorker FileWorker) 
         {            
             _fileSystem = FileWorker;
             _encoder = Encoder;
             Init();
         }
 
-        public DatabaseManager(Interfaces.FileWorker FileWorker, IEncoder Encoder)
+        public DatabaseManager(Interfaces.AFileWorker FileWorker, IEncoder Encoder)
         {           
             _fileSystem = FileWorker;
             _encoder = Encoder;
@@ -99,22 +99,22 @@ namespace NASDatabase.Server.Data.DatabaseSettings
             }
             _fileSystem.WriteAllText(Types, DatabaseSettings.Path + "\\Settings\\TablesType.txt");
             
-            T dataBase = (T)Activator.CreateInstance(typeof(T), (int)DatabaseSettings.ColumnsCount, DatabaseSettings, 1);
-            dataBase.InitManager(this);
+            T database = (T)Activator.CreateInstance(typeof(T), (int)DatabaseSettings.ColumnsCount, DatabaseSettings, 1);
+            database.InitManager(this);
 
-            dataBase.DatabaseLoger = new DatabaseLoger(DatabaseSettings, "Loger");
+            database.DatabaseLoger = new DatabaseLoger(database, _fileSystem, "Loger");
 
             if (DatabaseSettings.SaveMod)
             {
-                dataBase.EnableSafeMode();
+                database.EnableSafeMode();
             }
             else
             {
-                dataBase.DisableSafeMode();
+                database.DisableSafeMode();
             }
 
             _fileSystem.WriteAllText(Encoder.Encode("", DatabaseSettings.Key), DatabaseSettings.Path + $"\\Cluster1.txt");
-            return (T)dataBase;
+            return (T)database;
         }
 
         /// <summary>
@@ -218,12 +218,12 @@ namespace NASDatabase.Server.Data.DatabaseSettings
             dataBase.DatabaseSaver = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseSaver<Interfaces.AColumn>;
             dataBase.DatabaseLoader = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseLoader<Interfaces.AColumn>;
             dataBase.DatabaseReplayser = _databaseSavers[Convert.ToInt32(dataBaseSettings.SaveMod)] as IDataBaseReplayser;
-            dataBase.DatabaseLoger = new DatabaseLoger(dataBaseSettings, "Loger");
+            dataBase.DatabaseLoger = new DatabaseLoger(dataBase, _fileSystem, "Loger");
 
             return dataBase;
         }
         /// <summary>
-        /// Если LoadCluster = -1 => по умолчанию ничто в оперативную память не грузится
+        /// Если LoadCluster = -1, то по умолчанию ничто в оперативную память не грузится
         /// </summary>
         /// <param name="Path"></param>
         /// <param name="LoadCluster"></param>

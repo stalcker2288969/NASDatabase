@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NASDataBaseAPI.Server.Data.LogSystem
 {
-    internal class OnAddDataLog<T1, T2> : Handler<T1, T2> where T1 : Database where T2 : Database
+    internal class OnAddDataLog : Handler<Database, Database>
     {
         private readonly Loger _loger;
 
@@ -19,10 +19,7 @@ namespace NASDataBaseAPI.Server.Data.LogSystem
             var datas = v1 as string[];
             var ID = (int)v2;
             
-            var sb = new StringBuilder();
-            sb.Append(string.Join(",", datas));
-
-            _loger.Log("AddData to " + ID + " data:" + sb);
+            _loger.Log($"AddData to [{ID}] data [{string.Join(",", datas)}]");
         }
     }
 }

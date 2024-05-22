@@ -94,7 +94,7 @@ namespace NASDatabase.Server.Data
 
         public override string ToString()
         {
-            return Data;
+            return $"{ID}|{Data}";
         }
     }
 }
