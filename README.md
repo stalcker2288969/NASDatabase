@@ -14,7 +14,7 @@ ____
  
  var DBS = new DatabaseSettings("Test", "D:\\");//Передаем настройки
  
- var DB = DBM.CreateDatabase(DBS);//Создаем проект и загружаем БД в память
+ var DB = DBM.CreateDatabase<Table>(DBS);//Создаем проект и загружаем БД в память
 ```
 ____
   Пример загрузки:
@@ -23,7 +23,7 @@ var DBM = new DatabaseManager();
 
 string path = "..\\..";//путь до проекта
 
-Database DB = DBM.LoadDB(path);
+Database DB = DBM.LoadDB<Table>(path);
 ```
 ___
   Пример работы с данными: 
