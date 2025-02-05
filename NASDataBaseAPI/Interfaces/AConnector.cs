@@ -5,7 +5,7 @@ using System;
 
 namespace NASDataBaseAPI.Interfaces
 {
-    public abstract class AConnector<T1, T2> : IDisposable where T1 : Database where T2 : Database 
+    public abstract class AConnector<T1, T2> : IDisposable where T1 : Table where T2 : Table 
     {
         public T1 DB1 { get; protected set; }
         public T2 DB2 { get; protected set; }

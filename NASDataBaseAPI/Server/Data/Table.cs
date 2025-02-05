@@ -9,7 +9,7 @@ using System.Text;
 
 namespace NASDataBaseAPI.Server.Data
 {
-    public class Database : IDisposable
+    public class Table : IDisposable
     {
         #region Events
         /// <summary>
@@ -56,10 +56,10 @@ namespace NASDataBaseAPI.Server.Data
         public Action<string, ItemData> _SetDataInColumn;
         #endregion
 
-        #region Exeption
-        private const string ExeptionThereIsNotColumn = "Не был обнаружен данный столбец!";
-        private const string ExeptionLengthReceivedDataDoesNotMatchNumberOfColumns = "Длина поступивших данных не совпадает c количество столбцов  ";
-        private const string ExeptionTheParametersDoNotMatchInQuantity = "Параметры не совпадают по количеству!";
+        #region Exceptions
+        private const string ExceptionThereIsNotColumn = "Не был обнаружен данный столбец!";
+        private const string ExceptionLengthReceivedDataDoesNotMatchNumberOfColumns = "Длина поступивших данных не совпадает c количество столбцов  ";
+        private const string ExceptionTheParametersDoNotMatchInQuantity = "Параметры не совпадают по количеству!";
         #endregion
 
         public List<AColumn> Columns { get; protected set; }
@@ -71,7 +71,7 @@ namespace NASDataBaseAPI.Server.Data
         public IDataBaseSaver<AColumn> DataBaseSaver;
         public IDataBaseReplayser DataBaseReplayser;
         public IDataBaseLoader<AColumn> DataBaseLoader;
-        public ILoger DataBaseLoger;
+        public ILoger DataBaseLogger;
 
         public DatabaseServer Server;
 
@@ -83,7 +83,7 @@ namespace NASDataBaseAPI.Server.Data
 
         #region Конструкторы
 
-        public Database(int countColumn, DataBaseSettings.DatabaseSettings settings, int loadedSector = 1)
+        public Table(int countColumn, DataBaseSettings.DatabaseSettings settings, int loadedSector = 1)
         {
             Columns = new List<AColumn>();
             this.Settings = settings;
@@ -94,7 +94,7 @@ namespace NASDataBaseAPI.Server.Data
             }
         }
 
-        public Database(List<AColumn> Column, DataBaseSettings.DatabaseSettings settings, int loadedSector = 1)
+        public Table(List<AColumn> Column, DataBaseSettings.DatabaseSettings settings, int loadedSector = 1)
         {
             Columns = Column;
             this.Settings = settings;
@@ -192,7 +192,7 @@ namespace NASDataBaseAPI.Server.Data
                     _LoadDataBase(i);
 
                     IDs.AddRange(this[nameColumn].FindIDs(data) ?? new int[0]);
-                    DataBaseLoger.Log($"Get all IDs by {nameColumn} and {data} in {i} cluester");
+                    DataBaseLogger.Log($"Get all IDs by {nameColumn} and {data} in {i} cluester");
                 }
 
                 return IDs.ToArray();
@@ -249,7 +249,7 @@ namespace NASDataBaseAPI.Server.Data
                     DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
 
-                DataBaseLoger.Log($"Delited column {ColumnName}");
+                DataBaseLogger.Log($"Delited column {ColumnName}");
                 Settings.ColumnsCount -= 1;
                 _RemoveColumn?.Invoke(ColumnName);
             }
@@ -293,7 +293,7 @@ namespace NASDataBaseAPI.Server.Data
                     DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
 
-                DataBaseLoger.Log($"Add table {Name}");
+                DataBaseLogger.Log($"Add table {Name}");
                 _AddColumn?.Invoke(Name);
             }
         }
@@ -326,7 +326,7 @@ namespace NASDataBaseAPI.Server.Data
                     Columns.Add(table);
                     DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
-                DataBaseLoger.Log($"Add table {Name}|{dataType}");
+                DataBaseLogger.Log($"Add table {Name}|{dataType}");
                 _AddColumn?.Invoke(Name);
             }
         }
@@ -364,7 +364,7 @@ namespace NASDataBaseAPI.Server.Data
                     this[rightName].SetDatas(itemDatas);
                     DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
-                DataBaseLoger.Log($"{left.Name} clone to {right.Name}");
+                DataBaseLogger.Log($"{left.Name} clone to {right.Name}");
                 _CloneColumn?.Invoke(leftName, rightName);
             }
         }
@@ -394,7 +394,7 @@ namespace NASDataBaseAPI.Server.Data
                     this[right].SetDatas(itemDatas);
                     DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
-                DataBaseLoger.Log($"{left} clone to {right}");
+                DataBaseLogger.Log($"{left} clone to {right}");
                 _CloneColumn?.Invoke(left, right);
             }
         }
@@ -415,7 +415,7 @@ namespace NASDataBaseAPI.Server.Data
                         _LoadDataBase(i);
                         _column.ClearBoxes();
                         DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
-                        DataBaseLoger.Log($"Clearing a column in a sector {i}");
+                        DataBaseLogger.Log($"Clearing a column in a sector {i}");
                     }
                 }
             }
@@ -427,7 +427,7 @@ namespace NASDataBaseAPI.Server.Data
                     _LoadDataBase(InSector);
                     _column.ClearBoxes();
                     DataBaseSaver.SaveAllCluster(Settings, (uint)InSector, Columns.ToArray());
-                    DataBaseLoger.Log($"Clearing a column in a sector {InSector}");
+                    DataBaseLogger.Log($"Clearing a column in a sector {InSector}");
                 }
             }
         }
@@ -472,7 +472,7 @@ namespace NASDataBaseAPI.Server.Data
                     }
                     DataBaseSaver.SaveAllCluster(Settings, (uint)i, Columns.ToArray());
                 }
-                DataBaseLoger.Log($"!Clear all base!");
+                DataBaseLogger.Log($"!Clear all base!");
                 Settings.CountBuckets = 0;
             }
         }
@@ -569,17 +569,17 @@ namespace NASDataBaseAPI.Server.Data
         /// </summary>
         /// <param name="ID"></param>
         /// <param name="datas"></param>
-        public virtual void SetData(IDatRows dataline)
+        public virtual void SetData(IDataRows dataline)
         {
             SetData(dataline.ID, dataline.GetData());
         }
 
-        public virtual void SetData<T>(T dataline) where T : IDatRows
+        public virtual void SetData<T>(T dataline) where T : IDataRows
         {
             SetData(dataline.ID, dataline.GetData());
         }
 
-        public virtual void SetData<T>(int ID) where T : IDatRows
+        public virtual void SetData<T>(int ID) where T : IDataRows
         {
             var t = Activator.CreateInstance<T>();
             SetData(ID, t.GetData());
@@ -623,7 +623,7 @@ namespace NASDataBaseAPI.Server.Data
 
                 this[ColumnName].SetDataByID(NewItemData);
 
-                DataBaseLoger.Log($"Set {NewItemData.Data} in {ColumnName} ID:{NewItemData.ID}");
+                DataBaseLogger.Log($"Set {NewItemData.Data} in {ColumnName} ID:{NewItemData.ID}");
                 DataBaseSaver.SaveAllCluster(Settings, SectorID, Columns.ToArray());
                 _SetDataInColumn?.Invoke(ColumnName, NewItemData);
             }
@@ -664,11 +664,11 @@ namespace NASDataBaseAPI.Server.Data
             }
             else if (datas?.Length < Columns.Count)
             {
-                throw new Exception(ExeptionLengthReceivedDataDoesNotMatchNumberOfColumns + Columns.Count);
+                throw new Exception(ExceptionLengthReceivedDataDoesNotMatchNumberOfColumns + Columns.Count);
             }
             else if (datas?.Length > Columns.Count)
             {
-                throw new Exception(ExeptionLengthReceivedDataDoesNotMatchNumberOfColumns + Columns.Count);
+                throw new Exception(ExceptionLengthReceivedDataDoesNotMatchNumberOfColumns + Columns.Count);
             }
         }
 
@@ -682,7 +682,7 @@ namespace NASDataBaseAPI.Server.Data
                     MSG += datas[i] + "|";
                 }
 
-                DataBaseLoger.Log(MSG);
+                DataBaseLogger.Log(MSG);
             }
         }
 
@@ -691,7 +691,7 @@ namespace NASDataBaseAPI.Server.Data
         /// Ошибки: Exception($"Длина поступивших данных меньше кол-ва столбцов: {Columns.Count}")
         /// </summary>
         /// <param name="datas"></param>
-        public virtual void AddData(IDatRows dataline)
+        public virtual void AddData(IDataRows dataline)
         {
             AddData(dataline.GetData());
         }
@@ -730,7 +730,7 @@ namespace NASDataBaseAPI.Server.Data
                 Settings.CountBuckets += 1;
                 DataBaseReplayser.ReplayesElement(Settings, SectorID, itemDatas.ToArray());
 
-                DataBaseLoger.Log($"Replayes element in {SectorID} Cluster | {ID}");
+                DataBaseLogger.Log($"Replayes element in {SectorID} Cluster | {ID}");
                 
                 if(res)
                     _AddData?.Invoke(datas, ID);
@@ -756,7 +756,7 @@ namespace NASDataBaseAPI.Server.Data
                 Settings.CountBuckets += 1;
                 DataBaseSaver.AddElement(Settings, SectorID, itemDatas.ToArray());
 
-                DataBaseLoger.Log($"Add element in {SectorID} Cluster | {ID}");
+                DataBaseLogger.Log($"Add element in {SectorID} Cluster | {ID}");
 
                 _AddData?.Invoke(datas, ID);
             }
@@ -788,7 +788,7 @@ namespace NASDataBaseAPI.Server.Data
                 DataBaseReplayser.ReplayesElement(Settings, SectorID, ItemDatas.ToArray());
                 Settings.CountBuckets -= 1;
 
-                DataBaseLoger.Log($"Remove element in {SectorID} Cluster | {ID}");
+                DataBaseLogger.Log($"Remove element in {SectorID} Cluster | {ID}");
 
                 _RemoveData?.Invoke(data, (int)ID);
             }
@@ -827,7 +827,7 @@ namespace NASDataBaseAPI.Server.Data
                             _datas += d;
                         }
 
-                        DataBaseLoger.Log($"Remove element in {i} Cluster | {_datas} ");
+                        DataBaseLogger.Log($"Remove element in {i} Cluster | {_datas} ");
 
                         return true;
                     }
@@ -846,7 +846,7 @@ namespace NASDataBaseAPI.Server.Data
         /// <summary>
         /// Удаляет все данные из базы подходящие по параметру.
         /// </summary>
-        public virtual bool RemoveAllData(IDatRows dataline)
+        public virtual bool RemoveAllData(IDataRows dataline)
         {
             return RemoveAllData(dataline.GetData());
         }
@@ -986,7 +986,7 @@ namespace NASDataBaseAPI.Server.Data
         /// <param name="InSectro">Сектор в котором нужно искать данные(-1 - во всех)</param>
         /// <returns></returns>
         public virtual T[] SmartSearch<T>(AColumn[] Columns, SearchType[] SearchTypes, string[] Params, int InSectro = -1)
-            where T : IDatRows, new()
+            where T : IDataRows, new()
         {
             lock (this.Columns)
             {
@@ -995,7 +995,7 @@ namespace NASDataBaseAPI.Server.Data
                 List<int> resultIDs = new List<int>();
 
                 if (Columns.Length != SearchTypes.Length && Columns.Length != Params.Length)
-                    throw new ArgumentException(ExeptionTheParametersDoNotMatchInQuantity);
+                    throw new ArgumentException(ExceptionTheParametersDoNotMatchInQuantity);
 
                 if (InSectro == -1)
                 {
@@ -1133,7 +1133,7 @@ namespace NASDataBaseAPI.Server.Data
             return data.ToArray();
         }
 
-        public virtual T GetDataLineByID<T>(int ID) where T : IDatRows
+        public virtual T GetDataLineByID<T>(int ID) where T : IDataRows
         {
             var line = Activator.CreateInstance<T>();
             line.Init(ID, GetDataByID(ID));
@@ -1220,7 +1220,7 @@ namespace NASDataBaseAPI.Server.Data
                         }
                     }
 
-                    throw new IndexOutOfRangeException(ExeptionThereIsNotColumn);
+                    throw new IndexOutOfRangeException(ExceptionThereIsNotColumn);
                 } 
             }
             protected set
@@ -1235,7 +1235,7 @@ namespace NASDataBaseAPI.Server.Data
                         }
                     }
 
-                    throw new IndexOutOfRangeException(ExeptionThereIsNotColumn);
+                    throw new IndexOutOfRangeException(ExceptionThereIsNotColumn);
                 }
             }
         }

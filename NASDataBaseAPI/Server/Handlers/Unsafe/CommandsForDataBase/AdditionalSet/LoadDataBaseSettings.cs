@@ -8,9 +8,9 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSe
 {
     public class LoadDataBaseSettings : CommandHandler
     {
-        private Database _db;
+        private Table _db;
 
-        public LoadDataBaseSettings(Database dataBase) { _db = dataBase; }
+        public LoadDataBaseSettings(Table dataBase) { _db = dataBase; }
 
         public override string Use()
         {

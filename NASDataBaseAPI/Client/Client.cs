@@ -15,7 +15,7 @@ namespace NASDataBaseAPI.Client
     /// <summary>
     /// Класс для работы с сервером/DataBaseSaver, DataBaseReplayser, DataBaseLoader, DataBaseLoger - не работают
     /// </summary>
-    public class Client : Database
+    public class Client : Table
     {
         #region Ошибки
         public const string NoRightsExceptionText = "Отказ в действии! ";
