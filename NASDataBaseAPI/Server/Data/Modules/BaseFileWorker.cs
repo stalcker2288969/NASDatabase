@@ -14,7 +14,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
             Directory.CreateDirectory(path);
         }
 
-        public void DeleteDictinory(string path)
+        public void DeleteDirectory(string path)
         {
             Directory.Delete(path, true);
         }

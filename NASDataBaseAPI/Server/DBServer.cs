@@ -21,11 +21,11 @@ namespace NASDataBaseAPI.Server
 
         public TcpListener Server { get; private set; }
 
-        public DBServer(ServerSettings serverSettings, Database dataBase) : base(serverSettings, dataBase,  new CommandsFactory(), new DataConverter())
+        public DBServer(ServerSettings serverSettings, Table dataBase) : base(serverSettings, dataBase,  new CommandsFactory(), new DataConverter())
         { 
         }
 
-        public DBServer(ServerSettings ServerSettings, Database DataBase, CommandsFactory CommandsParser, IDataConverter DataConverter) : base(ServerSettings, DataBase, CommandsParser, DataConverter) { }
+        public DBServer(ServerSettings ServerSettings, Table DataBase, CommandsFactory CommandsParser, IDataConverter DataConverter) : base(ServerSettings, DataBase, CommandsParser, DataConverter) { }
 
         public string ServerIP { get; private set; }
         public int Port { get; private set; }
@@ -137,7 +137,7 @@ namespace NASDataBaseAPI.Server
             }
         }
 
-        private void InitCommands(CommandsFactory commandsParser, Database db)
+        private void InitCommands(CommandsFactory commandsParser, Table db)
         {
             commandsParser.AddCommand(BaseCommands.AddData, new AddData(db, DataConverter));
             commandsParser.AddCommand(BaseCommands.RemoveDataByID, new RemoveDataByID(db.RemoveDataByID));

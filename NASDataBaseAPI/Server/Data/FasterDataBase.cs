@@ -11,24 +11,24 @@ namespace NASDataBaseAPI.Server.Data
     /// <summary>
     /// База данных основанная на распараллеливание задач, есть минус - жрет много оперативной памяти и небезопасна  
     /// </summary>
-    public class FasterDatabase : Database
+    public class FasterTable : Table
     {
         public const int StandardNumberExecutingThreads = 4;
         
         /// <summary>
-        /// Параметр отвечающий за кол-во патоков при распараллеливание задач
+        /// Параметр отвечающий за кол-во потоков при распараллеливание задач 
         /// </summary>
         public int MaxDegreeOfParallelism = StandardNumberExecutingThreads;
 
-        public FasterDatabase(int countColumn, DataBaseSettings.DatabaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = StandardNumberExecutingThreads)
+        public FasterTable(int countColumn, DataBaseSettings.DatabaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = StandardNumberExecutingThreads)
             : base(countColumn, settings, loadedSector)
         {
             this.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
         }
 
-        public FasterDatabase(int countColumn, DataBaseSettings.DatabaseSettings settings, int loadedSector = 0) : this(countColumn, settings, loadedSector, StandardNumberExecutingThreads) { }
+        public FasterTable(int countColumn, DataBaseSettings.DatabaseSettings settings, int loadedSector = 0) : this(countColumn, settings, loadedSector, StandardNumberExecutingThreads) { }
 
-        public FasterDatabase(List<Interfaces.AColumn> Column, DataBaseSettings.DatabaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = StandardNumberExecutingThreads)
+        public FasterTable(List<Interfaces.AColumn> Column, DataBaseSettings.DatabaseSettings settings, int loadedSector = 0, int MaxDegreeOfParallelism = StandardNumberExecutingThreads)
             : base(Column, settings, loadedSector)
         {
             this.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
@@ -75,7 +75,7 @@ namespace NASDataBaseAPI.Server.Data
                         IDs.AddRange(DataBase[nameColumn].FindIDs(data) ?? new int[0]);
                     }
 
-                    DataBaseLoger.Log($"Get all IDs by {nameColumn} and {data} in {i} cluester");
+                    DataBaseLogger.Log($"Get all IDs by {nameColumn} and {data} in {i} cluester");
                 });
 
                 return IDs.ToArray();
@@ -450,9 +450,9 @@ namespace NASDataBaseAPI.Server.Data
  
         #endregion
 
-        private Database _LoadDataBase(int i)
+        private Table _LoadDataBase(int i)
         {
-            var DataBase = new Database((int)Settings.ColumnsCount, Settings, 0);
+            var DataBase = new Table((int)Settings.ColumnsCount, Settings, 0);
 
             if (LoadedSector != i)
             {

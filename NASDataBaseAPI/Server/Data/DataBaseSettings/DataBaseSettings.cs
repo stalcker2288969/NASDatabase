@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using NASDataBaseAPI.Interfaces;
 
 namespace NASDataBaseAPI.Server.Data.DataBaseSettings
 {
@@ -80,7 +81,7 @@ namespace NASDataBaseAPI.Server.Data.DataBaseSettings
             this.Logs = Logs;
             this.SaveMod = SaveMod;
         }
-
+        
         public DatabaseSettings(DatabaseSettings settings, bool SaveMod)
         {
             this.Name = settings.Name;

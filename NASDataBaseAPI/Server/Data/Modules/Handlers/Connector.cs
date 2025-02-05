@@ -8,7 +8,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
     /// <summary>
     /// Предостовляет удобный интерфейс связи баз данных 
     /// </summary>
-    public class Connector<T1,T2> : AConnector<T1, T2> where T1 : Database where T2 : Database
+    public class Connector<T1,T2> : AConnector<T1, T2> where T1 : Table where T2 : Table
     {
         protected List<Handler<T1,T2>> _handlers = new List<Handler<T1,T2>>();
 

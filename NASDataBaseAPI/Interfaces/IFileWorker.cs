@@ -6,7 +6,7 @@
     public interface IFileWorker
     {
         /// <summary>
-        /// Записть текста в файл
+        /// Записать текста в файл
         /// </summary>
         /// <param name="Text"></param>
         /// <param name="Path"></param>
@@ -43,6 +43,6 @@
         /// Удаление директории  
         /// </summary>
         /// <param name="Path"></param>
-        void DeleteDictinory(string Path);
+        void DeleteDirectory(string Path);
     }
 }

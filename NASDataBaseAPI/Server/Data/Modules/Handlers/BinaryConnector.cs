@@ -5,7 +5,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
     /// <summary>
     /// Устанавливает связь между двуня БД 
     /// </summary>
-    public class BinaryConnector<T1,T2> : Connector<T1,T2> where T1 : Database where T2 : Database
+    public class BinaryConnector<T1,T2> : Connector<T1,T2> where T1 : Table where T2 : Table
     {
         public bool DefaultConnectionIsLeft;
         private Connector<T1,T2> _leftConnector;
@@ -31,13 +31,13 @@ namespace NASDataBaseAPI.Server.Data.Modules
         }
 
         //Добавляет обработчки к левой базе данных
-        public void AddLeftConectionByHandler(Handler<T1, T2> Handler)
+        public void AddLeftConnectionByHandler(Handler<T1, T2> Handler)
         {
             _leftConnector.AddHandler(Handler);
         }
 
         //Добавляет обработчик к правой базе данных
-        public void AddRightConectionByHandler(Handler<T1, T2> Handler)
+        public void AddRightConnectionByHandler(Handler<T1, T2> Handler)
         {
             _rightConnector.AddHandler(Handler);
         }

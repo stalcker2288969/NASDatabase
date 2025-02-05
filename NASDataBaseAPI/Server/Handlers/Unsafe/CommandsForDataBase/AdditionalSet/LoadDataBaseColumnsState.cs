@@ -9,10 +9,10 @@ namespace NASDataBaseAPI.Server.Handlers.Unsafe.CommandsForDataBase.AdditionalSe
 {
     public class LoadDataBaseColumnsState : CommandHandler
     {
-        private Database _db;
+        private Table _db;
         private IDataConverter _converter;
 
-        public LoadDataBaseColumnsState(Database db, IDataConverter converter)
+        public LoadDataBaseColumnsState(Table db, IDataConverter converter)
         {
             _db = db;
             _converter = converter;

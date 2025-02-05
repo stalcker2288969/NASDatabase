@@ -7,9 +7,8 @@ namespace NASDataBaseAPI.Server.Data.Modules
     /// <summary>
     /// Инструмент для переборки и обработки элементов базы 
     /// </summary>
-    public static class Enumeration<T> where T : Database
+    public static class Enumeration<T> where T : Table
     {
-
         public static void ForLine(T _dataBase, Action<Rows> Handler)
         {
             for(int i = 0; i < _dataBase.Settings.CountBuckets; i++) 
@@ -18,7 +17,7 @@ namespace NASDataBaseAPI.Server.Data.Modules
             }
         }
 
-        public static void ForLine<T1>(T _dataBase, Action<T1> Handler) where T1 : IDatRows
+        public static void ForLine<T1>(T _dataBase, Action<T1> Handler) where T1 : IDataRows
         {
             for (int i = 0; i < _dataBase.Settings.CountBuckets; i++)
             {

@@ -18,11 +18,11 @@ namespace NASDataBaseAPI.Server
         public List<ServerCommandsPusher> Clients { get; protected set; } = new List<ServerCommandsPusher>();
         public CommandsFactory Commands { get; protected set; }
 
-        protected Database DataBase { get; private set; }
+        protected Table DataBase { get; private set; }
         public ServerSettings ServerSettings { get; protected set; }
         
         #region Конструкторы 
-        public DatabaseServer(ServerSettings serverSettings, Database db, CommandsFactory commandsParser)
+        public DatabaseServer(ServerSettings serverSettings, Table db, CommandsFactory commandsParser)
         {
             DataBase = db;
             ServerSettings = serverSettings;
@@ -37,7 +37,7 @@ namespace NASDataBaseAPI.Server
             #endregion
         }
 
-        public DatabaseServer(ServerSettings serverSettings, Database dataBase, CommandsFactory commandsParser, IDataConverter dataConverter) : this(serverSettings, dataBase, commandsParser)
+        public DatabaseServer(ServerSettings serverSettings, Table dataBase, CommandsFactory commandsParser, IDataConverter dataConverter) : this(serverSettings, dataBase, commandsParser)
         {
             DataConverter = dataConverter;
         }
