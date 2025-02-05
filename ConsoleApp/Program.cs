@@ -70,25 +70,3 @@ class Person : IDataRows
         this.ID = ID;
     }
 }
-
-class Table2 : IDataRows
-{
-    public int _ID;
-    public string Name;
-    public int Old;
-    public int Mode;
-    
-    public int ID { get; private set; }
-
-    public string[] GetData()
-    {
-        return new string[] { Name, Old.ToString() };
-    }
-
-    public void Init(int ID, params string[] datas)
-    {
-        Old = int.Parse(datas[1]);
-        Name = datas[0];
-        this.ID = ID;
-    }
-}
