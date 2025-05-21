@@ -1,78 +1,53 @@
-﻿using NASDataBaseAPI.Data;
+using NASDataBaseAPI.Data; // Assuming SearchType enum is in this namespace
 using NASDataBaseAPI.SmartSearchSettings;
 using System.Collections.Generic;
 using NASDataBaseAPI.Interfaces;
+using System; // Required for ArgumentException if ValidateParameters throws it and it's not caught here
 
-namespace NASDataBaseAPI.Server.Data
+namespace NASDataBaseAPI.Server.Data // The namespace was NASDataBaseAPI.Server.Data, keeping it as is.
 {
     public class SmartSearcher
     {
-        private AColumn _Column;
-        private AColumn _inColumn;
-        private SearchType _searchTypes;
-        private string _params;
+        private AColumn _column; 
+        private AColumn _inColumn; // This field seems to be unused if the old check is removed. Review if it can be removed.
+        private SearchType _searchType; 
+        private SearchParameters _searchParameters; 
 
-        public SmartSearcher(AColumn ColumnParams,AColumn In, SearchType SearchTypes, string Params)
+        public SmartSearcher(AColumn columnParams, AColumn inColumn, SearchType searchType, SearchParameters searchParameters)
         {
-            this._Column = ColumnParams;
-            this._inColumn = In;
-            this._searchTypes = SearchTypes;
-            this._params = Params;
+            _column = columnParams;
+            _inColumn = inColumn; // Keep for now, but note its usage in the old check.
+            _searchType = searchType;
+            _searchParameters = searchParameters;
+
+            // Ensure the passed-in searchParameters is not null and its SearchType matches the one passed to SmartSearcher.
+            // This is an important consistency check.
+            if (_searchParameters == null)
+            {
+                throw new ArgumentNullException(nameof(searchParameters), "SearchParameters cannot be null.");
+            }
+            if (_searchParameters.SearchType != _searchType)
+            {
+                // Or, alternatively, SmartSearcher could trust searchParameters.SearchType exclusively and not need its own _searchType field.
+                // For now, maintaining both and ensuring consistency.
+                throw new ArgumentException("SearchType mismatch between SmartSearcher's searchType parameter and searchParameters.SearchType property.");
+            }
         }
 
         public List<int> Search()
         {
-            List<int> IDs = new List<int>();
+            // Call ValidateParameters as the first step.
+            // _column is the column where the search is performed.
+            _searchParameters.ValidateParameters(_column);
 
-            if (_inColumn.TypeOfData.CanConvert(_params) || _searchTypes == SearchType.ByRange)   
-            {
-                switch (_searchTypes)
-                {
-                    case SearchType.More:
-                        IDs = new MoreSettings().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.Less:
-                        IDs = new LessSettings().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.NotMore:
-                        IDs = new NotMore().SearchID(_Column, _inColumn, _params);
-                            break;
-                    case SearchType.NotLess:
-                        IDs = new NotLess().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.Equally:
-                        IDs = new Equally().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.NotEqually:
-                        IDs = new NotEqually().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.MoreOrEqually:
-                        IDs = new MoreOrEqually().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.LessOrEqually:
-                        IDs = new LessOrEqually().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.StartWith:
-                        IDs = new StartWith().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.StopWith:
-                        IDs = new StopWith().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.ByRange:
-                        IDs = new ByRange().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.NotInRange:
-                        IDs = new NotInRange().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.Multiple:
-                        IDs = new Multiple().SearchID(_Column, _inColumn, _params);
-                        break;
-                    case SearchType.NotMultiple:
-                        IDs = new NotMultiple().SearchID(_Column, _inColumn, _params);
-                        break;     
-                }
-            }
-            return IDs;
+            // The old check:
+            // if (_inColumn.TypeOfData.CanConvert(_searchParameters.Query) || _searchType == SearchType.ByRange)
+            // is now handled by _searchParameters.ValidateParameters(_column);
+
+            // If ValidateParameters passes, proceed to get the strategy and search.
+            // Note: _searchType is used here, which should be consistent with _searchParameters.SearchType
+            ISearch searchStrategy = SearchFactory.GetSearchStrategy(_searchType); 
+            return searchStrategy.SearchID(_column, _inColumn, _searchParameters);
         }
     }
 }

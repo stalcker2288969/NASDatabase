@@ -1,21 +1,20 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
-using System;
-using System.Collections.Generic;
+using NASDataBaseAPI.Interfaces; // For AColumn, ISearch, ItemData
+using System.Collections.Generic; // For List<int>
 
 namespace NASDataBaseAPI.SmartSearchSettings
 {
-    internal class NotLess : ISearch
+    internal class NotLess : ISearch // "Not less" means "greater than or equal to"
     {
-        public List<int> SearchID(AColumn ColumnParams, AColumn In, string Params)
+        public List<int> SearchID(AColumn columnParams, AColumn inColumn, SearchParameters searchParameters)
         {
             List<int> data = new List<int>();
+            var type = columnParams.TypeOfData; 
+            string query = searchParameters.Query; 
 
-            var type = ColumnParams.TypeOfData;
-
-            foreach (var p in In.GetDatas())
+            foreach (var p in inColumn.GetDatas())
             {
-                if (type.More(Params, p.Data) || type.Equal(Params, p.Data))
+                // "Not less" ( val >= query ) is equivalent to ( val > query OR val == query )
+                if (type.More(query, p.Data) || type.Equal(query, p.Data))
                     data.Add(p.ID);
             }
 
