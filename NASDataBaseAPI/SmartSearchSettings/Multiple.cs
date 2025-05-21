@@ -1,20 +1,19 @@
-﻿using NASDataBaseAPI.Interfaces;
-using NASDataBaseAPI.Server.Data;
-using System.Collections.Generic;
-
+using NASDataBaseAPI.Interfaces; // For AColumn, ISearch, ItemData
+using System.Collections.Generic; // For List<int>
 
 namespace NASDataBaseAPI.SmartSearchSettings
 {
     internal class Multiple : ISearch
     {
-        public List<int> SearchID(AColumn ColumnParams, AColumn In, string Params)
+        public List<int> SearchID(AColumn columnParams, AColumn inColumn, SearchParameters searchParameters)
         {
             List<int> data = new List<int>();
-            var type = ColumnParams.TypeOfData;
+            var type = columnParams.TypeOfData; 
+            string query = searchParameters.Query; 
 
-            foreach (var p in In.GetDatas())
+            foreach (var p in inColumn.GetDatas())
             {
-                if (type.Multiple(p.Data, Params))
+                if (type.Multiple(p.Data, query))
                     data.Add(p.ID);
             }
 

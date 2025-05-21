@@ -1,11 +1,10 @@
-﻿using NASDataBaseAPI.Interfaces;
+using NASDataBaseAPI.Interfaces;
 using System.Collections.Generic;
-
 
 namespace NASDataBaseAPI.SmartSearchSettings
 {
     internal interface ISearch
     {
-        List<int> SearchID(AColumn aColumnParams, AColumn In, string Params);
+        List<int> SearchID(AColumn aColumnParams, AColumn In, SearchParameters searchParameters);
     }
 }
